@@ -28,8 +28,8 @@ void server::WaitForConnectServ()
 
 int server::ConnectServ(client &cl)
 {
-	unsigned int tmp = sizeof(cl.getClientInfo());
-	int IdConnectSocket = accept(_IdSocket, (sockaddr *)&cl.getClientInfo(), &tmp);
+	unsigned int tmp = sizeof(cl.GetClientInfo());
+	int IdConnectSocket = accept(_IdSocket, (sockaddr *)&cl.GetClientInfo(), &tmp);
 	if (IdConnectSocket == -1)
 		throw (errno);
 	return (IdConnectSocket);
