@@ -1,0 +1,80 @@
+1. parse les donnees 
+port : 
+	check si c'est bien un nb pas de lettre ou autre
+	check si il est entre 0 et 65535 (toute les valeur possible pour le port), si < a 1024 seulement en root (donc probablement prendre de 1024 a 65535 ?)
+	check si il est pas deja utiliser (si deja utiliser erreur bind donc catch l'erreur directement dans la creation du serveur et quitter le programme sans faire le reste ?)
+password :
+	mettre les regles par defaut 8 characters ou plus (1maj, 1min, et un nb)
+	ou osef et ils mettents ce qu'ils veulent ?
+
+2. lancer le serveur
+	init la socket: fct socket()
+	configurer ses options: fct setsockopt()
+	"ecouter" le port (lie la socket a une ip): fct bind()
+	serveur en mode attente (fct waitForConnectServ)
+
+
+3. MR PAUL :
+	int poll(struct pollfd *fds, nfds_t nfds, int delai):
+		fds :
+			info des sockets qu'il doit check sous cette forme (fds[0] = inf socket serv, fdsd[1-...] = inf client num 1-...)
+				struct pollfd {
+					int   fd;         /* Descripteur de fichier */
+					short events;     /* Événements attendus    ou ce qu'on veut*/ (vaut POLLIN car on attend quelque chose voir plus bas)
+					short revents;    /* Événements détectés    ou ce qui a etait fait*/ (vaut 0 au debut)
+				};
+			events et revents peuvent etre :
+			POLLIN
+				Il y a des données en attente de lecture.
+					fds[0].events = POLLIN on attends qu'un client ce connecter
+						si on obtient fds[0].revents = POLLIN on a un client en attente d'etre creer
+					fds[1-...].events = POLLIN on attends de recevoir un message
+						si on obtient fds[1-...] = POLLIN on a un message qui a etait envoyer
+			POLLPRI
+			Il y a des données urgentes en attente de lecture (par exemple, des données « hors bande » sur une socket TCP ; un pseudo-terminal maître en mode paquet a vu l'esclave changer d'état).
+				OSEF ?
+			POLLOUT
+			Une écriture ne bloquera pas.
+				OSEF car pas d'ecriture juste lecture ?
+			POLLRDHUP (depuis Linux 2.6.17)
+			Le correspondant sur une socket en mode flux a fermé la connexion, ou bien a été mis hors service lors de l'écriture sur la connexion. La macro de test de fonctionnalité _GNU_SOURCE doit être définie pour obtenir cette définition.
+				TRAITER COMME POLLHUP ?
+			POLLERR
+			Condition d'erreur (uniquement en sortie).
+				si on obtient fds[0].revents = POLLERR erreur sur la socket serv ? aucune idee de si c'est possible ?;
+				si on obtient fds[1-...].revents = POLLERR on a une erreur sur le client;
+			POLLHUP
+			Déconnexion (uniquement en sortie).
+				si on obtient fds[0].revents = POLLERR serv suspendu (ou deconnecter ?);
+				si on obtient fds[1-...].revents = POLLERR le client c'est deco;
+			POLLNVAL
+			Requête invalide : fd n'est pas ouvert (uniquement en sortie).
+				fail lors de la connection du client ou la creation du serveur (normalement cas gerer avant donc ca pourra pas arriver ?)
+		nfds :
+			nb d'element qu'il y a dans fds
+		delai :
+			nb de temps qu'il a avant de partir du principe qu'il y a aucune chose a faire
+	poll renvoi le nb d'evenent qu'il y a eu lors du delai imposser, 0 si rien ne c'est passer (supp serveur et arreter programme si 0 ?)
+	il check tout ce qui peut ce passer sur tout les socket creer :
+		pour fds[0] :
+			if (fds[0].revents & POLLIN)
+				fct connect client(s) + rajouter leur(s) fd dans le tab fds (possibiliter d'avoir plusieur client qui se connect en meme temps donc while jusqu'a avoir un accept qui renvoi un fd < 0)
+				send un message au client pour les regles d'utilisation ?
+			if (fds[0].revents & POLLERR)
+				throw erreur;
+			if (fds[0].revents & POLLHUP)
+				throw erreur;
+		pour fds[1-...] :
+			if (fds[1-...].revents & POLLIN)
+				fct send du client ensuite recv du serveur puis send du serveur et recv du client 
+			if (fds[1-...].revents & POLLERR)
+				deco client + le retirer du tab fds
+				throw erreur;
+			if (fds[1-...].revents & POLLHUP)
+				deco client + le retirer du tab fds
+		ATTENTION : foret de if car possibiliter d'avoir plusieur evenement en meme temps (ex client qui envoi un message et se deco)
+
+4. dans MR PAUL gestion des message comment qu'on fait
+	a chercher demain moi je vais dodo 
+
+
