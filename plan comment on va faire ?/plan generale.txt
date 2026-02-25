@@ -74,7 +74,6 @@ password :
 				deco client + le retirer du tab fds
 		ATTENTION : foret de if car possibiliter d'avoir plusieur evenement en meme temps (ex client qui envoi un message et se deco)
 
-4. dans MR PAUL gestion des message comment qu'on fait
-	a chercher demain moi je vais dodo 
+4. stop tout  
 
 
