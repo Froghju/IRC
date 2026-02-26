@@ -9,18 +9,21 @@ private:
     client();
     
     int _clientId;
-    int _clientFd;
     sockaddr_in _clientInfo;
+    socklen_t * _size;
 
 public:
     client(int port);
     ~client();
-	sockaddr_in GetClientInfo();
 
-    void ClientConnect(server &svr);
+	sockaddr_in &SetClientInfo();
+    sockaddr_in GetClientInfo();
+    socklen_t * GetClientSize();
+
+    /*void ClientConnect(server &svr);
     void ClientSend(server &svr);
     void ClientRecv(server &svr);
-    void WaitForReponseServ();
+    void WaitForReponseServ();*/
 
     class InvalidClientSig : public std::exception {
         public:

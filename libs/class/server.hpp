@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>*/
 
-#include <iostream>
+/*#include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -15,7 +15,11 @@
 #include <exception>
 #include "client.hpp"
 #include <netdb.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h>*/
+
+#include "../main.hpp"
+
+class client;
 
 class server
 {
@@ -23,13 +27,15 @@ private:
 	server();
 	int	_IdSocket;
 	sockaddr_in	_InfServ;
+	std::string _PassW;
+	int _Port;
 
 public:
 	server(int port, std::string password);
-	int ConnectServ(client &cl);
+	//int ConnectServ(client &cl);
 	void WaitForConnectServ();
-	void SerRecv(int IdConnectSocket);
-	void SerSend(int IdConnectSocket);
+	/*void SerRecv(int IdConnectSocket);
+	void SerSend(int IdConnectSocket);*/
 	int	getIdSocket();
 	~server();
 };

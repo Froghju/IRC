@@ -9,7 +9,7 @@ password :
 
 2. lancer le serveur
 	init la socket: fct socket()
-	configurer ses options: fct setsockopt()
+	configurer ses options: proto
 	"ecouter" le port (lie la socket a une ip): fct bind()
 	serveur en mode attente (fct waitForConnectServ)
 
@@ -26,7 +26,7 @@ password :
 			events et revents peuvent etre :
 			POLLIN
 				Il y a des données en attente de lecture.
-					fds[0].events = POLLIN on attends qu'un client ce connecter
+					fds[0].events = POLLIN on attends qu'un client se connecter
 						si on obtient fds[0].revents = POLLIN on a un client en attente d'etre creer
 					fds[1-...].events = POLLIN on attends de recevoir un message
 						si on obtient fds[1-...] = POLLIN on a un message qui a etait envoyer

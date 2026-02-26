@@ -43,9 +43,9 @@ std::string check_password(char *str)
     return pass;
 }
 
-void exec()
+void exec(int port, std::string password)
 {
-    //poll;
+    server serv(port, password);
 }
 
 int main(int ac,char **av)
@@ -54,13 +54,13 @@ int main(int ac,char **av)
     {
         int port = check_port(av[1]);
         std::string password = check_password(av[2]);
-        /*try {
-            //TEST LA CONNEXION
+        try {
+            server serv(port, password);
         }
-        catch (const std::exeption& e)
+        catch (const std::exception& e)
         {
             std::cerr << e.what() << 'n';
-        }*/
+        }
     }
     else
     {

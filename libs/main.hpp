@@ -5,9 +5,17 @@
 #include <cstring>
 #include <exception>
 #include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
-struct Message {
+#include "class/client.hpp"
+#include "class/server.hpp"
+
+/*typedef struct s_Message {
     int size;
     int gId;
     char buff[4096];
-};
+}               t_Message;*/
+

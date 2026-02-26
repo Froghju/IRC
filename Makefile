@@ -13,26 +13,29 @@
 #												#
 #***********************************************#
 
-SRCS = main.cpp client.cpp server.cpp
+SRCS = srcs/main.cpp srcs/client.cpp srcs/server.cpp
 
 PLUS =	init_env.c clean_fd.c get_opt.c x.c main_loop.c \
 	init_fd.c do_select.c check_fd.c \
 	srv_create.c srv_accept.c \
 	client_read.c client_write.c
 
-OBJS = ${SRCS:.c=.o}
+OBJS = ${SRCS:.cpp=.o}
 
 NAME = ircserv
 
-CFLAGS = -I. -g3 -Wall -Werror -Wextra -
+CFLAGS = -I. -g3 -Wall -Werror -Wextra -std=c++98 -g
 
 CC = c++
 RM = rm -f
 
-${NAME}:	${OBJS}
-		${CC} -o ${NAME} ${OBJS}
+all: ${NAME}
 
-all:		${NAME}
+${NAME}: ${OBJS}
+	${CC} ${CFLAGS} -o $(NAME) $(OBJS)
+	
+%.o: %.cpp
+	${CC} $(CFLAGS) -c -o $@ $<
 
 clean:
 		@echo Cleaning ojects
@@ -43,3 +46,5 @@ fclean:		clean
 		${RM} ${NAME}
 
 re:		fclean all
+
+.PHONY: all clean fclean re

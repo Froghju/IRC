@@ -12,16 +12,32 @@ client::client(int port) {
         _clientInfo.sin_family = AF_INET;
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
+        _size = new(socklen_t);
     }
 }
 
-client::~client() {}
+client::~client() {
+    close(_clientId);
+    delete _size;
+}
+
+sockaddr_in &client::SetClientInfo()
+{
+	return (_clientInfo);
+}
 
 sockaddr_in client::GetClientInfo()
 {
 	return (_clientInfo);
 }
 
+socklen_t * client::GetClientSize() {
+
+    *_size = sizeof(_clientInfo);
+    return (_size);
+}
+
+/*
 void client::ClientConnect(server &svr) {
     int error = connect(_clientId, (struct sockadd*)&svr.GetServInfo());
     if (error != 0)
@@ -55,4 +71,4 @@ void client::ClientRecv(server &svr) {
 
 void WaitForReponseServ() {
     //meme chose que le server, attendre la reponse
-}
+}*/
