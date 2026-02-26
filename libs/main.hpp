@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <exception>
+#include <string.h>
 
 struct Message {
     int size;
