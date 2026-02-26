@@ -75,5 +75,6 @@ password :
 		ATTENTION : foret de if car possibiliter d'avoir plusieur evenement en meme temps (ex client qui envoi un message et se deco)
 
 4. stop tout  
+	close socket (tout les socket client puis la socket serveur)
 
 
