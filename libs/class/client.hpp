@@ -17,13 +17,9 @@ public:
     ~client();
 
 	sockaddr_in &SetClientInfo();
-    sockaddr_in GetClientInfo();
-    socklen_t * GetClientSize();
-
-    /*void ClientConnect(server &svr);
-    void ClientSend(server &svr);
-    void ClientRecv(server &svr);
-    void WaitForReponseServ();*/
+    sockaddr_in GetClientInfo() const;
+    socklen_t * GetClientSize() const;
+    struct pollfd InitPollFd(int fd);
 
     class InvalidClientSig : public std::exception {
         public:

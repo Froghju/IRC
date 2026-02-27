@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <vector>
+#include <algorithm>
 
 #include "class/client.hpp"
 #include "class/server.hpp"

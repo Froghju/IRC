@@ -25,20 +25,21 @@ class server
 {
 private:
 	server();
-	int	_IdSocket;
-	sockaddr_in	_InfServ;
+
 	std::string _PassW;
 	int _Port;
+	int	_IdSocket;
+
+	sockaddr_in	_InfServ;
+	struct pollfd _vpfd;
 
 public:
 	server(int port, std::string password);
-	//int ConnectServ(client &cl);
+	struct pollfd GetPollFd() const;
 	void WaitForConnectServ();
-	/*void SerRecv(int IdConnectSocket);
-	void SerSend(int IdConnectSocket);*/
 	int	getIdSocket();
+	void checkPollRevents(std::vector<struct pollfd> *vec);
 	~server();
 };
-
 
 #endif

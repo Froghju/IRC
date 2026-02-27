@@ -7,7 +7,6 @@ server::server()
 server::server(int port, std::string password) : _PassW(password), _Port(port)
 {
 	struct protoent *proto;
-	//int fd_client;
 
 	proto = getprotobyname("tcp");//check si pas tcp/ip
 	if (proto == 0)
@@ -22,7 +21,16 @@ server::server(int port, std::string password) : _PassW(password), _Port(port)
 	if (bind(_IdSocket, (const struct sockaddr*)&_InfServ, sizeof(_InfServ)))
 		std::cerr << "oupsi pas bon" << std::endl;
 
+    _vpfd.fd = _IdSocket;
+    _vpfd.events = POLLIN;
+    _vpfd.revents = 0;
+
 	listen(_IdSocket, 42); //nb de co possible en meme temps
+}
+
+struct pollfd server::GetPollFd() const
+{
+	return (_vpfd);
 }
 
 int	server::getIdSocket()
@@ -37,25 +45,20 @@ void server::WaitForConnectServ()
 		check = listen(_IdSocket, 1);
 }
 
-/*int server::ConnectServ(client &cl)
+void server::checkPollRevents(std::vector<struct pollfd> *vec) 
 {
-	unsigned int size = sizeof(cl.GetClientInfo());
-	int IdConnectSocket = accept(_IdSocket, (sockaddr *)&cl.GetClientInfo(), &size);
-	if (IdConnectSocket == -1)
-		std::cerr << "oupsi pas bon" << std::endl;
-	return (IdConnectSocket);
-}*/
-
-/*void server::SerRecv(int IdConnectSocket)
-{
-
+	if ((*vec)[0].revents & POLLIN)
+    {
+        client cl(_Port);
+		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
+		if (fd_client != -1)
+			vec->push_back(cl.InitPollFd(fd_client));
+	}
+	if ((*vec)[0].revents & POLLERR)
+		std::cout << "erreur err" << std::endl;
+	if ((*vec)[0].revents & POLLHUP)
+		std::cout << "erreur hup" << std::endl;
 }
-
-void server::SerSend(int IdConnectSocket)
-{
-
-}*/
-// _clientInfo.sin_port = htons(port);
 
 server::~server()
 {

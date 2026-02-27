@@ -1,6 +1,6 @@
 #include "../libs/main.hpp"
 
-int check_port(char *str)
+int checkPort(char *str)
 {
     size_t i = 0;
     size_t len = strlen(str);
@@ -23,7 +23,7 @@ int check_port(char *str)
     }
     return port;
 }
-std::string check_password(char *str)
+std::string checkPassword(char *str)
 {
     size_t i = 0;
     size_t len = strlen(str);
@@ -53,70 +53,93 @@ int main(int ac,char **av)
 {
     if (ac == 3)
     {
-        int port = check_port(av[1]);
-        std::string password = check_password(av[2]);
-        try {
-            server serv(port, password);
-            //TEST
-            
+        int port = checkPort(av[1]);
+        std::string password = checkPassword(av[2]);
+        try
+        {
             std::vector<struct pollfd> vec;
-            struct pollfd tmp;
-            tmp.fd = serv.getIdSocket();
-            tmp.events = POLLIN;
-            tmp.revents = 0;
-            vec.push_back(tmp);
-            /*struct pollfd tmp[1];
-            tmp->fd = serv.getIdSocket();
-            tmp->events = POLLIN;
-            tmp->revents = 0;*/
-            //FIN DU TEST
+            server serv(port, password);
+            
+            vec.push_back(serv.GetPollFd());
+
             while (1)
-           {
+            {
                 poll(&vec[0], vec.size(), 5000);
-                if (vec[0].revents & POLLIN)
-                {
-                    std::cout << "check1" << std::endl;
-                    client cl(port);
-                    int fd_client = accept(serv.getIdSocket(), (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
-                    if (fd_client != -1)
-                    {
-                        std::cout << "check2" << std::endl;
-                        struct pollfd tmps;
-                        tmps.fd = fd_client;
-                        tmps.events = POLLIN;
-                        tmps.revents = 0;
-                        vec.push_back(tmps);
-                    }
-                    std::cout << "check3" << std::endl;
-                }
-                if (vec[0].revents & POLLERR)
-                {
-                    std::cout << "erreur err" << std::endl;
-                }
-                if (vec[0].revents & POLLHUP)
-                {
-                    std::cout << "erreur hup" << std::endl;
-                }
+                serv.checkPollRevents(&vec);
+                
+                int nb = 0;
+                int check = 0;
+                char buff[10];
                 for (unsigned int i = 1; i < vec.size(); i++)
                 {
-                    char buf[10];
-                    int nb = read(vec[i].fd, buf, 9);
-                    buf[nb] = '\0';
-                    std::cout << buf << std::endl;
+                    switch(vec[i].revents)
+                    {
+                        case POLLHUP:
+                            std::cout << "erreur pollhup" << std::endl;
+                            break;
+                        case POLLERR:
+                            std::cout << "erreur pollerr" << std::endl;
+                            break;
+                        default :
+                        {
+                            std::string test;
+                            nb = 0;
+                            check = 0;
+                            while (nb <= 0)
+                            {
+                                check = 1;
+                                nb = read(vec[i].fd, buff, 9);
+                                if (nb == -1)
+                                {
+                                    std::cout << "erreur" << std::endl;
+                                    break;
+                                }
+                                else
+                                {
+                                    buff[nb] = '\0';
+                                    test += buff;
+                                }
+                            }
+                            if (nb != -1)
+                                std::cout << test;
+                            break;
+                        }
+                        vec[i].revents = 0;
+                    }
                 }
-                /* 3 actions possibles:
-                - un utilisateur se connect
-                - un utilisateur se deco
-                - un utilisateur envoi un message
-                */
+                    /*switch(vec[i].revents & (POLLIN|POLLHUP))
+                    {
+                        case POLLHUP:
+                            std::cout << "client deco" << std::endl;
+                            vec[i].events = 0;
+                        case POLLERR:
+                            std::cout << "erreur client" << std::endl;
+                        default:
+                        {
+                            std::string test;
+                            int nb = 0;
+                            while (nb <= 0)
+                            {
+                                char buff[10];
+                                nb = read(vec[i].fd, buff, 9);
+                                if (nb == -1)
+                                {
+                                    std::cout << "erreur" << std::endl;
+                                    break;
+                                }
+                                else
+                                {
+                                    buff[nb] = '\0';
+                                    test += buff;
+                                }
+                            }
+                            if (nb != -1)
+                                std::cout << test;
+                        }
+                        vec[i].revents = 0;
+                    }*/
+                }
             }
-            /*client cl(_Port);
-            fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
-            char buffer[15];
-            int nb = read(fd_client, buffer, 14);
-            buffer[nb] = '\0';
-            std::cout << buffer;*/
-        }
         catch (const std::exception& e)
         {
             std::cerr << e.what() << 'n';
@@ -129,3 +152,44 @@ int main(int ac,char **av)
     }
     return(0);
 }
+
+
+
+/*for (unsigned int i = 1; i < vec.size(); i++)
+                {
+                    if (vec[i].events != 0)
+                    {
+                        if (vec[i].revents & POLLHUP)
+                        {
+                            std::cout << "erreur pollhup" << std::endl;
+                        }
+                        if (vec[i].revents & POLLERR)
+                        {
+                            std::cout << "erreur pollerr" << std::endl;
+                        }
+                        if (vec[i].revents & POLLIN)
+                        {
+                            std::string test;
+                            int nb = 0;
+                            int check = 0;
+                            while (nb <= 0)
+                            {
+                                char buff[10];
+                                check = 1;
+                                nb = read(vec[i].fd, buff, 9);
+                                if (nb == -1)
+                                {
+                                    std::cout << "erreur" << std::endl;
+                                    break;
+                                }
+                                else
+                                {
+                                    buff[nb] = '\0';
+                                    test += buff;
+                                }
+                            }
+                            if (nb != -1)
+                                std::cout << test;
+                        }
+                        vec[i].revents = 0;
+                    }*/
