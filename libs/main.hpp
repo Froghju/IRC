@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <poll.h>
+#include <vector>
 
 #include "class/client.hpp"
 #include "class/server.hpp"
@@ -18,4 +20,3 @@
     int gId;
     char buff[4096];
 }               t_Message;*/
-

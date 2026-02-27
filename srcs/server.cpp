@@ -7,7 +7,7 @@ server::server()
 server::server(int port, std::string password) : _PassW(password), _Port(port)
 {
 	struct protoent *proto;
-	int fd_client;
+	//int fd_client;
 
 	proto = getprotobyname("tcp");//check si pas tcp/ip
 	if (proto == 0)
@@ -23,12 +23,6 @@ server::server(int port, std::string password) : _PassW(password), _Port(port)
 		std::cerr << "oupsi pas bon" << std::endl;
 
 	listen(_IdSocket, 42); //nb de co possible en meme temps
-	client cl(_Port);
-	fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
-	char buffer[15];
-	int nb = read(fd_client, buffer, 14);
-	buffer[nb] = '\0';
-	std::cout << buffer;
 }
 
 int	server::getIdSocket()
