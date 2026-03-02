@@ -28,7 +28,8 @@ struct pollfd client::InitPollFd(int fd)
 
 client::~client() {
     close(_clientId);
-    delete _size;
+    if (_size)
+        delete _size;
 }
 
 sockaddr_in &client::SetClientInfo()
