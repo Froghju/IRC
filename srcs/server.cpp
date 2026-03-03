@@ -80,6 +80,7 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 				else
 					break;
 			}
+			_vecCl.push_back(cl);
 			vec->push_back(cl.InitPollFd(fd_client));
 			write(fd_client, "Welcome to Tha_Ghj's serv\n", 33);
 		}
@@ -92,6 +93,11 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 		std::cout << "erreur err" << std::endl;
 	if ((*vec)[0].revents & POLLHUP)
 		std::cout << "erreur hup" << std::endl;
+}
+
+std::vector<client> &server::getVecCl()
+{
+	return _vecCl;
 }
 
 server::~server()

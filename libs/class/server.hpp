@@ -32,13 +32,14 @@ private:
 
 	sockaddr_in	_InfServ;
 	struct pollfd _vpfd;
-
+	std::vector<client>	_vecCl;
 public:
 	server(int port, std::string password);
 	struct pollfd GetPollFd() const;
 	void WaitForConnectServ();
 	int	getIdSocket();
 	void checkPollRevents(std::vector<struct pollfd> *vec);
+	std::vector<client> &getVecCl();
 	~server();
 };
 
