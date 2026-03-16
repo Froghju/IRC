@@ -23,6 +23,7 @@ client &client::operator=(const client & src)
     _clientId = src._clientId;
     _clientInfo = src._clientInfo;
     _size = src._size;
+    return(*this);
 }
 
 struct pollfd client::InitPollFd(int fd)
@@ -54,26 +55,26 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-void client::CheckPollRevents(struct pollfd pipo)
+void client::checkPollRevents(struct pollfd pipoll)
 {
-    if (pipo.events != 0)
+    if (pipoll.events != 0)
     {
-        if (pipo.revents & POLLHUP)
+        if (pipoll.revents & POLLHUP)
         {
             std::cout << "erreur pollhup" << std::endl;
         }
-        if (pipo.revents & POLLERR)
+        if (pipoll.revents & POLLERR)
         {
             std::cout << "erreur pollerr" << std::endl;
         }
-        if (pipo.revents & POLLIN)
+        if (pipoll.revents & POLLIN)
         {
             std::string test;
             int nb = 0;
             while (nb <= 0)
             {
                 char buff[10];
-                nb = read(pipo.fd, buff, 9);
+                nb = read(pipoll.fd, buff, 9);
                 if (nb == -1)
                 {
                     std::cout << "erreur" << std::endl;
@@ -88,6 +89,6 @@ void client::CheckPollRevents(struct pollfd pipo)
             if (nb != -1)
                 std::cout << test;
         }
-        pipo.revents = 0;
+        pipoll.revents = 0;
     }
 }

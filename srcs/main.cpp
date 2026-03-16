@@ -1,4 +1,5 @@
 #include "../libs/main.hpp"
+#include <stdio.h>
 
 int checkPort(char *str)
 {
@@ -55,27 +56,27 @@ int main(int ac,char **av)
     {
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);
+        printf("A");
         try
         {
-            std::vector<struct pollfd> vec;
+            printf("B");
             server serv(port, password);
-            
+            printf("C");
+            std::vector<struct pollfd> vec;
+            printf("D");
             vec.push_back(serv.GetPollFd());
+            printf("E");
 
             while (1)
             {
                 poll(&vec[0], vec.size(), 5000);
                 serv.checkPollRevents(&vec);
-                for (unsigned int i = 1; i < vec.size(); i++)
-                {
-                    client tmp = serv.getVecCl();
-                    tmp.CheckPollRevents(vec[i]);
-                }
             }
+            printf("F");
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << 'n';
+            std::cerr << e.what() << "LALALALA" << std::endl;
         }
     }
     else

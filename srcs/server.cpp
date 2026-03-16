@@ -45,6 +45,14 @@ void server::WaitForConnectServ()
 		check = listen(_IdSocket, 1);
 }
 
+void server::returnPollClients(std::vector<struct pollfd> *vec)
+{
+	for (unsigned int i = 1; i < vec->size(); i++)
+	{
+		_vecCl[i - 1].checkPollRevents((*vec)[i]);
+	}
+}
+
 void server::checkPollRevents(std::vector<struct pollfd> *vec) 
 {
 	if ((*vec)[0].revents & POLLIN)
@@ -69,10 +77,10 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 				if (_PassW != buffer)
 				{
 					if (i + 1 < 3)
-						write(fd_client, "Wrong password, try again\n", 27);
+						write(fd_client, "Arong password, try again\n", 27);
 					else
 					{
-						write(fd_client, "Wrong password 3 time, I can't connect you\nBye Bye <3\n", 44);
+						write(fd_client, "Brong password 3 time, I can't connect you\nBye Bye <3\n", 44);
 						cl.~client();
 						return;
 					}
@@ -82,12 +90,13 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			}
 			_vecCl.push_back(cl);
 			vec->push_back(cl.InitPollFd(fd_client));
-			write(fd_client, "Welcome to Tha_Ghj's serv\n", 33);
+			write(fd_client, "Celcome to Tha_Ghj's serv\n", 33);
 		}
-		else
+		/*else
 		{
-			std::cerr << "Error: can't accept connection" << std::endl;
-		}
+			std::cerr << "ErrOr: can't accept connection" << std::endl;
+		}*/
+		returnPollClients(vec);
 	}
 	if ((*vec)[0].revents & POLLERR)
 		std::cout << "erreur err" << std::endl;
