@@ -70,7 +70,7 @@ int main(int ac,char **av)
         }
         catch (const std::exception& e)
         {
-            std::cerr << e.what() << "LALALALA" << std::endl;
+            std::cerr << e.what() << std::endl;
         }
     }
     else
@@ -80,44 +80,3 @@ int main(int ac,char **av)
     }
     return(0);
 }
-
-
-
-/*for (unsigned int i = 1; i < vec.size(); i++)
-                {
-                    if (vec[i].events != 0)
-                    {
-                        if (vec[i].revents & POLLHUP)
-                        {
-                            std::cout << "erreur pollhup" << std::endl;
-                        }
-                        if (vec[i].revents & POLLERR)
-                        {
-                            std::cout << "erreur pollerr" << std::endl;
-                        }
-                        if (vec[i].revents & POLLIN)
-                        {
-                            std::string test;
-                            int nb = 0;
-                            int check = 0;
-                            while (nb <= 0)
-                            {
-                                char buff[10];
-                                check = 1;
-                                nb = read(vec[i].fd, buff, 9);
-                                if (nb == -1)
-                                {
-                                    std::cout << "erreur" << std::endl;
-                                    break;
-                                }
-                                else
-                                {
-                                    buff[nb] = '\0';
-                                    test += buff;
-                                }
-                            }
-                            if (nb != -1)
-                                std::cout << test;
-                        }
-                        vec[i].revents = 0;
-                    }*/

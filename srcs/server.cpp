@@ -65,7 +65,7 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 		}
 		else
 		{
-			write(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60);
+			send(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60, 0);
 			char buffer[_PassW.size() + 1];
 			int check = 0;
 			for (int i = 0; i < 3; i++)
@@ -80,11 +80,12 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 				if (_PassW != buffer)
 				{
 					if (i + 1 < 3)
-						write(fd_client, "Wrong password, try again\n", 27);
+						send(fd_client, "Wrong password, try again\n", 27, 0);
 					else
 					{
-						write(fd_client, "Wrong password 3 time, I can't connect you\nBye Bye <3\n", 44);
-						cl.~client();
+						send(fd_client, "Wrong password 3 time, I can't connect you\nBye Bye <3", 54, 0);
+						shutdown(fd_client, SHUT_RDWR);
+						close(fd_client);
 						return;
 					}
 				}
@@ -93,15 +94,15 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			}
 			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(fd_client));
-			write(fd_client, "Welcome to Tha_Ghj's serv !\n", 33);
+			send(fd_client, "Welcome to Tha_Ghj's serv !\n", 29, 0);
 		}
 		returnPollClients(vec);
 	}
-	/*if ((*vec)[0].revents & POLLERR)
-		std::cout << "erreur err" << std::endl;
+	if ((*vec)[0].revents & POLLERR)
+		std::cerr << "erreur err" << std::endl;
 	if ((*vec)[0].revents & POLLHUP)
-		std::cout << "erreur hup" << std::endl;
-	(*vec)[0].revents = 0;*/
+		std::cerr << "erreur hup" << std::endl;
+	(*vec)[0].revents = 0;
 	if (vec->size() > 1)
 	{
 		int k = 1;

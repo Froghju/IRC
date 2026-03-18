@@ -37,6 +37,7 @@ struct pollfd client::InitPollFd(int fd)
 
 client::~client() {
     //delete _size;
+    shutdown(_clientId, SHUT_RDWR);
     close(_clientId);
 }
 
