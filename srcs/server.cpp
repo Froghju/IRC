@@ -92,16 +92,23 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			vec->push_back(cl.InitPollFd(fd_client));
 			write(fd_client, "Celcome to Tha_Ghj's serv\n", 33);
 		}
-		/*else
+		else
 		{
-			std::cerr << "ErrOr: can't accept connection" << std::endl;
-		}*/
+			std::cerr << "Error: can't accept connection" << std::endl;
+		}
 		returnPollClients(vec);
 	}
 	if ((*vec)[0].revents & POLLERR)
 		std::cout << "erreur err" << std::endl;
 	if ((*vec)[0].revents & POLLHUP)
 		std::cout << "erreur hup" << std::endl;
+	(*vec)[0].revents = 0;
+	int k = 1;
+	for (std::vector<client>::iterator it; it != _vecCl.end(); it++)
+	{
+		it->checkPollRevents((*vec)[k]);
+		k++;
+	}
 }
 
 std::vector<client> &server::getVecCl()
