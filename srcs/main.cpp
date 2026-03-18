@@ -56,23 +56,17 @@ int main(int ac,char **av)
     {
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);
-        printf("A");
         try
         {
-            printf("B");
             server serv(port, password);
-            printf("C");
             std::vector<struct pollfd> vec;
-            printf("D");
             vec.push_back(serv.GetPollFd());
-            printf("E");
 
             while (1)
             {
                 poll(&vec[0], vec.size(), 5000);
                 serv.checkPollRevents(&vec);
             }
-            printf("F");
         }
         catch (const std::exception& e)
         {

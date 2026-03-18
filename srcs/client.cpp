@@ -30,7 +30,7 @@ struct pollfd client::InitPollFd(int fd)
 {
     struct pollfd cpfd;
     cpfd.fd = fd;
-    cpfd.events = 1;
+    cpfd.events = POLLIN;
     cpfd.revents = 0;
     return cpfd;
 }

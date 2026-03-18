@@ -59,9 +59,13 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
     {
         client cl(_Port);
 		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
-		if (fd_client != -1)
+		if (fd_client == -1)
 		{
-			write(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection\n", 59);
+			std::cerr << "ERROR: can't accept connection" << std::endl;
+		}
+		else
+		{
+			write(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60);
 			char buffer[_PassW.size() + 1];
 			int check = 0;
 			for (int i = 0; i < 3; i++)
@@ -73,14 +77,13 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 					return;
 				}
 				buffer[check-1] = '\0';
-				std::cout << buffer << std::endl;
 				if (_PassW != buffer)
 				{
 					if (i + 1 < 3)
-						write(fd_client, "Arong password, try again\n", 27);
+						write(fd_client, "Wrong password, try again\n", 27);
 					else
 					{
-						write(fd_client, "Brong password 3 time, I can't connect you\nBye Bye <3\n", 44);
+						write(fd_client, "Wrong password 3 time, I can't connect you\nBye Bye <3\n", 44);
 						cl.~client();
 						return;
 					}
@@ -89,25 +92,24 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 					break;
 			}
 			_vecCl.push_back(cl);
-			vec->push_back(cl.InitPollFd(fd_client));
-			write(fd_client, "Celcome to Tha_Ghj's serv\n", 33);
-		}
-		else
-		{
-			std::cerr << "Error: can't accept connection" << std::endl;
+			(*vec).push_back(cl.InitPollFd(fd_client));
+			write(fd_client, "Welcome to Tha_Ghj's serv !\n", 33);
 		}
 		returnPollClients(vec);
 	}
-	if ((*vec)[0].revents & POLLERR)
+	/*if ((*vec)[0].revents & POLLERR)
 		std::cout << "erreur err" << std::endl;
 	if ((*vec)[0].revents & POLLHUP)
 		std::cout << "erreur hup" << std::endl;
-	(*vec)[0].revents = 0;
-	int k = 1;
-	for (std::vector<client>::iterator it; it != _vecCl.end(); it++)
+	(*vec)[0].revents = 0;*/
+	if (vec->size() > 1)
 	{
-		it->checkPollRevents((*vec)[k]);
-		k++;
+		int k = 1;
+		for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); it++)
+		{
+			it->checkPollRevents((*vec)[k]);
+			k++;
+		}
 	}
 }
 
