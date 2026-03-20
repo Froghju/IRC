@@ -92,9 +92,29 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 				else
 					break;
 			}
+			send(fd_client, "Welcome to Tha_Ghj's serv !\n", 29, 0);
+			send(fd_client, "Please enter your user name\n", 29, 0);
+			std::string all_text;
+			while (1)
+			{
+				char buffer[2];
+				int nb = read(fd_client, buffer, 1);
+				if (nb == -1)
+				{
+					send(fd_client, "Sorry fail of recv you leave the serv\n", 39, 0);
+					return;
+				}
+				if (nb == 0)
+					break;
+				buffer[nb] = '\0';
+				all_text += buffer;
+				std::cout << "check " << buffer << std::endl;
+				std::cout << "check " << all_text << std::endl;
+			}
+			cl.setClientName(all_text);
 			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(fd_client));
-			send(fd_client, "Welcome to Tha_Ghj's serv !\n", 29, 0);
+			std::cout << "user name is " << cl.GetClientUserName() << std::endl;
 		}
 		returnPollClients(vec);
 	}

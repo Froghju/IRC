@@ -90,11 +90,22 @@ void client::checkPollRevents(struct pollfd pipoll)
             }
             if (nb != -1)
             {
-                std::cout << test;
+                //std::cout << test;
                 recv(_clientId, test.str(), test.size(), 0);
-                std::cout << "Message from client: " << test << std::endl;
+                //std::cout << "Message from client: " << test << std::endl;
             }
         }
         pipoll.revents = 0;
     }
+}
+
+void client::setClientName(std::string str)
+{
+    _UserName = str;
+    std::cout << _UserName << std::endl;
+}
+
+string client::GetClientUserName()
+{
+    return (_UserName);
 }

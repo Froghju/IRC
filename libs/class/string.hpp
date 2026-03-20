@@ -25,6 +25,7 @@ public:
     string& operator+=(const std::string &src);
     
     char *str();
+    char *&setStr(void);
     const std::string c_str(void) const;
     std::string getStr(void) const;
     size_t size(void) const;

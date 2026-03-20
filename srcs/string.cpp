@@ -57,6 +57,7 @@ string& string::operator+=(const std::string &src) {
 char *string::str() {
     return ((char*)_value.c_str());
 }
+
 const std::string string::c_str(void) const {
     return (_value.c_str());
 }

@@ -1,7 +1,8 @@
 #pragma once
 #include "server.hpp"
-
+#include "string.hpp"
 class server;
+class string;
 
 class client {
 
@@ -11,6 +12,7 @@ private:
     int _clientId;
     sockaddr_in _clientInfo;
     socklen_t * _size;
+    std::string _UserName;
 
 public:
     client(int port);
@@ -18,6 +20,8 @@ public:
     ~client();
 
 	sockaddr_in &SetClientInfo();
+    void setClientName(std::string str);
+    string GetClientUserName();
     sockaddr_in GetClientInfo() const;
     socklen_t * GetClientSize() const;
     struct pollfd InitPollFd(int fd);
