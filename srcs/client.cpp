@@ -1,5 +1,6 @@
 #include "../libs/class/client.hpp"
 #include "../libs/main.hpp"
+//#include "../libs/class/string.hpp"
 
 client::client() {}
 
@@ -70,7 +71,7 @@ void client::checkPollRevents(struct pollfd pipoll)
         }
         if (pipoll.revents & POLLIN)
         {
-            std::string test;
+            string test;
             int nb = 0;
             while (nb <= 0)
             {
@@ -88,7 +89,11 @@ void client::checkPollRevents(struct pollfd pipoll)
                 }
             }
             if (nb != -1)
+            {
                 std::cout << test;
+                recv(_clientId, test.str(), test.size(), 0);
+                std::cout << "Message from client: " << test << std::endl;
+            }
         }
         pipoll.revents = 0;
     }

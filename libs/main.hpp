@@ -15,6 +15,7 @@
 
 #include "class/client.hpp"
 #include "class/server.hpp"
+#include "class/string.hpp"
 
 /*typedef struct s_Message {
     int size;
