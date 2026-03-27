@@ -39,6 +39,7 @@ public:
 	void WaitForConnectServ();
 	int	getIdSocket();
 	void checkPollRevents(std::vector<struct pollfd> *vec);
+	bool checkPassword(int fd);
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
 	~server();

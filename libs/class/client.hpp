@@ -26,7 +26,7 @@ public:
     socklen_t * GetClientSize() const;
     struct pollfd InitPollFd(int fd);
 
-    void checkPollRevents(struct pollfd pipo);
+    bool checkPollRevents(struct pollfd pipo);
 
     class InvalidClientSig : public std::exception {
         public:

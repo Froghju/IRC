@@ -1,3 +1,6 @@
+#ifndef MAIN_HPP
+#define MAIN_HPP
+
 #include <netinet/in.h> // for sockaddr_in struct
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -22,3 +25,7 @@
     int gId;
     char buff[4096];
 }               t_Message;*/
+
+std::string read_mess(int fd);
+
+#endif

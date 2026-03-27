@@ -49,8 +49,39 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		_vecCl[i - 1].checkPollRevents((*vec)[i]);
+		if (!_vecCl[i - 1].checkPollRevents((*vec)[i]))
+		{
+			shutdown((*vec)[i].fd, SHUT_RDWR);
+			(*vec).erase((*vec).begin() + i);
+			_vecCl.erase(_vecCl.begin() + i - 1);
+		}
 	}
+}
+
+bool server::checkPassword(int fd)
+{
+	std::string mess;
+	for (int i = 0; i < 3; i++)
+	{
+		mess = read_mess(fd);
+		if (mess.empty())
+			return false;
+		if (_PassW != mess)
+		{
+			if (i + 1 < 3)
+				send(fd, "Wrong password, try again\n", 27, 0);
+			else
+			{
+				send(fd, "Wrong password 3 time, I can't connect you\nBye Bye <3", 54, 0);
+				shutdown(fd, SHUT_RDWR);
+				close(fd);
+				return false;
+			}
+		}
+		else
+			break;
+	}
+	return true;
 }
 
 void server::checkPollRevents(std::vector<struct pollfd> *vec) 
@@ -60,78 +91,34 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
         client cl(_Port);
 		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
 		if (fd_client == -1)
-		{
 			std::cerr << "ERROR: can't accept connection" << std::endl;
-		}
 		else
 		{
 			send(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60, 0);
-			char buffer[_PassW.size() + 1];
-			int check = 0;
-			for (int i = 0; i < 3; i++)
+			if (checkPassword(fd_client))
 			{
-				check = read(fd_client, buffer, 2048);
-				if (check == -1)
+				send(fd_client, "Welcome to Tha_Ghj's serv !\nPlease enter your user name\n", 57, 0);
+				std::string mess = read_mess(fd_client);
+				if (!mess.empty())
 				{
-					/*write(fd_client, "Error : can't read the password\n", 33);*/
-					return;
-				}
-				buffer[check-1] = '\0';
-				if (_PassW != buffer)
-				{
-					if (i + 1 < 3)
-						send(fd_client, "Wrong password, try again\n", 27, 0);
-					else
-					{
-						send(fd_client, "Wrong password 3 time, I can't connect you\nBye Bye <3", 54, 0);
-						shutdown(fd_client, SHUT_RDWR);
-						close(fd_client);
-						return;
-					}
+					cl.setClientName(mess);
+					_vecCl.push_back(cl);
+					(*vec).push_back(cl.InitPollFd(fd_client));
+					std::cout << "user name is " << cl.GetClientUserName() << std::endl;
 				}
 				else
-					break;
+					std::cerr << "Client quit" << std::endl;
 			}
-			send(fd_client, "Welcome to Tha_Ghj's serv !\n", 29, 0);
-			send(fd_client, "Please enter your user name\n", 29, 0);
-			std::string all_text;
-			while (1)
-			{
-				char buffer[2];
-				int nb = read(fd_client, buffer, 1);
-				if (nb == -1)
-				{
-					send(fd_client, "Sorry fail of recv you leave the serv\n", 39, 0);
-					return;
-				}
-				if (nb == 0)
-					break;
-				buffer[nb] = '\0';
-				all_text += buffer;
-				std::cout << "check " << buffer << std::endl;
-				std::cout << "check " << all_text << std::endl;
-			}
-			cl.setClientName(all_text);
-			_vecCl.push_back(cl);
-			(*vec).push_back(cl.InitPollFd(fd_client));
-			std::cout << "user name is " << cl.GetClientUserName() << std::endl;
+			else
+				std::cerr << "Client fail to connect" << std::endl;
 		}
-		returnPollClients(vec);
 	}
 	if ((*vec)[0].revents & POLLERR)
 		std::cerr << "erreur err" << std::endl;
 	if ((*vec)[0].revents & POLLHUP)
 		std::cerr << "erreur hup" << std::endl;
 	(*vec)[0].revents = 0;
-	if (vec->size() > 1)
-	{
-		int k = 1;
-		for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); it++)
-		{
-			it->checkPollRevents((*vec)[k]);
-			k++;
-		}
-	}
+	returnPollClients(vec);
 }
 
 std::vector<client> &server::getVecCl()

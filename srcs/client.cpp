@@ -57,46 +57,34 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-void client::checkPollRevents(struct pollfd pipoll)
+bool client::checkPollRevents(struct pollfd pipoll)
 {
     if (pipoll.events != 0)
     {
+        if (pipoll.revents & POLLIN)
+        {
+			std::string all_text = read_mess(pipoll.fd);
+            if (!all_text.empty())
+                std::cout << _UserName << " send : " << all_text << std::endl;
+            else
+            {
+                std::cout << _UserName << " quit serv" << std::endl;
+                return false;
+            }
+        }
         if (pipoll.revents & POLLHUP)
         {
             std::cout << "erreur pollhup" << std::endl;
+            return false;
         }
         if (pipoll.revents & POLLERR)
         {
             std::cout << "erreur pollerr" << std::endl;
-        }
-        if (pipoll.revents & POLLIN)
-        {
-            string test;
-            int nb = 0;
-            while (nb <= 0)
-            {
-                char buff[10];
-                nb = read(pipoll.fd, buff, 9);
-                if (nb == -1)
-                {
-                    std::cout << "erreur" << std::endl;
-                    break;
-                }
-                else
-                {
-                    buff[nb] = '\0';
-                    test += buff;
-                }
-            }
-            if (nb != -1)
-            {
-                //std::cout << test;
-                recv(_clientId, test.str(), test.size(), 0);
-                //std::cout << "Message from client: " << test << std::endl;
-            }
+            return false;
         }
         pipoll.revents = 0;
     }
+    return true;
 }
 
 void client::setClientName(std::string str)
