@@ -19,11 +19,7 @@
 #include "class/client.hpp"
 #include "class/server.hpp"
 
-/*typedef struct s_Message {
-    int size;
-    int gId;
-    char buff[4096];
-}               t_Message;*/
+class client;
 
 std::string read_mess(int fd);
 char *strTochar(std::string str);

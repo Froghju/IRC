@@ -29,7 +29,8 @@ char *strTochar(std::string str) {
 void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message)
 {
     int i = 1;
-    message.push_back('\n');
+    message.insert(0, "\033[35m");
+    message.append("\n\033[0m");
     for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
 	{
         if ((*vec)[i].fd != fd)

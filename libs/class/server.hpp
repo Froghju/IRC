@@ -42,6 +42,9 @@ public:
 	bool checkPassword(int fd);
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
+
+	void Identification(int fd_client, std::vector<struct pollfd> *vec, client cl);
+
 	~server();
 };
 

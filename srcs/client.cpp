@@ -1,6 +1,5 @@
 #include "../libs/class/client.hpp"
 #include "../libs/main.hpp"
-//#include "../libs/class/string.hpp"
 
 client::client() {}
 
@@ -96,7 +95,28 @@ void client::setClientName(std::string str)
     //std::cout << _UserName << std::endl;
 }
 
-std::string client::GetClientUserName()
+std::string client::GetClientUserName() const
 {
     return (_UserName);
+}
+
+void client::setNickname(std::string str)
+{
+    _Nickname = str;
+    std::cout << "Test nickname: " << _Nickname << std::endl;
+}
+
+std::string client::GetNickname() const
+{
+    return (_Nickname);
+}
+
+void client::setOperator(bool perm)
+{
+    _Operator = perm;
+}
+
+bool client::GetOperator() const
+{
+    return (_Operator);
 }

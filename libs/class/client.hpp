@@ -11,6 +11,8 @@ private:
     sockaddr_in _clientInfo;
     socklen_t * _size;
     std::string _UserName;
+    std::string _Nickname;
+    bool _Operator;
 
 public:
     client(int port);
@@ -19,11 +21,16 @@ public:
 
 	sockaddr_in &SetClientInfo();
     void setClientName(std::string str);
-	std::string GetClientUserName();
+    void setNickname(std::string str);
+    void setOperator(bool perm);
+
+	std::string GetClientUserName() const;
+    std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
     socklen_t * GetClientSize() const;
-    struct pollfd InitPollFd(int fd);
+    bool GetOperator() const;
 
+    struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec);
 
     class InvalidClientSig : public std::exception {

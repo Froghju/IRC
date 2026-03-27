@@ -97,31 +97,7 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			send(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60, 0);
 			if (checkPassword(fd_client))
 			{
-				send(fd_client, "Welcome to Tha_Ghj's serv !\nPlease enter your user name\n", 57, 0);
-				std::string mess = read_mess(fd_client);
-				if (!mess.empty())
-				{
-					// PEUT-ETRE faire une fonction de cette partie
-					for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
-					{
-						if (it->GetClientUserName() == mess)
-						{
-							send(fd_client, "Username already used\n", 23, 0);
-							shutdown(fd_client, SHUT_RDWR);
-							close(fd_client);
-							return;
-						}
-					}
-					// a la
-
-					cl.setClientName(mess);
-					_vecCl.push_back(cl);
-					(*vec).push_back(cl.InitPollFd(fd_client));
-					std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
-					send(fd_client, "Successful connection! Enjoy chatting with your firend!\n", 57, 0);
-				}
-				else
-					std::cerr << "Client quit" << std::endl;
+				Identification(fd_client, vec, cl);
 			}
 			else
 				std::cerr << "Client fail to connect" << std::endl;
@@ -143,4 +119,47 @@ std::vector<client> &server::getVecCl()
 server::~server()
 {
 	close(_IdSocket);
+}
+
+void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
+{
+    send(fd_client, "Welcome to Tha_Ghj's serv 🐸​!\nPlease enter your user name:\n", 65, 0);
+    std::string name = read_mess(fd_client);
+
+    if (!name.empty())
+    {
+        for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
+        {
+            if (it->GetClientUserName() == name)
+            {
+                send(fd_client, "Sorry username already used\nDisconnected from the server", 57, 0);
+                shutdown(fd_client, SHUT_RDWR);
+                close(fd_client);
+                return;
+            }
+        }
+        send(fd_client, "Please enter your nickname:\n", 29, 0);
+        std::string nickname = read_mess(fd_client);
+        if (!nickname.empty())
+        {
+            for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
+            {
+                if (itt->GetNickname() == name)
+                {
+                    send(fd_client, "Sorry nickname already used\nDisconnected from the server", 57, 0);
+                    shutdown(fd_client, SHUT_RDWR);
+                    close(fd_client);
+                    return;
+                }
+            }
+        }
+        cl.setClientName(name);
+        cl.setNickname(nickname);
+        _vecCl.push_back(cl);
+        (*vec).push_back(cl.InitPollFd(fd_client));
+        std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
+        send(fd_client, "Successful connection! Enjoy chatting with your firend!\n", 57, 0);
+    }
+    else
+        std::cerr << "Client disconnected" << std::endl;
 }
