@@ -57,7 +57,7 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-bool client::checkPollRevents(struct pollfd pipoll)
+bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec)
 {
     if (pipoll.events != 0)
     {
@@ -65,7 +65,10 @@ bool client::checkPollRevents(struct pollfd pipoll)
         {
 			std::string all_text = read_mess(pipoll.fd);
             if (!all_text.empty())
-                std::cout << _UserName << " send : " << all_text << std::endl;
+            {
+                //std::cout << _UserName << " send : " << all_text << std::endl;
+                sendToAll(pipoll.fd, vec, all_text);
+            }
             else
             {
                 std::cout << _UserName << " quit serv" << std::endl;
@@ -90,10 +93,10 @@ bool client::checkPollRevents(struct pollfd pipoll)
 void client::setClientName(std::string str)
 {
     _UserName = str;
-    std::cout << _UserName << std::endl;
+    //std::cout << _UserName << std::endl;
 }
 
-string client::GetClientUserName()
+std::string client::GetClientUserName()
 {
     return (_UserName);
 }

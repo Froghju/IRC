@@ -18,7 +18,6 @@
 
 #include "class/client.hpp"
 #include "class/server.hpp"
-#include "class/string.hpp"
 
 /*typedef struct s_Message {
     int size;
@@ -27,5 +26,7 @@
 }               t_Message;*/
 
 std::string read_mess(int fd);
+char *strTochar(std::string str);
+void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message);
 
 #endif

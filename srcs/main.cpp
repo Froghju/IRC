@@ -49,7 +49,6 @@ void exec(int port, std::string password)
     server serv(port, password);
 }
 
-//void    init
 int main(int ac,char **av)
 {
     if (ac == 3)

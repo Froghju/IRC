@@ -14,7 +14,7 @@
 #***********************************************#
 
 SRCS = srcs/main.cpp srcs/client.cpp srcs/server.cpp \
-		srcs/string.cpp srcs/utils.cpp
+		srcs/utils.cpp
 
 PLUS =	init_env.c clean_fd.c get_opt.c x.c main_loop.c \
 	init_fd.c do_select.c check_fd.c \
@@ -34,7 +34,7 @@ all: ${NAME}
 
 ${NAME}: ${OBJS}
 	${CC} ${CFLAGS} -o $(NAME) $(OBJS)
-	
+
 %.o: %.cpp
 	${CC} $(CFLAGS) -c -o $@ $<
 

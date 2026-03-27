@@ -10,16 +10,16 @@ server::server(int port, std::string password) : _PassW(password), _Port(port)
 
 	proto = getprotobyname("tcp");//check si pas tcp/ip
 	if (proto == 0)
-		std::cerr << "oupsi pas bon" << std::endl;
+		std::cerr << "Protobyname error" << std::endl;
 	_IdSocket = socket(PF_INET, SOCK_STREAM, proto->p_proto);
 	if (_IdSocket == -1)
-		std::cerr << "oupsi pas bon" << std::endl;
+		std::cerr << "Socket error" << std::endl;
 
 	_InfServ.sin_family = AF_INET;
 	_InfServ.sin_port = htons(_Port); /// htons host to network short
 	_InfServ.sin_addr.s_addr = INADDR_ANY; //peut se connecter de partout
 	if (bind(_IdSocket, (const struct sockaddr*)&_InfServ, sizeof(_InfServ)))
-		std::cerr << "oupsi pas bon" << std::endl;
+		std::cerr << "Inable to connect, port already used" << std::endl;
 
     _vpfd.fd = _IdSocket;
     _vpfd.events = POLLIN;
@@ -49,7 +49,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		if (!_vecCl[i - 1].checkPollRevents((*vec)[i]))
+		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
 			(*vec).erase((*vec).begin() + i);
@@ -84,7 +84,7 @@ bool server::checkPassword(int fd)
 	return true;
 }
 
-void server::checkPollRevents(std::vector<struct pollfd> *vec) 
+void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
 	if ((*vec)[0].revents & POLLIN)
     {
@@ -101,10 +101,24 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 				std::string mess = read_mess(fd_client);
 				if (!mess.empty())
 				{
+					// PEUT-ETRE faire une fonction de cette partie
+					for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
+					{
+						if (it->GetClientUserName() == mess)
+						{
+							send(fd_client, "Username already used\n", 23, 0);
+							shutdown(fd_client, SHUT_RDWR);
+							close(fd_client);
+							return;
+						}
+					}
+					// a la
+
 					cl.setClientName(mess);
 					_vecCl.push_back(cl);
 					(*vec).push_back(cl.InitPollFd(fd_client));
-					std::cout << "user name is " << cl.GetClientUserName() << std::endl;
+					std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
+					send(fd_client, "Successful connection! Enjoy chatting with your firend!\n", 57, 0);
 				}
 				else
 					std::cerr << "Client quit" << std::endl;

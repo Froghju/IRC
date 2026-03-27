@@ -1,14 +1,12 @@
 #pragma once
 #include "server.hpp"
-#include "string.hpp"
 class server;
-class string;
 
 class client {
 
 private:
     client();
-    
+
     int _clientId;
     sockaddr_in _clientInfo;
     socklen_t * _size;
@@ -21,12 +19,12 @@ public:
 
 	sockaddr_in &SetClientInfo();
     void setClientName(std::string str);
-    string GetClientUserName();
+	std::string GetClientUserName();
     sockaddr_in GetClientInfo() const;
     socklen_t * GetClientSize() const;
     struct pollfd InitPollFd(int fd);
 
-    bool checkPollRevents(struct pollfd pipo);
+    bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec);
 
     class InvalidClientSig : public std::exception {
         public:
