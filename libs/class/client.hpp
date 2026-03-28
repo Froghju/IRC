@@ -31,7 +31,8 @@ public:
     bool GetOperator() const;
 
     struct pollfd InitPollFd(int fd);
-    bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec);
+    bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv);
+    void doCmd(std::string msg, server *serv);
 
     class InvalidClientSig : public std::exception {
         public:

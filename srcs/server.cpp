@@ -49,7 +49,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec))
+		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec, this))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
 			(*vec).erase((*vec).begin() + i);
@@ -158,7 +158,7 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
         _vecCl.push_back(cl);
         (*vec).push_back(cl.InitPollFd(fd_client));
         std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
-        send(fd_client, "Successful connection! Enjoy chatting with your firend!\n", 57, 0);
+        send(fd_client, "Successful connection! Enjoy chatting with your friend!\n", 57, 0);
     }
     else
         std::cerr << "Client disconnected" << std::endl;

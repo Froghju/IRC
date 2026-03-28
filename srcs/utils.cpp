@@ -5,6 +5,7 @@ std::string read_mess(int fd)
     std::string all_text;
     int nb = 0;
     char buffer[2];
+    int check = 0;
     while (1)
     {
         nb = recv(fd, buffer, 1, 0);
@@ -14,9 +15,14 @@ std::string read_mess(int fd)
             return NULL;
         }
         buffer[nb] = '\0';
-        if (buffer[0] == '\0' || (buffer[0] == '\n' && (buffer[1] == '\0' || buffer[1] == '\r')))
+        if (buffer[0] == '\0' || (buffer[0] == '\n' && buffer[1] == '\0'))
+        {
+            if (check == 0)
+                all_text.append(buffer);
             break;
+        }
         all_text.append(buffer);
+        ++check;
     }
     return (all_text);
 }
@@ -26,11 +32,15 @@ char *strTochar(std::string str) {
     return (buff);
 }
 
-void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message)
+void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message, std::string name)
 {
     int i = 1;
-    message.insert(0, "\033[35m");
-    message.append("\n\033[0m");
+    if (message == "\n")
+        message.append("\033[0m");
+    else
+        message.append("\n\033[0m");
+    message.insert(0, name);
+    message.insert(name.size(), " : \033[35m");
     for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
 	{
         if ((*vec)[i].fd != fd)
