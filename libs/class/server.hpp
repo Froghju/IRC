@@ -17,6 +17,7 @@ private:
 	sockaddr_in	_InfServ;
 	struct pollfd _vpfd;
 	std::vector<client>	_vecCl;
+	std::vector<channel> _vecCh;
 public:
 	server(int port, std::string password);
 	struct pollfd GetPollFd() const;
