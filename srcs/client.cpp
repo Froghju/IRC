@@ -56,6 +56,7 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
+#include <stdio.h>
 bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv)
 {
     if (pipoll.events != 0)
@@ -66,7 +67,9 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
             if (!all_text.empty())
             {
                 server tmp = (*serv);
+                
                 /*doCmd(all_text, serv);*/
+                parse(all_text);
                 sendToAll(pipoll.fd, vec, all_text, _Nickname);
             }
             else

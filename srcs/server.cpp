@@ -158,7 +158,7 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
         _vecCl.push_back(cl);
         (*vec).push_back(cl.InitPollFd(fd_client));
         std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
-        send(fd_client, "Successful connection! Enjoy chatting with your friend!\n", 57, 0);
+        send(fd_client, "Successful connection! Please join a channel with the command 'JOIN'\n", 69, 0);
     }
     else
         std::cerr << "Client disconnected" << std::endl;

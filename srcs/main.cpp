@@ -24,6 +24,7 @@ int checkPort(char *str)
     }
     return port;
 }
+
 std::string checkPassword(char *str)
 {
     size_t i = 0;
@@ -42,11 +43,6 @@ std::string checkPassword(char *str)
         pass.push_back(str[i]);
     }
     return pass;
-}
-
-void exec(int port, std::string password)
-{
-    server serv(port, password);
 }
 
 int main(int ac,char **av)
