@@ -18,6 +18,7 @@
 
 #include "class/client.hpp"
 #include "class/server.hpp"
+#include "class/channel.hpp"
 
 class client;
 
@@ -26,8 +27,5 @@ std::string read_mess(int fd);
 char *strTochar(std::string str);
 void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message, std::string name);
 std::vector<std::string> splitCpp(std::string str);
-
-//parse.cpp
-void parse(std::string message);
 
 #endif

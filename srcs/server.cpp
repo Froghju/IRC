@@ -94,13 +94,10 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			std::cerr << "ERROR: can't accept connection" << std::endl;
 		else
 		{
-			send(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60, 0);
-			if (checkPassword(fd_client))
-			{
-				Identification(fd_client, vec, cl);
-			}
-			else
-				std::cerr << "Client fail to connect" << std::endl;
+			cl.setFdOut(fd_client);
+			send(fd_client, "Hey ! I'm Tha_Ghj's serv 🐸\n", 31, 0);
+			passCmd(cl);
+			Identification(fd_client, vec, cl);
 		}
 	}
 	if ((*vec)[0].revents & POLLERR)
@@ -123,10 +120,28 @@ server::~server()
 
 void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
 {
-    send(fd_client, "Welcome to Tha_Ghj's serv 🐸​!\nPlease enter your user name:\n", 65, 0);
-    std::string name = read_mess(fd_client);
+    std::string cmd = read_mess(fd_client);
+	(void)vec;
+	(void)cl;
 
-    if (!name.empty())
+	if (!cmd.empty())
+	{
+		std::vector<std::string> pass = splitCpp(cmd);
+		if (pass.size() == 2 && (pass[0] == "USER" || pass[0] == "NICK"))
+		{
+			if (pass[0] == "USER")
+				cl.setClientName(pass[1]);
+			else
+				cl.setNickname(pass[1]);
+			cmd.clear();
+			pass.erase(pass.begin(), pass.end());
+		}
+		while (cl.GetClientUserName().empty() || cl.GetNickname().empty())
+		Identification(fd_client, vec, cl);
+	}
+	//parse(name, cl);
+
+    /*if (!name.empty())
     {
         for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
         {
@@ -158,8 +173,9 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
         _vecCl.push_back(cl);
         (*vec).push_back(cl.InitPollFd(fd_client));
         std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
-        send(fd_client, "Successful connection! Please join a channel with the command 'JOIN'\n", 69, 0);
-    }
-    else
-        std::cerr << "Client disconnected" << std::endl;
+        send(fd_client, "Successful connection! Please join a channel with the command 'JOIN'\n", 70, 0);
+    }*/
+	// CKECk de USERNAME et NICKNAME
+    /*else
+        std::cerr << "Client disconnected" << std::endl;*/
 }

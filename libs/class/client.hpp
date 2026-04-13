@@ -8,8 +8,10 @@ private:
     client();
 
     int _clientId;
+    int _out;
     sockaddr_in _clientInfo;
     socklen_t * _size;
+
     std::string _UserName;
     std::string _Nickname;
     bool _Operator;
@@ -23,12 +25,14 @@ public:
     void setClientName(std::string str);
     void setNickname(std::string str);
     void setOperator(bool perm);
+    void setFdOut(int out);
 
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
     socklen_t * GetClientSize() const;
     bool GetOperator() const;
+    int GetFdOut() const;
 
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv);

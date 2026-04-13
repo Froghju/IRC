@@ -15,6 +15,7 @@ client::client(int port) {
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
         _size = new(socklen_t);
         *_size = sizeof(_clientInfo);
+        _out = -1;
     }
 }
 
@@ -65,11 +66,8 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
         {
 			std::string all_text = read_mess(pipoll.fd);
             if (!all_text.empty())
-            {
-                server tmp = (*serv);
-                
-                /*doCmd(all_text, serv);*/
-                parse(all_text);
+            {   
+                serv->parse(all_text, *this);
                 sendToAll(pipoll.fd, vec, all_text, _Nickname);
             }
             else
@@ -80,23 +78,18 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
         }
         if (pipoll.revents & POLLHUP)
         {
-            std::cout << "erreur pollhup" << std::endl;
+            std::cerr << "erreur pollhup" << std::endl;
             return false;
         }
         if (pipoll.revents & POLLERR)
         {
-            std::cout << "erreur pollerr" << std::endl;
+            std::cerr << "erreur pollerr" << std::endl;
             return false;
         }
         pipoll.revents = 0;
     }
     return true;
 }
-
-/*void client::doCmd(std::string msg, server *serv)
-{
-    //fct start commande
-}*/
 
 void client::setClientName(std::string str)
 {
@@ -125,7 +118,17 @@ void client::setOperator(bool perm)
     _Operator = perm;
 }
 
+void client::setFdOut(int out) 
+{
+    _out = out;
+}
+
 bool client::GetOperator() const
 {
     return (_Operator);
+}
+
+int client::GetFdOut() const
+{
+    return _out;
 }

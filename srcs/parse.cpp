@@ -1,90 +1,100 @@
 #include "../libs/class/server.hpp"
-#include ".../libs/class/channel.hpp"
+#include "../libs/class/channel.hpp"
 #include "../libs/main.hpp"
-#include <stdio.h>
 
-void server::joinCmd(std::vector content, client cl)
+void server::joinCmd(std::vector<std::string> content, client cl)
 {
-    for (std::vector<channel>::iterator it = _vecCh->begin(); it != _vecCh->end(); it++)
-	{
-        if ((*_vecCh)[i].sameName(content[1])) //a voir pour l'invite
+    size_t i = 0;
+    while (!_vecCh[i].sameName(content[1]))
+        i++;
+    if (i < _vecCh.size() && _vecCh[i].sameName(content[1]))
+    {
+        if (_vecCh[i].isPrivate())
         {
-            if ((*_vecCh)[i].isPrivate)
-                //message: Access denied. channel is private.
-            else
-                (*_vecCh)[i].addnewClient(cl);
-        }   
-		else
-        {
-            channel newchannel(content[1]);
-            newchannel.addNewClient(cl); //fonction pas finie
-            _vecCh.push_back(newchannel);
+            //verrif if INVITE
+            send(cl.GetFdOut(), "Sorry this channel is private\n", 31, 0);
         }
-	}
-    /* check si le nom du channel existe
-        si oui: rajouter le client au channel s'il a le droit
-        si non: creer le serveur et le push dans le vecteur de channel
-    */
+        else
+        {
+            _vecCh[i].addNewClient(cl);
+            return ;
+        }
+    }
+    channel newchannel(content[1], content[2]);
+    newchannel.addNewClient(cl); //fonction pas finie
+    _vecCh.push_back(newchannel);
 }
 
 void server::inviteCmd(std::string name, client cl)
 {
-    if (!cl.GetOperator())
-        //message au client: acces denied
-    else
-    {
-        for (std::vector<client>::iterator it = _vecCl->begin(); it != _vecCl->end(); it++)
-        {
-            if ((*_vecCl)[i].GetClientUserName() == name)
-                //invite
-        }
-    }
-    /* Verifier si le client est bien admin
+    /*Verifier si le client est bien admin
     si non: acces denied
     si oui: envoyer un message d'invitation au client selectione ?*/
 }
 
-void server::kickCmd(std:string name, client cl)
+/*void server::kickCmd(std::string name, client cl)
 {
-    if (!cl.GetOperator())
-        //message au client: acces denied
-    else
+    if (cl.GetOperator())
     {
-        for (std::vector<client>::iterator it = _vecCl->begin(); it != _vecCl->end(); it++)
-        {
-            if ((*_vecCl)[i].GetClientUserName() == name)
-            {
-                _vecCl.erase(it);
-                break;
-            }
-        }
+        int before = //size du vector de client dans le channel;
+        vec.erase(find(v.begin(), v.end(), name));
+        if (before == size du vector)
+            send(cl.GetFdOut(), "This user doesn't exist\n", 25, 0);
     }
+    else
+        send(cl.GetFdOut(), "You have no right to kick another user\n", 40, 0);*/
     /*verifier si le client est bien admin
     si non: acces denied
-    si oui: kick*/
-}
+    si oui: kick
+}*/
 
-void server::topicCmd()
-{}
+/*void server::topicCmd()
+{}*/
 
-void server::modeCmd(std::vector<string> cmd, chanel ch)
+void server::modeCmd(std::vector<std::string> cmd)
 {
-    if (cmd[1] == 'i')
+    if (cmd[1] == "i")
     {}
-    else if (cmd[1] == 't')
+    else if (cmd[1] == "t")
     {}
-    else if (cmd[1] == 'k')
+    else if (cmd[1] == "k")
     {}
-    else if (cmd[1] == 'o')
+    else if (cmd[1] == "o")
     {}
-    else if (cmd[1] == 'l')
+    else if (cmd[1] == "l")
     {}
     else
     {}
+}
+#include <stdio.h>
+void server::passCmd(client cl)
+{
+    std::string cmd = read_mess(cl.GetFdOut());
+
+    if (!cmd.empty())
+    {
+        std::vector<std::string> pass = splitCpp(cmd);
+        if (pass.size() == 2 && pass[0] == "PASS")
+        {
+            if (pass[1] == _PassW)
+            {
+                send(cl.GetFdOut(), "ok\n", 4, 0);
+                cmd.clear();
+                pass.erase(pass.begin(), pass.end());
+            }
+            else
+            {
+                send(cl.GetFdOut(), "Wrong password, disconnected from the server\n", 46, 0);
+                cl.~client();
+            }
+        }
+        while (pass[1] != _PassW)
+		passCmd(cl.GetFdOut());
+    }
 }
 
 //fonction a transposer dans le server sinon pas acces aux variables private
-void server::parse(std::string message)
+void server::parse(std::string message, client cl)
 {
     std::vector<std::string> sentence = splitCpp(message);
 
@@ -92,13 +102,13 @@ void server::parse(std::string message)
     {
         if (sentence[0] == "JOIN")
         {
-            printf("cmd JOIN\n");
+            //printf("cmd JOIN\n");
             if (sentence.size() > 2)
-                joinCmd(sentence);
+                joinCmd(sentence, cl);
             else
-                //message erreur: invalid command
+                send(cl.GetFdOut(), "Invalid command: JOIN <server_name>\n", 37, 0);
         }
-        else if (sentence[0] == "INVITE")
+        /*else if (sentence[0] == "INVITE")
         {
             printf("cmd INVITE\n");
         }
@@ -116,11 +126,11 @@ void server::parse(std::string message)
             if (sentence.size() > 1)
                 modeCmd(sentence);
             else
-                //message erreur: invalid command
+                send(cl.GetFdOut(), "Invalid command: MODE <flag>\n", 30, 0);
         }
         else
         {
             printf("no parse\n");
-        }
+        }*/
     }
 }

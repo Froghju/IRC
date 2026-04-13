@@ -3,7 +3,9 @@
 
 #include "../main.hpp"
 
+
 class client;
+class channel;
 
 class server
 {
@@ -18,6 +20,7 @@ private:
 	struct pollfd _vpfd;
 	std::vector<client>	_vecCl;
 	std::vector<channel> _vecCh;
+
 public:
 	server(int port, std::string password);
 	struct pollfd GetPollFd() const;
@@ -29,6 +32,15 @@ public:
 	std::vector<client> &getVecCl();
 
 	void Identification(int fd_client, std::vector<struct pollfd> *vec, client cl);
+
+	//parse
+	void parse(std::string message, client cl);
+	void joinCmd(std::vector<std::string> content, client cl);
+	void inviteCmd(std::string name, client cl);
+	void kickCmd(std::string name, client cl);
+	void topicCmd();
+	void modeCmd(std::vector<std::string> cmd);
+	void passCmd(client cl);
 
 	~server();
 };
