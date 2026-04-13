@@ -40,7 +40,7 @@ public:
 	void kickCmd(std::string name, client cl);
 	void topicCmd();
 	void modeCmd(std::vector<std::string> cmd);
-	void passCmd(client cl);
+	void passCmd(client &cl);
 
 	~server();
 };

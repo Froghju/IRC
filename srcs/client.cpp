@@ -13,9 +13,9 @@ client::client(int port) {
         _clientInfo.sin_family = AF_INET;
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
-        _size = new(socklen_t);
-        *_size = sizeof(_clientInfo);
+        _size = new socklen_t(sizeof(_clientInfo));
         _out = -1;
+        _step = 0;
     }
 }
 
@@ -37,7 +37,7 @@ struct pollfd client::InitPollFd(int fd)
 }
 
 client::~client() {
-    //delete _size;
+    delete _size;
     shutdown(_clientId, SHUT_RDWR);
     close(_clientId);
 }
@@ -131,4 +131,14 @@ bool client::GetOperator() const
 int client::GetFdOut() const
 {
     return _out;
+}
+
+int client::GetStep() const 
+{
+    return _step;
+}
+
+void client::addStep()
+{
+    _step++;
 }

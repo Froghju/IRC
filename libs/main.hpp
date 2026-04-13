@@ -20,6 +20,9 @@
 #include "class/server.hpp"
 #include "class/channel.hpp"
 
+//debug
+#include <stdio.h>
+
 class client;
 
 //utils.cpp

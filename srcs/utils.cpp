@@ -77,9 +77,9 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(str);
     else if (pos != str.size())
     {
-        tmp = (char *)malloc(sizeof(char) * len);
+        tmp = (char *)malloc(sizeof(char) * len - 1);
         str.copy(tmp, len, pos);
-        tmp[len] = '\0';
+        tmp[len - 1] = '\0';
         cut.push_back(tmp);
         free(tmp);
     }

@@ -96,8 +96,9 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 		{
 			cl.setFdOut(fd_client);
 			send(fd_client, "Hey ! I'm Tha_Ghj's serv 🐸\n", 31, 0);
-			passCmd(cl);
+			//passCmd(cl);
 			Identification(fd_client, vec, cl);
+			printf("C\n");
 		}
 	}
 	if ((*vec)[0].revents & POLLERR)
@@ -122,9 +123,8 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
 {
     std::string cmd = read_mess(fd_client);
 	(void)vec;
-	(void)cl;
 
-	if (!cmd.empty())
+	/*if (!cmd.empty())
 	{
 		std::vector<std::string> pass = splitCpp(cmd);
 		if (pass.size() == 2 && (pass[0] == "USER" || pass[0] == "NICK"))
@@ -133,13 +133,11 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
 				cl.setClientName(pass[1]);
 			else
 				cl.setNickname(pass[1]);
-			cmd.clear();
-			pass.erase(pass.begin(), pass.end());
 		}
 		while (cl.GetClientUserName().empty() || cl.GetNickname().empty())
-		Identification(fd_client, vec, cl);
-	}
-	//parse(name, cl);
+			Identification(fd_client, vec, cl);
+	}*/
+	parse(cmd, cl);
 
     /*if (!name.empty())
     {
