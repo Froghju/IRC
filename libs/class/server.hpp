@@ -27,8 +27,10 @@ public:
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
 
-	bool Identification(int fd_client, std::vector<struct pollfd> *vec, client cl);
-
+	bool Identification(std::vector<struct pollfd> *vec, client cl);
+	bool initUserNick(client cl);
+	bool initHex(client cl);
+	bool initNetcat(client cl);
 	~server();
 };
 

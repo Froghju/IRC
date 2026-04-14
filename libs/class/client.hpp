@@ -8,11 +8,13 @@ private:
     client();
 
     int _clientId;
+    int _out;
     sockaddr_in _clientInfo;
     socklen_t * _size;
     std::string _UserName;
     std::string _Nickname;
     bool _Operator;
+    bool    _Hex;
 
 public:
     client(int port);
@@ -23,7 +25,10 @@ public:
     void setClientName(std::string str);
     void setNickname(std::string str);
     void setOperator(bool perm);
-
+    void setHex(bool b);
+    void setOut(int c);
+    int getOut() const;
+    bool getHex() const;
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;

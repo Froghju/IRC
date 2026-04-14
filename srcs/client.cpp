@@ -15,6 +15,7 @@ client::client(int port) {
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
         _size = new(socklen_t);
         *_size = sizeof(_clientInfo);
+        _Hex = false;
     }
 }
 
@@ -23,6 +24,7 @@ client &client::operator=(const client & src)
     _clientId = src._clientId;
     _clientInfo = src._clientInfo;
     _size = src._size;
+    _Hex = src._Hex;
     return(*this);
 }
 
@@ -123,4 +125,24 @@ void client::setOperator(bool perm)
 bool client::GetOperator() const
 {
     return (_Operator);
+}
+
+void client::setHex(bool b)
+{
+    _Hex = b;
+}
+
+bool client::getHex() const
+{
+    return(_Hex);
+}
+
+void client::setOut(int out)
+{
+    _out = out;
+}
+
+int client::getOut() const
+{
+    return(_out);
 }
