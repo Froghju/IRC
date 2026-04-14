@@ -24,5 +24,7 @@ class client;
 std::string read_mess(int fd);
 char *strTochar(std::string str);
 void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message, std::string name);
+std::string find_cmd(std::string str);
+std::string find_input(std::string str, std::string cmd);
 
 #endif

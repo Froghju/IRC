@@ -94,12 +94,7 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			std::cerr << "ERROR: can't accept connection" << std::endl;
 		else
 		{
-			send(fd_client, "Hey I'm Tha_Ghj's serv\nI need the password for connection:\n", 60, 0);
-			if (checkPassword(fd_client))
-			{
-				Identification(fd_client, vec, cl);
-			}
-			else
+			if (!Identification(fd_client, vec, cl))
 				std::cerr << "Client fail to connect" << std::endl;
 		}
 	}
@@ -121,7 +116,97 @@ server::~server()
 	close(_IdSocket);
 }
 
-void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
+bool server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
+{
+	bool check  = true;
+	for (int i = 0; i < 3; ++i)
+	{
+		std::string msg = read_mess(fd_client);
+		std::cerr << "msg : " << msg << std::endl;
+		if (!msg.empty())
+		{
+			std::string cmd = find_cmd(msg);
+			std::cerr << "cmd : " << cmd << std::endl;
+			std::string input = find_input(msg, cmd);
+			std::cerr << "input : " << input << std::endl;
+			if (cmd == "PASS")
+			{
+				if (input.empty() || input != _PassW)
+					check = false;
+			}
+			else if (cmd == "NICK")
+			{
+				if (!input.empty())
+				{
+					for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
+					{
+						if (itt->GetNickname() == input)
+						{
+							send(fd_client, "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
+							check = false;
+							break;
+						}
+					}
+					if (check)
+					{
+						cl.setNickname(input);
+					}
+				}
+				else
+				{
+					check = false;
+					send(fd_client, "Bad nickname\nDisconnected from the server\n", 43, 0);
+				}
+			}
+			else if (cmd == "USER")
+			{
+				if (!input.empty())
+				{
+					for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
+					{
+						if (it->GetClientUserName() == input)
+						{
+							send(fd_client, "Sorry username already used\nDisconnected from the server\n", 58, 0);
+							check = false;
+							break;
+						}
+					}
+					if (check)
+					{
+						cl.setClientName(input);
+					}
+				}
+				else if (cmd == "CAP")
+					i--;
+				else
+				{
+					check = false;
+					send(fd_client, "Bad username\nDisconnected from the server\n", 43, 0);
+				}
+			}
+		}
+		else
+		{
+			check = false;
+			std::cerr << msg << std::endl;
+		}
+	}
+	if (check)
+	{
+		 _vecCl.push_back(cl);
+        (*vec).push_back(cl.InitPollFd(fd_client));
+		/*send(fd_client, "Welcome to Tha_Ghj's serv 🐸​!\n", 36, 0);*/
+		std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
+		send(fd_client, msg.c_str(), msg.size(), 0);
+	}
+	else
+	{
+		shutdown(fd_client, SHUT_RDWR);
+		close(fd_client);
+	}
+	return (check);
+}
+/*void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
 {
     send(fd_client, "Welcome to Tha_Ghj's serv 🐸​!\nPlease enter your user name:\n", 65, 0);
     std::string name = read_mess(fd_client);
@@ -162,4 +247,4 @@ void server::Identification(int fd_client, std::vector<struct pollfd> *vec, clie
     }
     else
         std::cerr << "Client disconnected" << std::endl;
-}
+}*/

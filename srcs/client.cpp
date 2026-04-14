@@ -98,7 +98,6 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
 void client::setClientName(std::string str)
 {
     _UserName = str;
-    //std::cout << _UserName << std::endl;
 }
 
 std::string client::GetClientUserName() const
@@ -109,7 +108,6 @@ std::string client::GetClientUserName() const
 void client::setNickname(std::string str)
 {
     _Nickname = str;
-    std::cout << "Test nickname: " << _Nickname << std::endl;
 }
 
 std::string client::GetNickname() const

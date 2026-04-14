@@ -1,5 +1,47 @@
 #include "../libs/main.hpp"
 
+/*void send_hexchat_format(client cl, std::string mes)
+{
+
+}*/
+
+bool is_white_space(char c)
+{
+    if (c == ' ' || (c >= 9 && c <= 13))
+        return true;
+    return false;
+}
+
+std::string find_input(std::string str, std::string cmd)
+{
+    size_t pos = str.find(cmd) + cmd.size();
+    while (pos < str.size() && is_white_space(str[pos]))
+        pos++;
+    std::string input;
+    input.append(str, pos, str.size());
+    return input;
+}
+
+std::string find_cmd(std::string str)
+{
+    std::string cmd;
+    size_t i = 0;
+    std::cerr << "check " << std::endl;
+    if (str[i] == ':')
+    {
+        while (i < str.size() && !is_white_space(str[i]))
+            i++;
+        while (i < str.size() && is_white_space(str[i]))
+            i++;
+    }
+    int start = i;
+    while (i < str.size() && !is_white_space(str[i]))
+        i++;
+    cmd.append(str, start, i);
+    std::cerr << cmd << std::endl;
+    return cmd;
+}
+
 std::string read_mess(int fd)
 {
     std::string all_text;
