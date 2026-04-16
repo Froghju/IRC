@@ -53,6 +53,7 @@ int main(int ac,char **av)
 {
     if (ac == 3)
     {
+        srand(time(NULL));
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);
         try

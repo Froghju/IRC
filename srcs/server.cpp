@@ -4,7 +4,7 @@ server::server()
 {
 }
 
-server::server(int port, std::string password) : _PassW(password), _Port(port)
+server::server(int port, std::string password) : _PassW(password), _Port(port), _Fro()
 {
 	struct protoent *proto;
 
@@ -24,7 +24,6 @@ server::server(int port, std::string password) : _PassW(password), _Port(port)
     _vpfd.fd = _IdSocket;
     _vpfd.events = POLLIN;
     _vpfd.revents = 0;
-
 	listen(_IdSocket, 42); //nb de co possible en meme temps
 }
 
@@ -104,6 +103,8 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 	if ((*vec)[0].revents & POLLHUP)
 		std::cerr << "erreur hup" << std::endl;
 	(*vec)[0].revents = 0;
+	_Fro.hello(vec);
+	_Fro.frogsave(vec);
 	returnPollClients(vec);
 }
 
@@ -247,19 +248,24 @@ bool server::Identification(std::vector<struct pollfd> *vec, client cl)
 	if (!msg.empty())
 	{
 		std::string cmd = find_cmd(msg);
-		std::string input = find_input(msg, cmd);
-		if (cmd == "CAP")
+		if (!cmd.empty())
 		{
-			cl.setHex(true);
-			msg = read_mess(cl.getOut());
-			cmd = find_cmd(msg);
-			input = find_input(msg, cmd);
+			std::string input = find_input(msg, cmd);
+			if (cmd == "CAP")
+			{
+				cl.setHex(true);
+				msg = read_mess(cl.getOut());
+				cmd = find_cmd(msg);
+				input = find_input(msg, cmd);
+			}
+			if (cmd == "PASS")
+			{
+				if (input.empty() || input != _PassW)
+					check = false;
+			}
 		}
-		if (cmd == "PASS")
-		{
-			if (input.empty() || input != _PassW)
-				check = false;
-		}
+		else
+			check = false;
 	}
 	else
 		check = false;

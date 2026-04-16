@@ -68,7 +68,6 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
             if (!all_text.empty())
             {
                 server tmp = (*serv);
-                /*doCmd(all_text, serv);*/
                 sendToAll(pipoll.fd, vec, all_text, _Nickname);
             }
             else

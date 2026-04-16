@@ -86,7 +86,7 @@ void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message, std
     for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
 	{
         if ((*vec)[i].fd != fd)
-            send((*vec)[i].fd, strTochar(message), message.size(), 0);
+            send((*vec)[i].fd, message.c_str(), message.size(), 0);
 		i++;
 	}
 }

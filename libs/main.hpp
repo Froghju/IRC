@@ -15,11 +15,14 @@
 #include <poll.h>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 
 #include "class/client.hpp"
 #include "class/server.hpp"
+#include "frogy/frogy.hpp"
 
 class client;
+class frogy;
 
 std::string read_mess(int fd);
 char *strTochar(std::string str);

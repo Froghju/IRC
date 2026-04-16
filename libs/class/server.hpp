@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "../main.hpp"
+#include "../frogy/frogy.hpp"
 
 class client;
 
@@ -17,6 +18,7 @@ private:
 	sockaddr_in	_InfServ;
 	struct pollfd _vpfd;
 	std::vector<client>	_vecCl;
+	frogy	_Fro;
 public:
 	server(int port, std::string password);
 	struct pollfd GetPollFd() const;
