@@ -15,7 +15,6 @@ private:
     std::string _UserName;
     std::string _Nickname;
     bool _Operator;
-    int _step;
 
 public:
     client(int port);
@@ -27,7 +26,6 @@ public:
     void setNickname(std::string str);
     void setOperator(bool perm);
     void setFdOut(int out);
-    void addStep();
 
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
@@ -35,11 +33,12 @@ public:
     socklen_t * GetClientSize() const;
     bool GetOperator() const;
     int GetFdOut() const;
-    int GetStep() const;
 
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv);
     void doCmd(std::string msg, server *serv);
+
+    bool operator==(const client &src) const;
 
     class InvalidClientSig : public std::exception {
         public:
