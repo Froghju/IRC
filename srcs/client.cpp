@@ -161,12 +161,16 @@ int client::GetFdOut() const
     return _out;
 }
 
-int client::GetStep() const 
+bool client::operator==(const client &src) const
 {
-    return _step;
-}
-
-void client::addStep()
-{
-    _step++;
+    if (_clientId == src._clientId
+        && _out == src._out
+        && _clientInfo == src._clientInfo
+        && _size == src._size
+        && _UserName == src._UserName
+        && _Nickname == src._Nickname
+        && _Operator == src._Operator)
+        return true;
+    else
+        return false;
 }

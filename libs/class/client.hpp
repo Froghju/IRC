@@ -30,7 +30,8 @@ public:
     void setHex(bool b);
     void setOut(int c);
     int getOut() const;
-    bool getHex() const;    void setFdOut(int out);
+    bool getHex() const;
+    void setFdOut(int out);
     void addStep();
 
 	std::string GetClientUserName() const;
@@ -39,11 +40,12 @@ public:
     socklen_t * GetClientSize() const;
     bool GetOperator() const;
     int GetFdOut() const;
-    int GetStep() const;
 
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv);
     void doCmd(std::string msg, server *serv);
+
+    bool operator==(const client &src) const;
 
     class InvalidClientSig : public std::exception {
         public:

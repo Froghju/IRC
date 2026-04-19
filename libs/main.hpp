@@ -36,5 +36,6 @@ void sendToAll(client &cl, std::vector<struct pollfd> *vec, std::string message,
 std::string find_cmd(std::string str);
 std::string find_input(std::string str, std::string cmd);
 std::vector<std::string> splitCpp(std::string str);
+std::map<int, std::string> initDataBot();
 
 #endif
