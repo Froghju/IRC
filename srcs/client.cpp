@@ -62,7 +62,7 @@ socklen_t * client::GetClientSize() const
 }
 
 #include <stdio.h>
-bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv)
+bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
 {
     if (pipoll.events != 0)
     {

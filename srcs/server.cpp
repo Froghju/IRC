@@ -243,6 +243,63 @@ bool server::initUserNick(client &cl)
 	return check;
 }
 
+
+/*void server::parse(std::string message, client cl)
+{
+    std::vector<std::string> sentence = splitCpp(message);
+
+    if (!message.empty())
+    {
+        if (cl.GetStep() < 3)
+        {
+            if (cl.GetStep() == 0)
+            {
+                if (sentence[0] == "PASS")
+                    passCmd(cl);
+            }
+            else
+            {
+                if (sentence[0] == "USER")
+                    userCmd();
+                if (sentence[0] == "NICK")
+                    nickCmd();
+            }
+        }
+        if (sentence[0] == "JOIN")
+        {
+            //printf("cmd JOIN\n");
+            if (sentence.size() > 2)
+                joinCmd(sentence, cl);
+            else
+                send(cl.GetFdOut(), "Invalid command: JOIN <server_name>\n", 37, 0);
+        }
+        else if (sentence[0] == "INVITE")
+        {
+            printf("cmd INVITE\n");
+        }
+        else if (sentence[0] == "KICK")
+        {
+            printf("cmd KICK\n");
+        }
+        else if (sentence[0] == "TOPIC")
+        {
+            printf("cmd TOPIC\n");
+        }
+        else if (sentence[0] == "MODE")
+        {
+            printf("cmd MODE\n");
+            if (sentence.size() > 1)
+                modeCmd(sentence);
+            else
+                send(cl.GetFdOut(), "Invalid command: MODE <flag>\n", 30, 0);
+        }
+        else
+        {
+            printf("no parse\n");
+        }
+    }
+}*/
+
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
 	bool check  = true;
@@ -301,60 +358,3 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 	}
 	return (check);
 }
-/*void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
-{
-    std::string cmd = read_mess(fd_client);
-	(void)vec;
-
-	/*if (!cmd.empty())
-	{
-		std::vector<std::string> pass = splitCpp(cmd);
-		if (pass.size() == 2 && (pass[0] == "USER" || pass[0] == "NICK"))
-		{
-			if (pass[0] == "USER")
-				cl.setClientName(pass[1]);
-			else
-				cl.setNickname(pass[1]);
-		}
-		while (cl.GetClientUserName().empty() || cl.GetNickname().empty())
-			Identification(fd_client, vec, cl);
-	}
-	parse(cmd, cl);
-
-    if (!name.empty())
-    {
-        for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
-        {
-            if (it->GetClientUserName() == name)
-            {
-                send(fd_client, "Sorry username already used\nDisconnected from the server", 57, 0);
-                shutdown(fd_client, SHUT_RDWR);
-                close(fd_client);
-                return;
-            }
-        }
-        send(fd_client, "Please enter your nickname:\n", 29, 0);
-        std::string nickname = read_mess(fd_client);
-        if (!nickname.empty())
-        {
-            for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
-            {
-                if (itt->GetNickname() == name)
-                {
-                    send(fd_client, "Sorry nickname already used\nDisconnected from the server", 57, 0);
-                    shutdown(fd_client, SHUT_RDWR);
-                    close(fd_client);
-                    return;
-                }
-            }
-        }
-        cl.setClientName(name);
-        cl.setNickname(nickname);
-        _vecCl.push_back(cl);
-        (*vec).push_back(cl.InitPollFd(fd_client));
-        std::cout << "New user " << cl.GetClientUserName() << " join Tha_Ghj serv" << std::endl;
-        send(fd_client, "Successful connection! Enjoy chatting with your friend!\n", 57, 0);
-    }
-    else
-        std::cerr << "Client disconnected" << std::endl;
-}*/

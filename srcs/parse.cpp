@@ -2,17 +2,39 @@
 #include "../libs/class/channel.hpp"
 #include "../libs/main.hpp"
 
-void server::joinCmd(std::vector<std::string> content, client cl)
+int findChannel(std::string name)
 {
-    size_t i = 0;
+    int i = 0;
     while (!_vecCh[i].sameName(content[1]))
         i++;
-    if (i < _vecCh.size() && _vecCh[i].sameName(content[1]))
+    if (i <= _vecCh.size() && _vecCh[i].sameName(content[1]))
+        return i;
+    else
+        return -1;
+}
+
+bool validUser(std::string name)
+{
+    size_t i = 0;
+    while (_vecCl[i].GetClientUserName() != name)
+        i++;
+    if (i > _vecCl[i].size())
+        return false;
+    else
+        return true;
+}
+
+void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN FONCTION DE MODE
+{
+    int i = findChannel(content[1]);
+    if (i > -1)
     {
         if (_vecCh[i].isPrivate())
         {
-            //verrif if INVITE
-            send(cl.GetFdOut(), "Sorry this channel is private\n", 31, 0);
+            if (_vecCh[i].isOnTheList(cl))
+                _vecCh[i].addNewClient(cl);
+            else
+                send(cl.GetFdOut(), "Sorry this channel is private\n", 31, 0);
         }
         else
         {
@@ -25,49 +47,84 @@ void server::joinCmd(std::vector<std::string> content, client cl)
     _vecCh.push_back(newchannel);
 }
 
-/*void server::inviteCmd(std::string name, client cl)
+//ICI Admin est le client a l'initiative de l'action
+void server::inviteCmd(std::string channel, client admin, client cl)
 {
-    Verifier si le client est bien admin
-    si non: acces denied
-    si oui: envoyer un message d'invitation au client selectione ?
-}*/
-
-/*void server::kickCmd(std::string name, client cl)
-{
-    if (cl.GetOperator())
+    int i = findChannel(channel);
+    if (i > -1)
     {
-        int before = //size du vector de client dans le channel;
-        vec.erase(find(v.begin(), v.end(), name));
-        if (before == size du vector)
-            send(cl.GetFdOut(), "This user doesn't exist\n", 25, 0);
+        if (admin.GetOperator())
+            _vecCh[i].addOnList(cl); //a faire
     }
     else
-        send(cl.GetFdOut(), "You have no right to kick another user\n", 40, 0);*/
-    /*verifier si le client est bien admin
-    si non: acces denied
-    si oui: kick
-}*/
+        send(cl.GetFdOut(), "Invalid command: channel doesn't exist\n", 40, 0);
+}
+
+//ICI Admin est le client a l'initiative de l'action
+void server::kickCmd(std::string name, client admin, client cl)
+{
+    int i = findChannel(name);
+    if (i > -1)
+    {
+        if (admin.GetOperator())
+            _vecCh[i].kick(cl); //a faire
+        else
+            send(cl.GetFdOut(), "You have no right to kick another user\n", 40, 0);
+    }
+    else
+        send(admin.GetFdOut(), "This channel doesn't exist\n", 28, 0);
+}
 
 /*void server::topicCmd()
 {}*/
 
-void server::modeCmd(std::vector<std::string> cmd)
+void server::modeCmd(std::vector<std::string> cmd, client cl)
 {
-    if (cmd[1] == "i")
-    {}
-    else if (cmd[1] == "t")
-    {}
-    else if (cmd[1] == "k")
-    {}
-    else if (cmd[1] == "o")
-    {}
-    else if (cmd[1] == "l")
-    {}
+    // cmd.size doit minimum etre de 3 !
+    // 0: MODE; 1: <channel>; 2: flag; 3: Option(pas obligatoire pour tous)
+    int i = findChannel(cmd[1]);
+    if (i > -1 && cl.GetOperator())
+    {
+        if (cmd[2] == "i")
+            _vecCh[i].allowInvite();
+        else if (cmd[1] == "t")
+        {
+            if (cmd.size > 3)
+                _vecCh[i].allowTopic(cmd[3]); //a faire
+            else
+                send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_topic>'\n", 61, 0);
+        }
+        else if (cmd[1] == "k")
+            _vecCh[i].allowkey(cmd);
+        else if (cmd[1] == "o")
+        {
+            if (validUser(cmd[3]))
+            {
+                if (cmd.size > 3)
+                    _vecCh[i].allowOperator(cmd[3]); //a faire
+                else
+                    send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_user>'\n", 60, 0);
+            }
+            else
+                send(cl.GetFdOut(), "This user doest't exist\n", 25, 0);
+        }
+        else if (cmd[1] == "l")
+        {
+            if (cmd.size > 3)
+                    _vecCh[i].allowUserLimit(cmd[3]); //a faire
+                else
+                    send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
+        }
+        else
+            ;
+    }
+    if (i == -1)
+        send(cl.GetFdOut(), "This channel doest't exist\n", 28, 0);
     else
-    {}
+        send(cl.GetFdOut(), "You have no right to change the topic\n", 39, 0);
 }
 
-void server::passCmd(std::string cmd, client &cl)
+void server::passCmd(std::string cmd, client &cl) //Possiblement useless
 {
     if (!cmd.empty())
     {
@@ -75,10 +132,7 @@ void server::passCmd(std::string cmd, client &cl)
         if (pass.size() == 2 && pass[0] == "PASS")
         {
             if (pass[1] == _PassW)
-            {
                 send(cl.GetFdOut(), "ok\n", 4, 0);
-                cl.addStep();
-            }
             else
             {
                 send(cl.GetFdOut(), "Wrong password, disconnected from the server\n", 46, 0);
@@ -88,14 +142,9 @@ void server::passCmd(std::string cmd, client &cl)
     }
 }
 
-void userCmd(std::string cmd, client cl)
-{
 
-}
-void nickCmd(std::string cmd, client cl)
-{}
-
-void server::parse(std::string message, client cl)
+//DEPRECATED, USED AS A REF
+/*void server::parse(std::string message, client cl) 
 {
     std::vector<std::string> sentence = splitCpp(message);
 
@@ -147,6 +196,6 @@ void server::parse(std::string message, client cl)
         else
         {
             printf("no parse\n");
-        }*/
+        }
     }
-}
+}*/
