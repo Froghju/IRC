@@ -48,7 +48,9 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec, this))
+		std::cerr << "check init veccl Nickname " << _vecCl[i-1].GetNickname() << std::endl;
+		std::cerr << "check init veccl UserName " << _vecCl[i-1].GetClientUserName() << std::endl;
+		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec, *this))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
 			(*vec).erase((*vec).begin() + i);
@@ -103,8 +105,8 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 	if ((*vec)[0].revents & POLLHUP)
 		std::cerr << "erreur hup" << std::endl;
 	(*vec)[0].revents = 0;
-	_Fro.hello(vec);
-	_Fro.frogsave(vec);
+	//_Fro.hello(vec);
+	//_Fro.frogsave(vec);
 	returnPollClients(vec);
 }
 
@@ -119,7 +121,7 @@ server::~server()
 }
 
 //privmsg ou join apres init
-bool server::initNetcat(client cl)
+bool server::initNetcat(client &cl)
 {
     send(cl.getOut(), "Please enter your user name:\n", 30, 0);
     std::string name = read_mess(cl.getOut());
@@ -157,13 +159,13 @@ bool server::initNetcat(client cl)
 	return true;
 }
 
-bool server::initHex(client cl)
+bool server::initHex(client &cl)
 {
 	bool check = true;
 	for (int i = 0; i < 2 && check; ++i)
 	{
 		std::string msg = read_mess(cl.getOut());
-		std::cerr << "msg : " << msg << std::endl;
+		std::cerr << "msg hex : " << msg << std::endl;
 		if (!msg.empty())
 		{
 			std::string cmd = find_cmd(msg);
@@ -231,7 +233,7 @@ bool server::initHex(client cl)
 	return check;
 }
 
-bool server::initUserNick(client cl)
+bool server::initUserNick(client &cl)
 {
 	bool check = true;
 	if (cl.getHex())
@@ -241,7 +243,7 @@ bool server::initUserNick(client cl)
 	return check;
 }
 
-bool server::Identification(std::vector<struct pollfd> *vec, client cl)
+bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
 	bool check  = true;
 	std::string msg = read_mess(cl.getOut());
@@ -257,11 +259,22 @@ bool server::Identification(std::vector<struct pollfd> *vec, client cl)
 				msg = read_mess(cl.getOut());
 				cmd = find_cmd(msg);
 				input = find_input(msg, cmd);
+				std::cerr << "cmd = " << cmd << std::endl;
+				std::cerr << "input = " << input << std::endl;
 			}
 			if (cmd == "PASS")
 			{
-				if (input.empty() || input != _PassW)
+
+				if (input.empty() || (input != _PassW && input != _PassW + "\r"))
+				{
+					std::cerr << "bad password" << std::endl;
 					check = false;
+				}
+			}
+			else
+			{
+				std::cerr << "bad input not PASS cmd" << std::endl;
+				check = false;
 			}
 		}
 		else
@@ -273,8 +286,12 @@ bool server::Identification(std::vector<struct pollfd> *vec, client cl)
 		check = initUserNick(cl);
 	if (check)
 	{
+		std::cerr << "check init cl Nickname " << cl.GetNickname() << std::endl;
+		std::cerr << "check init cl UserName " << cl.GetClientUserName() << std::endl;
 		_vecCl.push_back(cl);
         (*vec).push_back(cl.InitPollFd(cl.getOut()));
+		std::cerr << "check init veccl Nickname " << _vecCl[_vecCl.size() - 1].GetNickname() << std::endl;
+		std::cerr << "check init veccl UserName " << _vecCl[_vecCl.size() - 1].GetClientUserName() << std::endl;
 	}
 	else
 	{

@@ -58,7 +58,7 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv)
+bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
 {
     if (pipoll.events != 0)
     {
@@ -67,8 +67,7 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
 			std::string all_text = read_mess(pipoll.fd);
             if (!all_text.empty())
             {
-                server tmp = (*serv);
-                sendToAll(pipoll.fd, vec, all_text, _Nickname);
+                sendToAll(*this, vec, all_text, serv);
             }
             else
             {
@@ -98,21 +97,27 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
 
 void client::setClientName(std::string str)
 {
-    _UserName = str;
+    std::cerr << "str : "<<str << std::endl;
+    _UserName = str; 
+    std::cerr << "_UserName : " << _UserName << std::endl;  
 }
 
 std::string client::GetClientUserName() const
 {
+    std::cerr<< _UserName << std::endl;
     return (_UserName);
 }
 
 void client::setNickname(std::string str)
 {
+    std::cerr << "str : " << str<< std::endl;  
     _Nickname = str;
+    std::cerr << "_Nickname : " << _Nickname << std::endl;  
 }
 
 std::string client::GetNickname() const
 {
+    std::cerr<< _Nickname << std::endl;
     return (_Nickname);
 }
 

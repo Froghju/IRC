@@ -66,6 +66,7 @@ std::string read_mess(int fd)
         all_text.append(buffer);
         ++check;
     }
+    std::cerr << "all_text = " << all_text << std::endl;
     return (all_text);
 }
 
@@ -74,19 +75,27 @@ char *strTochar(std::string str) {
     return (buff);
 }
 
-void sendToAll(int fd, std::vector<struct pollfd> *vec, std::string message, std::string name)
+void sendToAll(client &cl, std::vector<struct pollfd> *vec, std::string message, server &serv)
 {
     int i = 1;
-    if (message == "\n")
-        message.append("\033[0m");
-    else
-        message.append("\n\033[0m");
-    message.insert(0, name);
-    message.insert(name.size(), " : \033[35m");
+    std::string hex_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost PRIVMSG #channel :" +
+                        message + "\r\n";
+    std::string nc_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost PRIVMSG #channel :" +
+                        message + "\n";
+    std::cerr << hex_mess << std::endl;
     for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
 	{
-        if ((*vec)[i].fd != fd)
-            send((*vec)[i].fd, message.c_str(), message.size(), 0);
+        if ((*vec)[i].fd != cl.getOut())
+        {
+            if (serv.getVecCl()[i-1].getHex())
+                send((*vec)[i].fd, hex_mess.c_str(), hex_mess.size(), 0);
+            else
+                send((*vec)[i].fd, nc_mess.c_str(), nc_mess.size(), 0);
+        }
 		i++;
 	}
 }
