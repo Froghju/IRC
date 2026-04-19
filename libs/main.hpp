@@ -20,15 +20,21 @@
 #include "class/client.hpp"
 #include "class/server.hpp"
 #include "frogy/frogy.hpp"
+#include "class/channel.hpp"
+
+//debug
+#include <stdio.h>
 
 class client;
 class frogy;
 class server;
 
+//utils.cpp
 std::string read_mess(int fd);
 char *strTochar(std::string str);
 void sendToAll(client &cl, std::vector<struct pollfd> *vec, std::string message, server &serv);
 std::string find_cmd(std::string str);
 std::string find_input(std::string str, std::string cmd);
+std::vector<std::string> splitCpp(std::string str);
 
 #endif

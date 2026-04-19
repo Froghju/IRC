@@ -14,7 +14,7 @@
 #***********************************************#
 
 SRCS = srcs/main.cpp srcs/client.cpp srcs/server.cpp \
-		srcs/utils.cpp srcs/frogy.cpp
+		srcs/utils.cpp srcs/frogy.cpp srcs/parse.cpp srcs/channel.cpp
 
 PLUS =	init_env.c clean_fd.c get_opt.c x.c main_loop.c \
 	init_fd.c do_select.c check_fd.c \

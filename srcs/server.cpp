@@ -303,8 +303,23 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 }
 /*void server::Identification(int fd_client, std::vector<struct pollfd> *vec, client cl)
 {
-    send(fd_client, "Welcome to Tha_Ghj's serv 🐸​!\nPlease enter your user name:\n", 65, 0);
-    std::string name = read_mess(fd_client);
+    std::string cmd = read_mess(fd_client);
+	(void)vec;
+
+	/*if (!cmd.empty())
+	{
+		std::vector<std::string> pass = splitCpp(cmd);
+		if (pass.size() == 2 && (pass[0] == "USER" || pass[0] == "NICK"))
+		{
+			if (pass[0] == "USER")
+				cl.setClientName(pass[1]);
+			else
+				cl.setNickname(pass[1]);
+		}
+		while (cl.GetClientUserName().empty() || cl.GetNickname().empty())
+			Identification(fd_client, vec, cl);
+	}
+	parse(cmd, cl);
 
     if (!name.empty())
     {

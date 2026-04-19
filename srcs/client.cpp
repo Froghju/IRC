@@ -13,8 +13,11 @@ client::client(int port) {
         _clientInfo.sin_family = AF_INET;
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
-        _size = new(socklen_t);
-        *_size = sizeof(_clientInfo);
+        _size = new socklen_t(sizeof(_clientInfo));
+        //        _size = new(socklen_t);
+        //*_size = sizeof(_clientInfo);
+        _out = -1;
+        _step = 0;
         _Hex = false;
     }
 }
@@ -38,7 +41,7 @@ struct pollfd client::InitPollFd(int fd)
 }
 
 client::~client() {
-    //delete _size;
+    delete _size;
     shutdown(_clientId, SHUT_RDWR);
     close(_clientId);
 }
@@ -58,7 +61,8 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
+#include <stdio.h>
+bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server *serv)
 {
     if (pipoll.events != 0)
     {
@@ -67,6 +71,7 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
 			std::string all_text = read_mess(pipoll.fd);
             if (!all_text.empty())
             {
+                //serv->parse(all_text, *this);
                 sendToAll(*this, vec, all_text, serv);
             }
             else
@@ -77,23 +82,18 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
         }
         if (pipoll.revents & POLLHUP)
         {
-            std::cout << "erreur pollhup" << std::endl;
+            std::cerr << "erreur pollhup" << std::endl;
             return false;
         }
         if (pipoll.revents & POLLERR)
         {
-            std::cout << "erreur pollerr" << std::endl;
+            std::cerr << "erreur pollerr" << std::endl;
             return false;
         }
         pipoll.revents = 0;
     }
     return true;
 }
-
-/*void client::doCmd(std::string msg, server *serv)
-{
-    //fct start commande
-}*/
 
 void client::setClientName(std::string str)
 {
@@ -126,6 +126,11 @@ void client::setOperator(bool perm)
     _Operator = perm;
 }
 
+void client::setFdOut(int out) 
+{
+    _out = out;
+}
+
 bool client::GetOperator() const
 {
     return (_Operator);
@@ -149,4 +154,19 @@ void client::setOut(int out)
 int client::getOut() const
 {
     return(_out);
+}
+
+int client::GetFdOut() const
+{
+    return _out;
+}
+
+int client::GetStep() const 
+{
+    return _step;
+}
+
+void client::addStep()
+{
+    _step++;
 }

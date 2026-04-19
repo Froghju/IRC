@@ -11,10 +11,12 @@ private:
     int _out;
     sockaddr_in _clientInfo;
     socklen_t * _size;
+
     std::string _UserName;
     std::string _Nickname;
     bool _Operator;
-    bool    _Hex;
+    bool _Hex;
+    int _step;
 
 public:
     client(int port);
@@ -28,12 +30,16 @@ public:
     void setHex(bool b);
     void setOut(int c);
     int getOut() const;
-    bool getHex() const;
+    bool getHex() const;    void setFdOut(int out);
+    void addStep();
+
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
     socklen_t * GetClientSize() const;
     bool GetOperator() const;
+    int GetFdOut() const;
+    int GetStep() const;
 
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv);
