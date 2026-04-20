@@ -36,11 +36,11 @@ bool server::validUser(std::string name)
     return false;
 }
 
-void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN FONCTION DE MODE
+void server::joinCmd(std::string channelName, std::string clientName, client cl) //PAS FINI EN FONCTION DE MODE
 {
-    if (isChannel(content[1]))
+    if (isChannel(channelName))
     {
-        size_t i = findChannel(content[1]);
+        size_t i = findChannel(channelName);
         if (_vecCh[i].isPrivate())
         {
             if (_vecCh[i].isOnTheList(cl))
@@ -54,9 +54,12 @@ void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN 
             return ;
         }
     }
-    channel newchannel(content[1], content[2]);
-    newchannel.addNewClient(cl); //fonction pas finie
-    _vecCh.push_back(newchannel);
+    else
+    {
+        channel newchannel(channelName, clientName);
+        newchannel.addNewClient(cl); //fonction pas finie
+        _vecCh.push_back(newchannel);
+    }
 }
 
 //ICI Admin est le client a l'initiative de l'action

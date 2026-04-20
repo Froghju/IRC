@@ -14,7 +14,7 @@ class frogy
 		~frogy();
 		void hello(std::vector<struct pollfd> *vec);
 		//void draw(std::vector<struct pollfd> *vec);
-		//void fact(std::vector<struct pollfd> *vec);
+		void fact(std::vector<struct pollfd> *vec);
 		void frogsave(std::vector<struct pollfd> *vec);
 };
 

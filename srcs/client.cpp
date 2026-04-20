@@ -73,6 +73,7 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
             {
                 //serv->parse(all_text, *this);
                 sendToAll(*this, vec, all_text, serv);
+                serv.ExecCmd(vec, *this, all_text);
             }
             else
             {

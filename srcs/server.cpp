@@ -243,7 +243,65 @@ bool server::initUserNick(client &cl)
 	return check;
 }
 
-
+void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
+{
+	std::string cmd = find_cmd(mess);
+	if (!cmd.empty())
+	{
+		if (cmd == "JOIN")
+		{
+			std::string channelName = findChannelName(mess, cmd);
+			std::string clientName = findClientName(mess, cmd);
+			joinCmd(channelName, clientName, cl);
+		}
+		else if (cmd == "KICK")
+		{
+			std::string channelName = findChannelName(mess, cmd);
+			std::string clientName = findClientName(mess, cmd);
+			kickCmd(channelName, cl, findClient(clientName));
+		}
+		else if (cmd == "INVITE")
+		{
+			std::string channelName = findChannelName(mess, cmd);
+			std::string clientName = find_input(mess, cmd);
+			inviteCmd(channelName, cl, findClient(clientName));
+		}
+		else if (cmd == "TOPIC")
+		{
+			std::string channelName = findChannelName(mess, cmd);
+			std::string input = find_input(mess, cmd);
+			topicCmd(channelName, input);
+		}
+		else if (cmd == "MODE")
+		{
+			std::string channelName = findChannelName(mess, cmd);
+			modeCmd(findAllOptCmd(mess, cmd), cl);
+		}
+		else if (cmd == "Frogy")
+			_Fro.hello(vec);
+		else if (cmd == "FROG?" || cmd == "FUNFACT")
+			_Fro.fact(vec);
+		else if (cmd == "DRAW" || cmd == "FROGSAVE" || cmd == "MOTHER" || cmd == "EARTHBOUND")
+			_Fro.frogsave(vec);
+		else
+		{
+			if (cmd == "PRIVMSG")
+			{
+				std::string clientName = findClientName(mess, cmd);
+				sendToClient(findClient(clientName), mess);
+			}
+			else
+			{
+				sendToAll(cl, vec, mess, *this);
+				//a renplacer par un sendToAllChanel
+			}
+		}
+	}
+	else
+	{
+		std::cerr << "bad message" << std::endl;
+	}
+}
 /*void server::parse(std::string message, client cl)
 {
     std::vector<std::string> sentence = splitCpp(message);
@@ -347,6 +405,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 		std::cerr << "check init cl UserName " << cl.GetClientUserName() << std::endl;
 		_vecCl.push_back(cl);
         (*vec).push_back(cl.InitPollFd(cl.getOut()));
+		//join serv par defaut ?
 		std::cerr << "check init veccl Nickname " << _vecCl[_vecCl.size() - 1].GetNickname() << std::endl;
 		std::cerr << "check init veccl UserName " << _vecCl[_vecCl.size() - 1].GetClientUserName() << std::endl;
 	}
