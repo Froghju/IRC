@@ -2,33 +2,45 @@
 #include "../libs/class/channel.hpp"
 #include "../libs/main.hpp"
 
-int findChannel(std::string name)
-{
-    int i = 0;
-    while (!_vecCh[i].sameName(content[1]))
-        i++;
-    if (i <= _vecCh.size() && _vecCh[i].sameName(content[1]))
-        return i;
-    else
-        return -1;
-}
-
-bool validUser(std::string name)
+size_t server::findChannel(std::string name) //a verif si int ou passage ensize_t + une fct bool si channel ou non
 {
     size_t i = 0;
-    while (_vecCl[i].GetClientUserName() != name)
+    while (i < _vecCh.size())
+    {
+        if (_vecCh[i].sameName(name))
+            return i;
+    }
+    return 0;
+}
+
+bool server::isChannel(std::string name)
+{
+    size_t i = 0;
+    while (i < _vecCh.size())
+    {
+        if (_vecCh[i].sameName(name))
+            return true;
+    }
+    return false;
+}
+
+bool server::validUser(std::string name)
+{
+    size_t i = 0;
+    while (i < _vecCl.size())
+    {
+        if (_vecCl[i].GetClientUserName() == name)
+            return true;
         i++;
-    if (i > _vecCl[i].size())
-        return false;
-    else
-        return true;
+    }
+    return false;
 }
 
 void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN FONCTION DE MODE
 {
-    int i = findChannel(content[1]);
-    if (i > -1)
+    if (isChannel(content[1]))
     {
+        size_t i = findChannel(content[1]);
         if (_vecCh[i].isPrivate())
         {
             if (_vecCh[i].isOnTheList(cl))
@@ -87,7 +99,7 @@ void server::modeCmd(std::vector<std::string> cmd, client cl)
     {
         if (cmd[2] == "i")
             _vecCh[i].allowInvite();
-        else if (cmd[1] == "t")
+        /*else if (cmd[1] == "t")
         {
             if (cmd.size > 3)
                 _vecCh[i].allowTopic(cmd[3]); //a faire
@@ -100,7 +112,7 @@ void server::modeCmd(std::vector<std::string> cmd, client cl)
         {
             if (validUser(cmd[3]))
             {
-                if (cmd.size > 3)
+                if (cmd.size() > 3)
                     _vecCh[i].allowOperator(cmd[3]); //a faire
                 else
                     send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_user>'\n", 60, 0);
@@ -110,13 +122,13 @@ void server::modeCmd(std::vector<std::string> cmd, client cl)
         }
         else if (cmd[1] == "l")
         {
-            if (cmd.size > 3)
+            if (cmd.size() > 3)
                     _vecCh[i].allowUserLimit(cmd[3]); //a faire
                 else
                     send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
-        }
+        }*/
         else
-            ;
+            std::cerr << "error bad extention mode" << std::endl;
     }
     if (i == -1)
         send(cl.GetFdOut(), "This channel doest't exist\n", 28, 0);
@@ -173,7 +185,7 @@ void server::passCmd(std::string cmd, client &cl) //Possiblement useless
             else
                 send(cl.GetFdOut(), "Invalid command: JOIN <server_name>\n", 37, 0);
         }
-        /*else if (sentence[0] == "INVITE")
+        else if (sentence[0] == "INVITE")
         {
             printf("cmd INVITE\n");
         }

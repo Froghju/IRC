@@ -165,7 +165,8 @@ bool client::operator==(const client &src) const
 {
     if (_clientId == src._clientId
         && _out == src._out
-        && _clientInfo == src._clientInfo
+        && _clientInfo.sin_addr.s_addr == src._clientInfo.sin_addr.s_addr
+        && _clientInfo.sin_port == src._clientInfo.sin_port
         && _size == src._size
         && _UserName == src._UserName
         && _Nickname == src._Nickname

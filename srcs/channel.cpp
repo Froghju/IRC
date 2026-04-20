@@ -24,18 +24,18 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    int i = 0;
-    int j = 0;
-    while (i <= _channelClient[i].size())
+    size_t i = 0;
+    size_t j = 0;
+    while (i <= _channelClients.size())
     {
-        if (_channelClient[i] == cl)
-            _channelClient.erase(i);
+        if (_channelClients[i] == cl)
+            _channelClients.erase(_channelClients.begin() + i);
         i++;
     }
-    while (j <= _list[j].size())
+    while (j <= _list.size())
     {
         if (_list[j] == cl)
-            _list.erase(j);
+            _list.erase(_list.begin() + j);
         j++;
     }
 }
@@ -58,7 +58,7 @@ bool channel::sameName(std::string str) {
         return true;
     return false;
 }
-bool channel::isPrivate()
+bool channel::isPrivate() const
 {
     return _private;
 }
@@ -66,10 +66,11 @@ bool channel::isPrivate()
 bool channel::isOnTheList(client cl) const
 {
     size_t i = 0;
-    while (_list[i] != cl)
+    while (i < _list.size())
+    {
+        if (_list[i] == cl)
+            return true;
         i++;
-    if (i > vec[i].size())
-        return false;
-    else
-        return true;
+    }
+    return false;
 }

@@ -16,6 +16,8 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <map>
+#include <deque>
 
 #include "class/client.hpp"
 #include "class/server.hpp"

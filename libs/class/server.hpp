@@ -39,11 +39,14 @@ public:
 	//parse
 	void parse(std::string message, client cl);
 	void joinCmd(std::vector<std::string> content, client cl);
-	void inviteCmd(std::string name, client cl);
-	void kickCmd(std::string name, client cl);
 	void topicCmd();
-	void modeCmd(std::vector<std::string> cmd);
-	void passCmd(client &cl);
+	size_t findChannel(std::string name);
+	bool validUser(std::string name);
+	void inviteCmd(std::string channel, client admin, client cl);
+	void kickCmd(std::string name, client admin, client cl);
+	void modeCmd(std::vector<std::string> cmd, client cl);
+	void passCmd(std::string cmd, client &cl);
+	bool isChannel(std::string name);
 
 	~server();
 };

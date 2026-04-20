@@ -1,5 +1,5 @@
 #pragma once
-#include "client.hpp"
+#include "../main.hpp"
 
 class client;
 
@@ -25,9 +25,9 @@ public:
     void addNewClient(client cl);
     void addOnList(client cl);
     void kick(client cl);
-    void allowInvate();
+    void allowInvite();
 
     bool sameName(std::string str);
-    bool isPrivite() const;
+    bool isPrivate() const;
     bool isOnTheList(client cl) const;
 };
