@@ -1,7 +1,7 @@
 #include "../libs/main.hpp"
 
-channel::channel() : _nbAdmin(0), _private(false) {}
-channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false) {}
+channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false), _hasKey(true) {}
+channel::channel(std::string name) : _name(name), _nbAdmin(0), _private(false), _hasKey(false) {}
 channel::~channel() {}
 
 std::string channel::getKey() const
@@ -9,7 +9,6 @@ std::string channel::getKey() const
     return _key;
 }
 
-//void channel::setTopic(std::string newTopic) {}
 void channel::sendToAll(client &cl, std::string message, server &serv)
 {
     int i = 1;
@@ -89,16 +88,31 @@ void channel::allowInvite()
         _private = true;
 }
 
-
+void channel::allowkey(std::vector<std::string> cmd)
+{
+    if (_hasKey)
+    {
+        _hasKey = false;
+        return;
+    }
+    else
+        _hasKey = true;
+}
 
 bool channel::sameName(std::string str) {
     if (str == _name)
         return true;
     return false;
 }
+
 bool channel::isPrivate() const
 {
     return _private;
+}
+
+bool channel::hasKey() const
+{
+    return _hasKey;
 }
 
 bool channel::isOnTheList(client cl)

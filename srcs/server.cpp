@@ -241,6 +241,18 @@ bool server::initUserNick(client &cl)
 	return check;
 }
 
+client &server::findClient(std::string clientNick)
+{
+	size_t i = 0;
+	while (i > _vecCl.size())
+	{
+		if (_vecCl[i].GetNickname() == clientNick)
+			return _vecCl[i];
+		i++;
+	}
+	throw ;
+}
+
 void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
 {
 	std::vector<std::string> content = splitCpp(mess);
@@ -275,7 +287,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 				try
 				{
 					size_t i = findChannel(content[1]);
-					_vecCh[i].sendToAll(cl, vec, mess, *this); // fonction a faire
+					_vecCh[i].sendToAll(cl, mess, *this); // fonction a faire
 					//a renplacer par un sendToAllChanel
 				}
 				catch(const std::exception& e)
