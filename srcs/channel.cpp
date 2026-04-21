@@ -1,19 +1,29 @@
 #include "../libs/main.hpp"
 
-channel::channel() : _private(false), _inviteOnly(false) {}
-channel::channel(std::string name, std::string key) : _name(name), _key(key)
+channel::channel() : _private(false), _nbAdmin(0) {}
+channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false)
 {
     _private = false;
-    _inviteOnly = false;
 }
+
 channel::~channel() {}
+
+std::string channel::getKey() const
+{
+    return _key;
+}
 
 //void channel::setTopic(std::string newTopic) {}
 void channel::sendToAll() {}
 void channel::addNewClient(client cl) {
-/*peut-etre un petit checking pour savoir si le 
-client est deja dans le vector ou pas*/
-    _channelClients.push_back(cl);
+    if (isOnTheChannel(cl))
+        return ;
+    else
+    {
+        if (_nbAdmin == 0)
+            //METTRE EN ADMIN (fonction comme mode -o)
+        _channelClients.push_back(cl);
+    }
 }
 
 void channel::addOnList(client cl) 
@@ -24,13 +34,21 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    size_t i = 0;
-    size_t j = 0;
+    int i = 0;
+    int j = 0;
     while (i <= _channelClients.size())
     {
-        if (_channelClients[i] == cl)
-            _channelClients.erase(_channelClients.begin() + i);
-        i++;
+        if (cl.GetOperator())
+        {
+            if (_nbAdmin == 1)
+            {
+                send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
+                return ;
+            }
+            if (_channelClients[i] == cl)
+                _channelClients.erase(_channelClients.begin() + i);
+            i++;
+        }
     }
     while (j <= _list.size())
     {
@@ -42,13 +60,13 @@ void channel::kick(client cl)
 
 void channel::allowInvite()
 {
-    if (_inviteOnly)
+    if (_private)
     {
-        _inviteOnly = false;
+        _private = false;
         return;
     }
     else
-        _inviteOnly = true;
+        _private = true;
 }
 
 
@@ -63,14 +81,24 @@ bool channel::isPrivate() const
     return _private;
 }
 
-bool channel::isOnTheList(client cl) const
+bool channel::isOnTheList(client cl)
 {
     size_t i = 0;
-    while (i < _list.size())
-    {
-        if (_list[i] == cl)
-            return true;
+    while (_list[i] != cl)
         i++;
-    }
-    return false;
+    if (i > _list.size())
+        return false;
+    else
+        return true;
+}
+
+bool channel::isOnTheChannel(client cl)
+{
+    size_t i = 0;
+    while (_channelClients[i] != cl)
+        i++;
+    if (i > _channelClients.size())
+        return false;
+    else
+        return true;
 }

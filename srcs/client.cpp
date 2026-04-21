@@ -14,11 +14,7 @@ client::client(int port) {
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
         _size = new socklen_t(sizeof(_clientInfo));
-        //        _size = new(socklen_t);
-        //*_size = sizeof(_clientInfo);
         _out = -1;
-        _step = 0;
-        _Hex = false;
     }
 }
 
@@ -61,7 +57,6 @@ socklen_t * client::GetClientSize() const
     return (_size);
 }
 
-#include <stdio.h>
 bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
 {
     if (pipoll.events != 0)
@@ -98,27 +93,27 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
 
 void client::setClientName(std::string str)
 {
-    std::cerr << "str : "<<str << std::endl;
+    //std::cerr << "str : "<<str << std::endl;
     _UserName = str; 
-    std::cerr << "_UserName : " << _UserName << std::endl;  
+    //std::cerr << "_UserName : " << _UserName << std::endl;
 }
 
 std::string client::GetClientUserName() const
 {
-    std::cerr<< _UserName << std::endl;
+    //std::cerr << _UserName << std::endl;
     return (_UserName);
 }
 
 void client::setNickname(std::string str)
 {
-    std::cerr << "str : " << str<< std::endl;  
+    //std::cerr << "str : " << str<< std::endl;  
     _Nickname = str;
-    std::cerr << "_Nickname : " << _Nickname << std::endl;  
+    //std::cerr << "_Nickname : " << _Nickname << std::endl;  
 }
 
 std::string client::GetNickname() const
 {
-    std::cerr<< _Nickname << std::endl;
+    //std::cerr << _Nickname << std::endl;
     return (_Nickname);
 }
 
@@ -152,12 +147,12 @@ void client::setOut(int out)
     _out = out;
 }
 
-int client::getOut() const
+int client::getOut() const //ATTENTION 2 FOIS LES MEME
 {
     return(_out);
 }
 
-int client::GetFdOut() const
+int client::GetFdOut() const //ATTENTION 2 FOIS LES MEME
 {
     return _out;
 }
@@ -172,6 +167,21 @@ bool client::operator==(const client &src) const
         && _UserName == src._UserName
         && _Nickname == src._Nickname
         && _Operator == src._Operator)
+        return true;
+    else
+        return false;
+}
+
+bool client::operator!=(const client &src) const
+{
+    if (_clientId != src._clientId
+        && _out != src._out
+        && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
+        && _clientInfo.sin_port != src._clientInfo.sin_port
+        && _size != src._size
+        && _UserName != src._UserName
+        && _Nickname != src._Nickname
+        && _Operator != src._Operator)
         return true;
     else
         return false;

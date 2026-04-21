@@ -16,7 +16,6 @@ private:
     std::string _Nickname;
     bool _Operator;
     bool _Hex;
-    int _step;
 
 public:
     client(int port);
@@ -32,7 +31,6 @@ public:
     int getOut() const;
     bool getHex() const;
     void setFdOut(int out);
-    void addStep();
 
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
@@ -46,6 +44,7 @@ public:
     void doCmd(std::string msg, server *serv);
 
     bool operator==(const client &src) const;
+    bool operator!=(const client &src) const;
 
     class InvalidClientSig : public std::exception {
         public:

@@ -18,6 +18,7 @@
 #include <fstream>
 #include <map>
 #include <deque>
+#include <bits/stdc++.h>
 
 #include "class/client.hpp"
 #include "class/server.hpp"

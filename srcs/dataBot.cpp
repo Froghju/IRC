@@ -86,7 +86,7 @@ std::map<int, std::string> initDataBot()
 
     frogy[40] = "La Breviceps Macrops (grenouille de pluie du désert) ne coasse pas, mais couine comme Sophie la girafe";
     
-    frogy[41] = "";
+    frogy[41] = "Les images de ce frogy bot proviennent du jeu 'Mother 3'. C'est un jeu vidéo de rôle développé par Brownie Brown et HAL Laboratory, et édité par Nintendo au Japon en 2006;";
     
     return frogy;
 }

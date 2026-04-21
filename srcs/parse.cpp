@@ -2,26 +2,16 @@
 #include "../libs/class/channel.hpp"
 #include "../libs/main.hpp"
 
-size_t server::findChannel(std::string name) //a verif si int ou passage ensize_t + une fct bool si channel ou non
+size_t server::findChannel(std::string name)
 {
     size_t i = 0;
     while (i < _vecCh.size())
     {
         if (_vecCh[i].sameName(name))
             return i;
+        i++;
     }
-    return 0;
-}
-
-bool server::isChannel(std::string name)
-{
-    size_t i = 0;
-    while (i < _vecCh.size())
-    {
-        if (_vecCh[i].sameName(name))
-            return true;
-    }
-    return false;
+    throw ;
 }
 
 bool server::validUser(std::string name)
@@ -36,11 +26,17 @@ bool server::validUser(std::string name)
     return false;
 }
 
-void server::joinCmd(std::string channelName, std::string clientName, client cl) //PAS FINI EN FONCTION DE MODE
+void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN FONCTION DE MODE
 {
-    if (isChannel(channelName))
+    try
     {
-        size_t i = findChannel(channelName);
+        size_t i = findChannel(content[1]);
+        /* if (_vecCh[i].hasPass())
+                if (content[2] != _vecCh[i].getKey())
+                {
+                    send(cl.GetFdOut(), "Invalid password\n", 18, 0);
+                    return ;
+                }*/
         if (_vecCh[i].isPrivate())
         {
             if (_vecCh[i].isOnTheList(cl))
@@ -54,9 +50,10 @@ void server::joinCmd(std::string channelName, std::string clientName, client cl)
             return ;
         }
     }
-    else
+    catch(const std::exception& e)
     {
-        channel newchannel(channelName, clientName);
+        (void)e;
+        channel newchannel(content[1], content[2]);
         newchannel.addNewClient(cl); //fonction pas finie
         _vecCh.push_back(newchannel);
     }
