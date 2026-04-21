@@ -1,8 +1,6 @@
 #include "../libs/class/server.hpp"
 
-server::server()
-{
-}
+server::server() {}
 
 server::server(int port, std::string password) : _PassW(password), _Port(port), _Fro()
 {
@@ -245,55 +243,46 @@ bool server::initUserNick(client &cl)
 
 void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
 {
-	std::string cmd = find_cmd(mess);
-	if (!cmd.empty())
+	std::vector<std::string> content = splitCpp(mess);
+	if (!content[1].empty())
 	{
-		if (cmd == "JOIN")
-		{
-			std::string channelName = findChannelName(mess, cmd);
-			std::string clientName = findClientName(mess, cmd);
-			joinCmd(channelName, clientName, cl);
-		}
-		else if (cmd == "KICK")
-		{
-			std::string channelName = findChannelName(mess, cmd);
-			std::string clientName = findClientName(mess, cmd);
-			kickCmd(channelName, cl, findClient(clientName));
-		}
-		else if (cmd == "INVITE")
-		{
-			std::string channelName = findChannelName(mess, cmd);
-			std::string clientName = find_input(mess, cmd);
-			inviteCmd(channelName, cl, findClient(clientName));
-		}
-		else if (cmd == "TOPIC")
-		{
-			std::string channelName = findChannelName(mess, cmd);
-			std::string input = find_input(mess, cmd);
-			topicCmd(channelName, input);
-		}
-		else if (cmd == "MODE")
-		{
-			std::string channelName = findChannelName(mess, cmd);
-			modeCmd(findAllOptCmd(mess, cmd), cl);
-		}
-		else if (cmd == "Frogy")
+		if (content[1] == "JOIN")
+			joinCmd(content, cl);
+		else if (content[1] == "KICK")
+			kickCmd(content, cl);
+		else if (content[1] == "INVITE")
+			inviteCmd(content, cl);
+		else if (content[1] == "TOPIC") //THAIS
+			topicCmd(content);
+		else if (content[1] == "MODE")
+			modeCmd(content, cl);
+		else if (content[1] == "Frogy")
 			_Fro.hello(vec);
-		else if (cmd == "FROG?" || cmd == "FUNFACT")
+		else if (content[1] == "FROG?" || content[1] == "FUNFACT")
 			_Fro.fact(vec);
-		else if (cmd == "DRAW" || cmd == "FROGSAVE" || cmd == "MOTHER" || cmd == "EARTHBOUND")
+		else if (content[1] == "DRAW" || content[1] == "FROGSAVE" || content[1] == "MOTHER" || content[1] == "EARTHBOUND")
 			_Fro.frogsave(vec);
 		else
 		{
-			if (cmd == "PRIVMSG")
+			if (content[1] == "PRIVMSG")
 			{
-				std::string clientName = findClientName(mess, cmd);
-				sendToClient(findClient(clientName), mess);
+				//faire truc content
+				//std::string clientName = findClientName(mess, content[1]);
+				//sendToClient(findClient(clientName), mess);
 			}
 			else
 			{
-				sendToAll(cl, vec, mess, *this);
-				//a renplacer par un sendToAllChanel
+				try
+				{
+					size_t i = findChannel(content[1]);
+					_vecCh[i].sendToAll(cl, vec, mess, *this); // fonction a faire
+					//a renplacer par un sendToAllChanel
+				}
+				catch(const std::exception& e)
+				{
+					(void)e;
+					send(cl.GetFdOut(), "Invalid channel name\n", 22, 0);
+				}
 			}
 		}
 	}

@@ -60,9 +60,10 @@ void server::joinCmd(std::vector<std::string> content, client cl) //PAS FINI EN 
 }
 
 //ICI Admin est le client a l'initiative de l'action
-void server::inviteCmd(std::string channel, client admin, client cl)
+void server::inviteCmd(std::vector<std::string> content, client admin)
 {
-    int i = findChannel(channel);
+    //client &cl = findclient(clName);
+    int i = findChannel(content[1]);
     if (i > -1)
     {
         if (admin.GetOperator())
@@ -73,8 +74,10 @@ void server::inviteCmd(std::string channel, client admin, client cl)
 }
 
 //ICI Admin est le client a l'initiative de l'action
-void server::kickCmd(std::string name, client admin, client cl)
+void server::kickCmd(std::vector<std::string> content, client admin)
 {
+    //FONCTION A CORRIGER
+    //client &cl = findclient(clName);
     int i = findChannel(name);
     if (i > -1)
     {
@@ -102,13 +105,13 @@ void server::modeCmd(std::vector<std::string> cmd, client cl)
         /*else if (cmd[1] == "t")
         {
             if (cmd.size > 3)
-                _vecCh[i].allowTopic(cmd[3]); //a faire
+                _vecCh[i].allowTopic(cmd[3]); //a faire THAIS
             else
                 send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_topic>'\n", 61, 0);
         }
-        else if (cmd[1] == "k")
+        else if (cmd[1] == "k") //GHJU
             _vecCh[i].allowkey(cmd);
-        else if (cmd[1] == "o")
+        else if (cmd[1] == "o") //THAIS
         {
             if (validUser(cmd[3]))
             {
@@ -120,7 +123,7 @@ void server::modeCmd(std::vector<std::string> cmd, client cl)
             else
                 send(cl.GetFdOut(), "This user doest't exist\n", 25, 0);
         }
-        else if (cmd[1] == "l")
+        else if (cmd[1] == "l") // THAIS
         {
             if (cmd.size() > 3)
                     _vecCh[i].allowUserLimit(cmd[3]); //a faire

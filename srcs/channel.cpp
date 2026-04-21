@@ -1,11 +1,7 @@
 #include "../libs/main.hpp"
 
-channel::channel() : _private(false), _nbAdmin(0) {}
-channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false)
-{
-    _private = false;
-}
-
+channel::channel() : _nbAdmin(0), _private(false) {}
+channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false) {}
 channel::~channel() {}
 
 std::string channel::getKey() const
@@ -14,7 +10,31 @@ std::string channel::getKey() const
 }
 
 //void channel::setTopic(std::string newTopic) {}
-void channel::sendToAll() {}
+void channel::sendToAll(client &cl, std::string message, server &serv)
+{
+    int i = 1;
+    std::string hex_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost PRIVMSG #channel :" +
+                        message + "\r\n";
+    std::string nc_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost PRIVMSG #channel :" +
+                        message + "\n";
+    std::cerr << hex_mess << std::endl;
+    for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
+	{
+        if (_channelClients[i].getOut() != cl.getOut())
+        {
+            if (serv.getVecCl()[i-1].getHex())
+                send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
+            else
+                send(_channelClients[i].getOut(), nc_mess.c_str(), nc_mess.size(), 0);
+        }
+		i++;
+	}
+}
+
 void channel::addNewClient(client cl) {
     if (isOnTheChannel(cl))
         return ;
@@ -34,8 +54,8 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    int i = 0;
-    int j = 0;
+    size_t i = 0;
+    size_t j = 0;
     while (i <= _channelClients.size())
     {
         if (cl.GetOperator())

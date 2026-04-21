@@ -23,7 +23,7 @@ public:
     std::string getKey() const;
 
     //void setTopic(std::string newTopic);
-    void sendToAll(); // not done
+    void sendToAll(client &cl, std::string message, server &serv);
     void addNewClient(client cl);
     void addOnList(client cl);
     void kick(client cl);
