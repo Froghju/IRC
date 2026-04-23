@@ -173,7 +173,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
         else if (cmd[1] == "t")
             _vecCh[i].allowResTopic();
         else if (cmd[1] == "k")
-            _vecCh[i].allowkey(cmd);
+            _vecCh[i].allowkey();
         else if (cmd[1] == "o") //THAIS
         {
             if (cmd.size() > 3)

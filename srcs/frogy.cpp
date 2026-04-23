@@ -19,6 +19,7 @@ frogy::frogy() : _Name("Frogy")
 	_Frogsave[14] = "Save_Frog_vat";
 	_Frogsave[15] = "Save_Frog_wheelchair";
 	_Frogsave[16] = "Save_Frog_whirloop";
+	_Fact = initDataBot();
 }
 
 frogy::~frogy()
@@ -43,12 +44,25 @@ void frogy::hello(std::vector<struct pollfd> *vec)
 /*void frogy::draw(std::vector<struct pollfd> *vec)
 {
 
-}
-
+}*/
+//a modif pour send channel ou mp priver
 void frogy::fact(std::vector<struct pollfd> *vec)
 {
-
-}*/
+	int r = rand() % _Fact.size();
+	std::cerr << r << " check" << std::endl;
+	std::ifstream file(_Frogsave[r].c_str());
+	std::cerr << "check2" << std::endl;
+	std::string tmp, str_nc;
+	while (std::getline(file, tmp))
+		str_nc += tmp + "\n";
+	std::cerr << str_nc << std::endl; //pourquoi vide ?
+	int i = 1;
+    for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
+	{
+        send((*vec)[i].fd, str_nc.c_str(), str_nc.size(), 0);
+		i++;
+	}
+}
 
 void frogy::frogsave(std::vector<struct pollfd> *vec)
 {

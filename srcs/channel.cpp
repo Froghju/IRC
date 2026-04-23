@@ -88,7 +88,7 @@ void channel::allowInvite()
         _private = true;
 }
 
-void channel::allowkey(std::vector<std::string> cmd)
+void channel::allowkey()
 {
     if (_hasKey)
     {
@@ -152,7 +152,7 @@ std::string channel::getTopic()
 
 bool channel::isAdmin(client cl)
 {
-    for (size_t i; i < _admin.size(); i++)
+    for (size_t i = 0; i < _admin.size(); i++)
     {
         if (cl == _admin[i])
             return true;

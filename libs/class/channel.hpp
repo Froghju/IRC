@@ -1,7 +1,9 @@
 #pragma once
 #include "client.hpp"
+#include "../main.hpp"
 
 class client;
+class server;
 
 class channel
 {
@@ -32,7 +34,7 @@ public:
 
     void kick(client cl);
     void allowInvite();
-    void allowkey(std::vector<std::string> cmd);
+    void allowkey();
     void setTopic(std::string cmd);
     std::string getTopic();
     void setLimitCl(size_t limit);

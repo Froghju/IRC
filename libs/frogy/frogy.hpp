@@ -6,7 +6,7 @@
 class frogy
 {
 	private :
-		std::string	_Fact[42];
+		std::map<int ,std::string>	_Fact;
 		std::string _Frogsave[17];
 		std::string _Name;
 	public :
