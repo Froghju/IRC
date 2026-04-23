@@ -16,7 +16,7 @@ private:
     std::string _Nickname;
     bool _Operator;
     bool _Hex;
-
+    bool _admin;
 public:
     client(int port);
     client &operator=(const client & src);

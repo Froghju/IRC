@@ -49,8 +49,8 @@ public:
 	std::vector<std::string> findAllOptCmd(std::string mess, std::string cmd);
 	void ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess);
 	void joinCmd(std::string channelName, std::string clientName, client cl);
-	void topicCmd(std::vector<std::string> content);
-	void sendToClient(client cl, std::string mess);
+	void topicCmd(std::vector<std::string> cmd, client &cl);
+	void sendToClient(std::vector<std::string> mess);
 	~server();
 };
 

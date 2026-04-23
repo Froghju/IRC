@@ -253,6 +253,27 @@ client &server::findClient(std::string clientNick)
 	throw ;
 }
 
+void server::sendToClient(std::vector<std::string> content)
+{
+	try
+	{
+		if (content.size() < 3)
+			throw ;
+		std::string str;
+		for (size_t i = 3; i < content.size(); i++)
+		{
+			str += content[i];
+		}
+		str += "\r\n";
+		send(findClient(content[2]).getOut(), str.c_str(), str.size(), 0);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
+}
+
 void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
 {
 	std::vector<std::string> content = splitCpp(mess);
@@ -264,8 +285,8 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 			kickCmd(content, cl);
 		else if (content[1] == "INVITE")
 			inviteCmd(content, cl);
-		else if (content[1] == "TOPIC") //THAIS
-			topicCmd(content);
+		else if (content[1] == "TOPIC")
+			topicCmd(content, cl);
 		else if (content[1] == "MODE")
 			modeCmd(content, cl);
 		else if (content[1] == "Frogy")
@@ -277,18 +298,13 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 		else
 		{
 			if (content[1] == "PRIVMSG")
-			{
-				//faire truc content
-				//std::string clientName = findClientName(mess, content[1]);
-				//sendToClient(findClient(clientName), mess);
-			}
+				sendToClient(content);
 			else
 			{
 				try
 				{
 					size_t i = findChannel(content[1]);
-					_vecCh[i].sendToAll(cl, mess, *this); // fonction a faire
-					//a renplacer par un sendToAllChanel
+					_vecCh[i].sendToAll(cl, mess, *this);
 				}
 				catch(const std::exception& e)
 				{

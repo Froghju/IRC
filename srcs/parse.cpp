@@ -119,6 +119,50 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         send(admin.GetFdOut(), "Invalid command: KICK <channel> <user>\n", 41, 0);
 }
 
+void server::topicCmd(std::vector<std::string> cmd, client &cl)
+{
+    size_t pos = findChannel(cmd[1]);
+    if (cmd.size() == 2)
+    {
+        if (_vecCh[pos].getResTopic())
+        {
+            if (_vecCh[pos].isAdmin(cl))
+            {
+                std::string str;
+                for (size_t i = 2; i < cmd.size(); i++)
+                {
+                    str += cmd[i];
+                }
+                _vecCh[pos].setTopic(str);
+            }
+            else
+            {
+                std::string str = "Error you don't have the permission to change topic";
+                send(cl.getOut(), str.c_str(), str.size(), 0);
+            }
+        }
+        else
+        {
+            std::string str;
+            for (size_t i = 2; i < cmd.size(); i++)
+            {
+                str += cmd[i];
+            }
+            _vecCh[pos].setTopic(str);
+        }
+    }
+    else
+    {
+        if (!_vecCh[pos].getTopic().empty())
+            send(cl.getOut(), _vecCh[pos].getTopic().c_str(), _vecCh[pos].getTopic().size(), 0);
+        else
+        {
+            std::string str = "This channel have no topic";
+            send(cl.getOut(), str.c_str(), str.size(), 0);
+        }
+    }
+}
+
 void server::modeCmd(std::vector<std::string> cmd, client admin)
 {
     try
@@ -126,34 +170,49 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
         size_t i = findChannel(cmd[1]);
         if (cmd[2] == "i")
             _vecCh[i].allowInvite();
-        /*else if (cmd[1] == "t")
-        {
-            if (cmd.size > 3)
-                _vecCh[i].allowTopic(cmd[3]); //a faire THAIS
-            else
-                send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_topic>'\n", 61, 0);
-        }*/
+        else if (cmd[1] == "t")
+            _vecCh[i].allowResTopic();
         else if (cmd[1] == "k")
             _vecCh[i].allowkey(cmd);
-        /*else if (cmd[1] == "o") //THAIS
-        {
-            if (validUser(cmd[3]))
-            {
-                if (cmd.size() > 3)
-                    _vecCh[i].allowOperator(cmd[3]); //a faire
-                else
-                    send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <name_of_the_user>'\n", 60, 0);
-            }
-            else
-                send(cl.GetFdOut(), "This user doest't exist\n", 25, 0);
-        }
-        else if (cmd[1] == "l") // THAIS
+        else if (cmd[1] == "o") //THAIS
         {
             if (cmd.size() > 3)
-                    _vecCh[i].allowUserLimit(cmd[3]); //a faire
+            {
+                if (_vecCh[i].validUser(cmd[3]))
+                    _vecCh[i].allowOperator(cmd[3]); //a faire
                 else
-                    send(cl.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
-        }*/
+                {
+                    std::string str = "Not valid user\n";
+                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                }
+            }
+            else
+            {
+                if (_vecCh[i].getResTopic() && !_vecCh[i].isAdmin(admin))
+                {
+                    std::string str = "Can't be a operator\n";
+                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                }
+                else
+                    _vecCh[i].allowOperator(admin.GetClientUserName());
+            }
+        }
+        else if (cmd[1] == "l")
+        {
+            if (cmd.size() > 3)
+            {
+                size_t nb = std::atoi(cmd[3].c_str());
+                if (nb < _vecCh[i].getchannelClients().size())
+                    _vecCh[i].setLimitCl(nb);
+                else
+                {
+                    std::string str = "limit to small too many client in the channel\n";
+                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                }
+            }
+            else
+                send(admin.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
+        }
         else
             std::cerr << "error bad extention mode" << std::endl;
     }

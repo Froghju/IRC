@@ -136,3 +136,78 @@ bool channel::isOnTheChannel(client cl)
     else
         return true;
 }
+
+void channel::setTopic(std::string topic)
+{
+    if (!_topic.empty())
+        _topic.clear();
+    _topic = topic;
+}
+
+
+std::string channel::getTopic()
+{
+    return (_topic);
+}
+
+bool channel::isAdmin(client cl)
+{
+    for (size_t i; i < _admin.size(); i++)
+    {
+        if (cl == _admin[i])
+            return true;
+    }
+    return false;
+}
+
+void channel::setLimitCl(size_t limit)
+{
+    _limitCl = limit;
+}
+
+size_t channel::getLimitCl()
+{
+    return (_limitCl);
+}
+
+std::vector<client> channel::getchannelClients()
+{
+    return (_channelClients);
+}
+
+bool channel::getResTopic()
+{
+    return (_resTopic);
+}
+
+void channel::allowResTopic()
+{
+    if (_resTopic)
+        _resTopic = false;
+    else
+        _resTopic = true;
+}
+
+bool channel::validUser(std::string name)
+{
+    size_t i = 0;
+    while (i < _channelClients.size())
+    {
+        if (_channelClients[i].GetClientUserName() == name)
+            return true;
+        i++;
+    }
+    return false;
+}
+
+void channel::allowOperator(std::string name)
+{
+    size_t i = 0;
+    while (i < _channelClients.size())
+    {
+        if (_channelClients[i].GetClientUserName() == name)
+            break;
+        i++;
+    }
+    _admin.push_back(_channelClients[i]);
+}
