@@ -202,6 +202,16 @@ bool channel::validUser(std::string name)
 
 void channel::allowOperator(std::string name)
 {
+    size_t  j = 0;
+    while (j < _admin.size())
+    {
+        if (_admin[j].GetClientUserName() == name)
+        {
+            _admin.erase(_admin.begin() + j);
+            return;
+        }
+        j++;
+    }
     size_t i = 0;
     while (i < _channelClients.size())
     {

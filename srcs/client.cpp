@@ -15,6 +15,7 @@ client::client(int port) {
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
         _size = new socklen_t(sizeof(_clientInfo));
         _out = -1;
+        _inChannel = false;
     }
 }
 
@@ -67,7 +68,6 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
             if (!all_text.empty())
             {
                 //serv->parse(all_text, *this);
-                sendToAll(*this, vec, all_text, serv);
                 serv.ExecCmd(vec, *this, all_text);
             }
             else
@@ -185,4 +185,9 @@ bool client::operator!=(const client &src) const
         return true;
     else
         return false;
+}
+
+bool client::getInChannel()
+{
+    return _inChannel;
 }

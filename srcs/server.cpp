@@ -103,8 +103,6 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 	if ((*vec)[0].revents & POLLHUP)
 		std::cerr << "erreur hup" << std::endl;
 	(*vec)[0].revents = 0;
-	//_Fro.hello(vec);
-	//_Fro.frogsave(vec);
 	returnPollClients(vec);
 }
 
@@ -299,7 +297,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 		{
 			if (content[1] == "PRIVMSG")
 				sendToClient(content);
-			else
+			else if (cl.getInChannel())
 			{
 				try
 				{
@@ -312,6 +310,11 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 					send(cl.GetFdOut(), "Invalid channel name\n", 22, 0);
 				}
 			}
+			else
+			{
+				std::string str = "Join a channel to talk to people\n";
+				send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+			}
 		}
 	}
 	else
@@ -319,61 +322,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 		std::cerr << "bad message" << std::endl;
 	}
 }
-/*void server::parse(std::string message, client cl)
-{
-    std::vector<std::string> sentence = splitCpp(message);
 
-    if (!message.empty())
-    {
-        if (cl.GetStep() < 3)
-        {
-            if (cl.GetStep() == 0)
-            {
-                if (sentence[0] == "PASS")
-                    passCmd(cl);
-            }
-            else
-            {
-                if (sentence[0] == "USER")
-                    userCmd();
-                if (sentence[0] == "NICK")
-                    nickCmd();
-            }
-        }
-        if (sentence[0] == "JOIN")
-        {
-            //printf("cmd JOIN\n");
-            if (sentence.size() > 2)
-                joinCmd(sentence, cl);
-            else
-                send(cl.GetFdOut(), "Invalid command: JOIN <server_name>\n", 37, 0);
-        }
-        else if (sentence[0] == "INVITE")
-        {
-            printf("cmd INVITE\n");
-        }
-        else if (sentence[0] == "KICK")
-        {
-            printf("cmd KICK\n");
-        }
-        else if (sentence[0] == "TOPIC")
-        {
-            printf("cmd TOPIC\n");
-        }
-        else if (sentence[0] == "MODE")
-        {
-            printf("cmd MODE\n");
-            if (sentence.size() > 1)
-                modeCmd(sentence);
-            else
-                send(cl.GetFdOut(), "Invalid command: MODE <flag>\n", 30, 0);
-        }
-        else
-        {
-            printf("no parse\n");
-        }
-    }
-}*/
 
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {

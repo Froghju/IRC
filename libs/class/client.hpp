@@ -17,6 +17,7 @@ private:
     bool _Operator;
     bool _Hex;
     bool _admin;
+    bool _inChannel;
 public:
     client(int port);
     client &operator=(const client & src);
@@ -42,6 +43,7 @@ public:
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv);
     void doCmd(std::string msg, server *serv);
+    bool getInChannel();
 
     bool operator==(const client &src) const;
     bool operator!=(const client &src) const;
