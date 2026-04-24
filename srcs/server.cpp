@@ -262,6 +262,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 					_vecCh[i].sendToAll(cl, mess, *this);
 				else
 				{
+					std::cerr << "check ou" << std::endl;
 					std::string str = "Join channel to talk to people\n";
 					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
 					str.clear();
@@ -269,6 +270,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 			}
 			catch(const std::exception& e)
 			{
+				std::cerr << "check 2" << std::endl;
 				(void)e;
 				std::string str = "Join channel to talk to people\n";
 				send(cl.GetFdOut(), str.c_str(), str.size(), 0);

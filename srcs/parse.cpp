@@ -11,8 +11,7 @@ size_t server::findChannel(std::string name)
             return i;
         i++;
     }
-    std::exception e = "Not in the channel";
-    throw (e);
+    throw ChannelNotFound();
 }
 
 bool server::validUser(std::string name)
@@ -62,8 +61,8 @@ void server::joinCmd(std::vector<std::string> content, client cl)
         }
         catch(const std::exception& e)
         {
-            (void)e;
-            channel newchannel(content[1], content[2]);
+            std::cerr << e.what() << std::endl;
+            channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);
         }
@@ -88,7 +87,7 @@ void server::inviteCmd(std::vector<std::string> content, client admin)
         }
         catch(const std::exception& e)
         {
-            (void)e;
+            std::cerr << e.what() << std::endl;
             send(admin.GetFdOut(), "Invalid command: channel or client doesn't exist\n", 50, 0);
         }
     }
@@ -112,7 +111,7 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         }
         catch(const std::exception& e)
         {
-            (void)e;
+            std::cerr << e.what() << std::endl;
             send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
         }
     }
@@ -219,7 +218,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     }
     catch(const std::exception& e)
     {
-        (void)e;
+        std::cerr << e.what() << std::endl;
         send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
     }
 }

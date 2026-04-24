@@ -52,6 +52,17 @@ public:
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess);
 	bool initClient(client &cl);
+
+	class ChannelNotFound : public std::exception {
+
+        public:
+
+            virtual const char* what() const throw()
+            {
+                return ("Channel name not found");
+            }
+    };
+
 	~server();
 };
 
