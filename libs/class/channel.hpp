@@ -34,7 +34,7 @@ public:
 
     void kick(client cl);
     void allowInvite();
-    void allowkey();
+    void allowkey(std::vector<std::string> cmd, int out);
     void setTopic(std::string cmd);
     std::string getTopic();
     void setLimitCl(size_t limit);
