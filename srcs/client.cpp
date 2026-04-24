@@ -13,7 +13,7 @@ client::client(int port) {
         _clientInfo.sin_family = AF_INET;
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
-        _size = new socklen_t(sizeof(_clientInfo));
+        //_size = socklen_t(sizeof(_clientInfo));
         _out = -1;
         _inChannel = false;
     }
@@ -23,7 +23,7 @@ client &client::operator=(const client & src)
 {
     _clientId = src._clientId;
     _clientInfo = src._clientInfo;
-    _size = src._size;
+    //_size = src._size;
     _Hex = src._Hex;
     return(*this);
 }
@@ -38,7 +38,7 @@ struct pollfd client::InitPollFd(int fd)
 }
 
 client::~client() {
-    delete _size;
+    //delete _size;
     shutdown(_clientId, SHUT_RDWR);
     close(_clientId);
 }
@@ -53,10 +53,10 @@ sockaddr_in client::GetClientInfo() const
 	return (_clientInfo);
 }
 
-socklen_t * client::GetClientSize() const
+/*socklen_t client::GetClientSize() const
 {
     return (_size);
-}
+}*/
 
 bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
 {
@@ -65,9 +65,9 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
         if (pipoll.revents & POLLIN)
         {
 			std::string all_text = read_mess(pipoll.fd);
+            std::cerr << "ICI: " << all_text << std::endl;
             if (!all_text.empty())
             {
-                //serv->parse(all_text, *this);
                 serv.ExecCmd(vec, *this, all_text);
             }
             else
@@ -163,7 +163,7 @@ bool client::operator==(const client &src) const
         && _out == src._out
         && _clientInfo.sin_addr.s_addr == src._clientInfo.sin_addr.s_addr
         && _clientInfo.sin_port == src._clientInfo.sin_port
-        && _size == src._size
+        //&& _size == src._size
         && _UserName == src._UserName
         && _Nickname == src._Nickname
         && _Operator == src._Operator)
@@ -178,7 +178,7 @@ bool client::operator!=(const client &src) const
         && _out != src._out
         && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
         && _clientInfo.sin_port != src._clientInfo.sin_port
-        && _size != src._size
+        //&& _size != src._size
         && _UserName != src._UserName
         && _Nickname != src._Nickname
         && _Operator != src._Operator)

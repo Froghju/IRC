@@ -40,7 +40,7 @@ void channel::addNewClient(client cl) {
     else
     {
         if (_nbAdmin == 0)
-            //METTRE EN ADMIN (fonction comme mode -o)
+            allowOperator(cl.GetClientUserName());
         _channelClients.push_back(cl);
     }
 }

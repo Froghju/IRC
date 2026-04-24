@@ -10,7 +10,7 @@ private:
     int _clientId;
     int _out;
     sockaddr_in _clientInfo;
-    socklen_t * _size;
+    //socklen_t _size;
 
     std::string _UserName;
     std::string _Nickname;
@@ -36,7 +36,7 @@ public:
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
-    socklen_t * GetClientSize() const;
+    //socklen_t GetClientSize() const;
     bool GetOperator() const;
     int GetFdOut() const;
 

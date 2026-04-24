@@ -46,8 +46,6 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		std::cerr << "check init veccl Nickname " << _vecCl[i-1].GetNickname() << std::endl;
-		std::cerr << "check init veccl UserName " << _vecCl[i-1].GetClientUserName() << std::endl;
 		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec, *this))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
@@ -88,7 +86,8 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 	if ((*vec)[0].revents & POLLIN)
     {
         client cl(_Port);
-		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), cl.GetClientSize());
+		socklen_t len = sizeof(cl.GetClientInfo());
+		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), &len);
 		if (fd_client == -1)
 			std::cerr << "ERROR: can't accept connection" << std::endl;
 		else
@@ -220,51 +219,60 @@ void server::sendToClient(std::vector<std::string> content)
 	{
 		std::cerr << e.what() << '\n';
 	}
-	
 }
 
 void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
 {
 	std::vector<std::string> content = splitCpp(mess);
-	if (!content[1].empty())
+	size_t j = 0;
+    while (j < content.size())
+    {
+        std::cout << "result: .." << content[j] << ".." << std::endl;
+        j++;
+    }
+	if (!content[0].empty())
 	{
-		if (content[1] == "JOIN")
+		if (content[0] == "JOIN")
+		{
 			joinCmd(content, cl);
-		else if (content[1] == "KICK")
+			std::cout << "good join" << std::endl;
+		}
+		else if (content[0] == "KICK")
 			kickCmd(content, cl);
-		else if (content[1] == "INVITE")
+		else if (content[0] == "INVITE")
 			inviteCmd(content, cl);
-		else if (content[1] == "TOPIC")
+		else if (content[0] == "TOPIC")
 			topicCmd(content, cl);
-		else if (content[1] == "MODE")
+		else if (content[0] == "MODE")
 			modeCmd(content, cl);
-		else if (content[1] == "Frogy")
+		else if (content[0] == "Frogy")
 			_Fro.hello(vec);
-		else if (content[1] == "FROG?" || content[1] == "FUNFACT")
+		else if (content[0] == "FROG?" || content[0] == "FUNFACT")
 			_Fro.fact(vec);
-		else if (content[1] == "DRAW" || content[1] == "FROGSAVE" || content[1] == "MOTHER" || content[1] == "EARTHBOUND")
+		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
 			_Fro.frogsave(vec);
+		else if (content[0] == "PRIVMSG")
+			sendToClient(content);
 		else
 		{
-			if (content[1] == "PRIVMSG")
-				sendToClient(content);
-			else if (cl.getInChannel())
+			try
 			{
-				try
-				{
-					size_t i = findChannel(content[1]);
+				size_t i = findChannel(content[0]);
+				if (_vecCh[i].isOnTheChannel(cl))
 					_vecCh[i].sendToAll(cl, mess, *this);
-				}
-				catch(const std::exception& e)
+				else
 				{
-					(void)e;
-					send(cl.GetFdOut(), "Invalid channel name\n", 22, 0);
+					std::string str = "Join channel to talk to people\n";
+					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+					str.clear();
 				}
 			}
-			else
+			catch(const std::exception& e)
 			{
-				std::string str = "Join a channel to talk to people\n";
+				(void)e;
+				std::string str = "Join channel to talk to people\n";
 				send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+				str.clear();
 			}
 		}
 	}

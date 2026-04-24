@@ -128,18 +128,18 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(str);
     else if (pos != str.size())
     {
-        tmp = (char *)malloc(sizeof(char) * len - 1);
+        tmp = (char *)malloc(sizeof(char) * len);
         str.copy(tmp, len, pos);
         tmp[len - 1] = '\0';
         cut.push_back(tmp);
         free(tmp);
     }
 
-    /*size_t j = 0;
+    size_t j = 0;
     while (j < cut.size())
     {
-        std::cout << "result: " << cut[j] << std::endl;
+        std::cout << "result: ." << cut[j] << '.' << std::endl;
         j++;
-    }*/
+    }
     return cut;
 }
