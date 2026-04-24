@@ -23,7 +23,7 @@ private:
     frogy   _Frog;
 
 public:
-    channel(std::string _name, std::string key);
+    channel(std::vector<std::string> content);
     channel(std::string _name);
     ~channel();
 

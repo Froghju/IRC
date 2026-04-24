@@ -1,7 +1,17 @@
 #include "../libs/main.hpp"
 
-channel::channel(std::string name, std::string key) : _name(name), _key(key), _nbAdmin(0), _private(false), _hasKey(true) {}
-channel::channel(std::string name) : _name(name), _nbAdmin(0), _private(false), _hasKey(false) {}
+channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false)
+{
+    if (content.size() > 2)
+    {
+        _key = content[2];
+        _hasKey = true;
+    }
+    else
+        _hasKey = false;
+    _name = content[1];
+}
+
 channel::~channel() {}
 
 std::string channel::getKey() const
@@ -11,7 +21,8 @@ std::string channel::getKey() const
 
 void channel::sendToAll(client &cl, std::string message)
 {
-    int i = 1;
+    //conditionnal jump
+    int i = 0;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
                         "@localhost PRIVMSG #channel :" +
@@ -53,9 +64,9 @@ void channel::addNewClient(client cl) {
         return ;
     else
     {
-        if (_nbAdmin == 0)
-            allowOperator(cl.GetClientUserName());
         _channelClients.push_back(cl);
+        if (_nbAdmin == 0)
+            allowOperator(cl.GetNickname());
     }
 }
 
@@ -131,24 +142,12 @@ bool channel::hasKey() const
 
 bool channel::isOnTheList(client cl)
 {
-    size_t i = 0;
-    while (_list[i] != cl)
-        i++;
-    if (i > _list.size())
-        return false;
-    else
-        return true;
+    return (find(_list.begin(), _list.end(), cl) != _list.end());
 }
 
 bool channel::isOnTheChannel(client cl)
 {
-    size_t i = 0;
-    while (_channelClients[i] != cl)
-        i++;
-    if (i > _channelClients.size())
-        return false;
-    else
-        return true;
+    return (find(_channelClients.begin(), _channelClients.end(), cl) != _channelClients.end());
 }
 
 void channel::setTopic(std::string topic)
@@ -202,26 +201,27 @@ void channel::allowResTopic()
         _resTopic = true;
 }
 
-bool channel::validUser(std::string name)
+bool channel::validUser(std::string nick)
 {
     size_t i = 0;
     while (i < _channelClients.size())
     {
-        if (_channelClients[i].GetClientUserName() == name)
+        if (_channelClients[i].GetNickname() == nick)
             return true;
         i++;
     }
     return false;
 }
 
-void channel::allowOperator(std::string name)
+void channel::allowOperator(std::string nick)
 {
     size_t  j = 0;
     while (j < _admin.size())
     {
-        if (_admin[j].GetClientUserName() == name)
+        if (_admin[j].GetNickname() == nick)
         {
             _admin.erase(_admin.begin() + j);
+            --_nbAdmin;
             return;
         }
         j++;
@@ -229,9 +229,10 @@ void channel::allowOperator(std::string name)
     size_t i = 0;
     while (i < _channelClients.size())
     {
-        if (_channelClients[i].GetClientUserName() == name)
+        if (_channelClients[i].GetNickname() == nick)
             break;
         i++;
     }
     _admin.push_back(_channelClients[i]);
+    ++_nbAdmin;
 }

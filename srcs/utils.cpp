@@ -134,12 +134,11 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(tmp);
         free(tmp);
     }
-
-    size_t j = 0;
+    /*size_t j = 0;
     while (j < cut.size())
     {
         std::cout << "result: ." << cut[j] << '.' << std::endl;
         j++;
-    }
+    }*/
     return cut;
 }

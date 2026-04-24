@@ -271,6 +271,7 @@ void server::ExecCmd(client &cl, std::string mess)
 					_vecCh[i].sendToAll(cl, mess);
 				else
 				{
+					std::cerr << "check ou" << std::endl;
 					std::string str = "Join channel to talk to people\n";
 					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
 					str.clear();
@@ -278,6 +279,7 @@ void server::ExecCmd(client &cl, std::string mess)
 			}
 			catch(const std::exception& e)
 			{
+				std::cerr << "check 2" << std::endl;
 				(void)e;
 				std::string str = "Join channel to talk to people\n";
 				send(cl.GetFdOut(), str.c_str(), str.size(), 0);

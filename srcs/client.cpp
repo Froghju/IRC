@@ -65,7 +65,7 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
         if (pipoll.revents & POLLIN)
         {
 			std::string all_text = read_mess(pipoll.fd);
-            std::cerr << "ICI: " << all_text << std::endl;
+            //std::cerr << "ICI: " << all_text << std::endl;
             if (!all_text.empty())
             {
                 serv.ExecCmd(*this, all_text);
@@ -174,6 +174,10 @@ bool client::operator==(const client &src) const
 
 bool client::operator!=(const client &src) const
 {
+    std::cerr << _out << std::endl;
+    std::cerr << _clientInfo.sin_addr.s_addr << std::endl;
+    std::cerr << _clientInfo.sin_port << std::endl;
+    std::cerr << _clientId << std::endl;
     if (_clientId != src._clientId
         && _out != src._out
         && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
