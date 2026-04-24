@@ -116,46 +116,7 @@ server::~server()
 	close(_IdSocket);
 }
 
-//privmsg ou join apres init
-bool server::initNetcat(client &cl)
-{
-    send(cl.getOut(), "Please enter your user name:\n", 30, 0);
-    std::string name = read_mess(cl.getOut());
-    if (!name.empty())
-    {
-        for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
-        {
-            if (it->GetClientUserName() == name)
-            {
-                send(cl.getOut(), "Sorry username already used\nDisconnected from the server", 57, 0);
-				return(false);
-            }
-        }
-		cl.setClientName(name);
-        send(cl.getOut(), "Please enter your nickname:\n", 29, 0);
-    }
-	else
-		return false;
-	std::string nickname = read_mess(cl.getOut());
-	if (!nickname.empty())
-	{
-		for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
-		{
-			if (itt->GetNickname() == name)
-			{
-				send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server", 57, 0);
-				return false;
-			}
-		}
-	}
-	else
-		return false;
-	cl.setNickname(nickname);
-	send(cl.getOut(), "Welcome to Tha_Ghj's serv 🐸​!\n", 36, 0);
-	return true;
-}
-
-bool server::initHex(client &cl)
+bool server::initClient(client &cl)
 {
 	bool check = true;
 	for (int i = 0; i < 2 && check; ++i)
@@ -226,16 +187,6 @@ bool server::initHex(client &cl)
 		std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
 		send(cl.getOut(), msg.c_str(), msg.size(), 0);
 	}
-	return check;
-}
-
-bool server::initUserNick(client &cl)
-{
-	bool check = true;
-	if (cl.getHex())
-		check = initHex(cl);
-	else
-		check = initNetcat(cl);
 	return check;
 }
 
@@ -336,7 +287,6 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 			std::string input = find_input(msg, cmd);
 			if (cmd == "CAP")
 			{
-				cl.setHex(true);
 				msg = read_mess(cl.getOut());
 				cmd = find_cmd(msg);
 				input = find_input(msg, cmd);
@@ -364,7 +314,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 	else
 		check = false;
 	if (check)
-		check = initUserNick(cl);
+		check = initClient(cl);
 	if (check)
 	{
 		std::cerr << "check init cl Nickname " << cl.GetNickname() << std::endl;

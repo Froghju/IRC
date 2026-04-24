@@ -174,12 +174,12 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
             _vecCh[i].allowResTopic();
         else if (cmd[1] == "k")
             _vecCh[i].allowkey();
-        else if (cmd[1] == "o") //THAIS
+        else if (cmd[1] == "o")
         {
             if (cmd.size() > 3)
             {
                 if (_vecCh[i].validUser(cmd[3]))
-                    _vecCh[i].allowOperator(cmd[3]); //a faire
+                    _vecCh[i].allowOperator(cmd[3]);
                 else
                 {
                     std::string str = "Not valid user\n";

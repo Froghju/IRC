@@ -51,6 +51,7 @@ public:
 	void joinCmd(std::string channelName, std::string clientName, client cl);
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess);
+	bool initClient(client &cl);
 	~server();
 };
 
