@@ -3,6 +3,8 @@
 
 #include "../main.hpp"
 
+class channel;
+
 class frogy
 {
 	private :
@@ -12,10 +14,10 @@ class frogy
 	public :
 		frogy(/* args */);
 		~frogy();
-		void hello(std::vector<struct pollfd> *vec);
+		void hello(channel ch);
 		//void draw(std::vector<struct pollfd> *vec);
-		void fact(std::vector<struct pollfd> *vec);
-		void frogsave(std::vector<struct pollfd> *vec);
+		void fact(channel ch);
+		void frogsave(channel ch);
 };
 
 #endif

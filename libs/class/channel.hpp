@@ -20,6 +20,7 @@ private:
     bool _hasKey;
     bool _resTopic;
     size_t  _limitCl;
+    frogy   _Frog;
 
 public:
     channel(std::string _name, std::string key);
@@ -28,7 +29,8 @@ public:
 
     std::string getKey() const;
 
-    void sendToAll(client &cl, std::string message, server &serv);
+    void sendToAll(client &cl, std::string message);
+    void FrogSendToAll(std::string message);
     void addNewClient(client cl);
     void addOnList(client cl);
 

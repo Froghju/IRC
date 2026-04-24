@@ -47,7 +47,7 @@ public:
 	void passCmd(std::string cmd, client &cl);
 	client &findClient(std::string clientNick);
 	std::vector<std::string> findAllOptCmd(std::string mess, std::string cmd);
-	void ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess);
+	void ExecCmd(client &cl, std::string mess);
 	void joinCmd(std::string channelName, std::string clientName, client cl);
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess);

@@ -58,7 +58,7 @@ sockaddr_in client::GetClientInfo() const
     return (_size);
 }*/
 
-bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *vec, server &serv)
+bool client::checkPollRevents(struct pollfd pipoll, server &serv)
 {
     if (pipoll.events != 0)
     {
@@ -68,7 +68,7 @@ bool client::checkPollRevents(struct pollfd pipoll, std::vector<struct pollfd> *
             std::cerr << "ICI: " << all_text << std::endl;
             if (!all_text.empty())
             {
-                serv.ExecCmd(vec, *this, all_text);
+                serv.ExecCmd(*this, all_text);
             }
             else
             {

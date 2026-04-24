@@ -11,8 +11,7 @@ size_t server::findChannel(std::string name)
             return i;
         i++;
     }
-    std::exception e = "Not in the channel";
-    throw (e);
+    throw;
 }
 
 bool server::validUser(std::string name)

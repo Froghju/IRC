@@ -46,7 +46,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], vec, *this))
+		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], *this))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
 			(*vec).erase((*vec).begin() + i);
@@ -221,7 +221,7 @@ void server::sendToClient(std::vector<std::string> content)
 	}
 }
 
-void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string mess)
+void server::ExecCmd(client &cl, std::string mess)
 {
 	std::vector<std::string> content = splitCpp(mess);
 	size_t j = 0;
@@ -246,11 +246,20 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 		else if (content[0] == "MODE")
 			modeCmd(content, cl);
 		else if (content[0] == "Frogy")
-			_Fro.hello(vec);
+		{
+			size_t i = findChannel(content[0]);
+			_Fro.hello(_vecCh[i]);
+		}
 		else if (content[0] == "FROG?" || content[0] == "FUNFACT")
-			_Fro.fact(vec);
+		{
+			size_t i = findChannel(content[0]);
+			_Fro.fact(_vecCh[i]);
+		}
 		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
-			_Fro.frogsave(vec);
+		{
+			size_t i = findChannel(content[0]);
+			_Fro.frogsave(_vecCh[i]);
+		}
 		else if (content[0] == "PRIVMSG")
 			sendToClient(content);
 		else
@@ -259,7 +268,7 @@ void server::ExecCmd(std::vector<struct pollfd> *vec, client &cl, std::string me
 			{
 				size_t i = findChannel(content[0]);
 				if (_vecCh[i].isOnTheChannel(cl))
-					_vecCh[i].sendToAll(cl, mess, *this);
+					_vecCh[i].sendToAll(cl, mess);
 				else
 				{
 					std::string str = "Join channel to talk to people\n";

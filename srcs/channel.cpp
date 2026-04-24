@@ -9,27 +9,41 @@ std::string channel::getKey() const
     return _key;
 }
 
-void channel::sendToAll(client &cl, std::string message, server &serv)
+void channel::sendToAll(client &cl, std::string message)
 {
     int i = 1;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
                         "@localhost PRIVMSG #channel :" +
                         message + "\r\n";
-    std::string nc_mess = ":" + cl.GetNickname() +
+    /*std::string nc_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
                         "@localhost PRIVMSG #channel :" +
-                        message + "\n";
+                        message + "\n";*/
     std::cerr << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
         if (_channelClients[i].getOut() != cl.getOut())
         {
-            if (serv.getVecCl()[i-1].getHex())
-                send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
-            else
-                send(_channelClients[i].getOut(), nc_mess.c_str(), nc_mess.size(), 0);
+            send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
         }
+		i++;
+	}
+}
+
+void channel::FrogSendToAll(std::string message)
+{
+    int i = 1;
+    std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG #channel :" +
+                        message + "\r\n";
+    /*std::string nc_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost PRIVMSG #channel :" +
+                        message + "\n";*/
+    std::cerr << hex_mess << std::endl;
+    for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
+	{
+        send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
 		i++;
 	}
 }
