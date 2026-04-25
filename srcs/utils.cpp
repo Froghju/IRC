@@ -108,18 +108,29 @@ std::vector<std::string> splitCpp(std::string str)
     int i = 0;
     size_t pos = 0;
     int len = 0;
+    bool check = false;
 
     while (str[i])
     {
         if (str[i] == ' ')
         {
             tmp = (char *)malloc(sizeof(char) * len + 1);
-            str.copy(tmp, len, pos);
-            tmp[len] = '\0';
-            cut.push_back(tmp);
+            if (check == false)
+            {
+                str.copy(tmp, len, pos);
+                tmp[len] = '\0';
+                cut.push_back(tmp);
+            }
+            else
+            {
+                str.copy(tmp, len, pos);
+                tmp[len - 1] = '\0';
+                cut.push_back(tmp);
+            }
             pos = i + 1;
             len = 0;
             free(tmp);
+            check = true;
         }
         i++;
         len++;

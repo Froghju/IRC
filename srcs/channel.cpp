@@ -134,6 +134,11 @@ void channel::allowkey(std::vector<std::string> cmd, int out)
 }
 
 bool channel::sameName(std::string str) {
+    std::cerr << "channel name find : " << str << "channel name : " << _name << std::endl;
+    bool t = str == _name;
+    std::cerr << "channel name cmp channel name find: " << t << std::endl;
+    int e = strcmp(str.c_str(), _name.c_str());
+    std::cerr << "channel name cmp channel name find cmp: " << e << std::endl;
     if (str == _name)
         return true;
     return false;

@@ -5,6 +5,8 @@
 size_t server::findChannel(std::string name)
 {
     size_t i = 0;
+    std::cerr << "size vec channel " << _vecCh.size() << std::endl;
+    std::cerr << "name " << name << std::endl;  
     while (i < _vecCh.size())
     {
         if (_vecCh[i].sameName(name))
