@@ -247,17 +247,17 @@ void server::ExecCmd(client &cl, std::string mess)
 			modeCmd(content, cl);
 		else if (content[0] == "Frogy")
 		{
-			size_t i = findChannel(content[0]);
+			size_t i = findChannel(content[1]);
 			_Fro.hello(_vecCh[i]);
 		}
 		else if (content[0] == "FROG?" || content[0] == "FUNFACT")
 		{
-			size_t i = findChannel(content[0]);
+			size_t i = findChannel(content[1]);
 			_Fro.fact(_vecCh[i]);
 		}
 		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
 		{
-			size_t i = findChannel(content[0]);
+			size_t i = findChannel(content[1]);
 			_Fro.frogsave(_vecCh[i]);
 		}
 		else if (content[0] == "PRIVMSG")

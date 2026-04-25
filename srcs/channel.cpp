@@ -1,6 +1,6 @@
 #include "../libs/main.hpp"
 
-channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false)
+channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false), _resTopic(false)
 {
     if (content.size() > 2)
     {
@@ -44,7 +44,7 @@ void channel::sendToAll(client &cl, std::string message)
 
 void channel::FrogSendToAll(std::string message)
 {
-    int i = 1;
+    int i = 0;
     std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG #channel :" +
                         message + "\r\n";
     /*std::string nc_mess = ":" + cl.GetNickname() +

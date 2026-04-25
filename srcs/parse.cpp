@@ -124,16 +124,20 @@ void server::kickCmd(std::vector<std::string> content, client admin)
 void server::topicCmd(std::vector<std::string> cmd, client &cl)
 {
     size_t pos = findChannel(cmd[1]);
-    if (cmd.size() == 2)
+    if (cmd.size() == 3)
     {
         if (_vecCh[pos].getResTopic())
         {
-            if (_vecCh[pos].isAdmin(cl))
+            if (!_vecCh[pos].getResTopic() ||_vecCh[pos].isAdmin(cl))
             {
                 std::string str;
                 for (size_t i = 2; i < cmd.size(); i++)
                 {
                     str += cmd[i];
+                    if (i + 1 < cmd.size())
+                        str += " ";
+                    else
+                        str += "\n";
                 }
                 _vecCh[pos].setTopic(str);
             }
@@ -156,10 +160,12 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
     else
     {
         if (!_vecCh[pos].getTopic().empty())
+        {
             send(cl.getOut(), _vecCh[pos].getTopic().c_str(), _vecCh[pos].getTopic().size(), 0);
+        }
         else
         {
-            std::string str = "This channel have no topic";
+            std::string str = "This channel have no topic\n";
             send(cl.getOut(), str.c_str(), str.size(), 0);
         }
     }
