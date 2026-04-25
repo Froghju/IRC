@@ -168,13 +168,13 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     try
     {
         size_t i = findChannel(cmd[1]);
-        if (cmd[2] == "i")
+        if (cmd[2] == "-i")
             _vecCh[i].allowInvite();
-        else if (cmd[1] == "t")
+        else if (cmd[2] == "-t")
             _vecCh[i].allowResTopic();
-        else if (cmd[1] == "k")
-            _vecCh[i].allowkey();
-        else if (cmd[1] == "o")
+        else if (cmd[2] == "-k") // METTRE LE MDP SI Y'EN A UN
+            _vecCh[i].allowkey(cmd, admin.GetFdOut());
+        else if (cmd[2] == "-o")
         {
             if (cmd.size() > 3)
             {
@@ -197,7 +197,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].allowOperator(admin.GetClientUserName());
             }
         }
-        else if (cmd[1] == "l")
+        else if (cmd[2] == "-l")
         {
             if (cmd.size() > 3)
             {

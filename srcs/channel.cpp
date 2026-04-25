@@ -113,7 +113,7 @@ void channel::allowInvite()
         _private = true;
 }
 
-void channel::allowkey()
+void channel::allowkey(std::vector<std::string> cmd, int out)
 {
     if (_hasKey)
     {
@@ -121,7 +121,16 @@ void channel::allowkey()
         return;
     }
     else
-        _hasKey = true;
+    {
+        if (cmd.size() > 3)
+        {
+            _key.clear();
+            _key = cmd[3];
+            _hasKey = true;
+        }
+        else
+            send(out, "Error: You need to enter the password to set one\n", 50, 0);
+    }
 }
 
 bool channel::sameName(std::string str) {
