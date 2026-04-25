@@ -122,7 +122,7 @@ bool server::initClient(client &cl)
 	{
 		std::string msg = read_mess(cl.getOut());
 		std::cerr << "msg hex : " << msg << std::endl;
-		if (!msg.empty())
+		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 		{
 			std::string cmd = find_cmd(msg);
 			std::cerr << "cmd : " << cmd << std::endl;
@@ -130,7 +130,7 @@ bool server::initClient(client &cl)
 			std::cerr << "input : " << input << std::endl;
 			if (cmd == "NICK")
 			{
-				if (!input.empty())
+				if (!input.empty() && input != "\n" && input != "\r\n" && input[0] != '\0')
 				{
 					for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
 					{
@@ -154,7 +154,7 @@ bool server::initClient(client &cl)
 			}
 			else if (cmd == "USER")
 			{
-				if (!input.empty())
+				if (!input.empty() && input[0] != '\n')
 				{
 					for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
 					{
@@ -192,13 +192,14 @@ bool server::initClient(client &cl)
 client &server::findClient(std::string clientNick)
 {
 	size_t i = 0;
-	while (i > _vecCl.size())
+	while (i < _vecCl.size())
 	{
+		std::cerr << "Veccl nickname = " << _vecCl[i].GetNickname() << " client nickname find = " << clientNick << std::endl;
 		if (_vecCl[i].GetNickname() == clientNick)
 			return _vecCl[i];
 		i++;
 	}
-	throw ;
+	throw ClientNotFound();
 }
 
 void server::sendToClient(std::vector<std::string> content)
@@ -206,14 +207,16 @@ void server::sendToClient(std::vector<std::string> content)
 	try
 	{
 		if (content.size() < 3)
-			throw ;
+			throw NoMessage();
 		std::string str;
-		for (size_t i = 3; i < content.size(); i++)
+		for (size_t i = 2; i < content.size(); i++)
 		{
 			str += content[i];
+			if (i + 1 < content.size())
+				str+= " ";
 		}
 		str += "\r\n";
-		send(findClient(content[2]).getOut(), str.c_str(), str.size(), 0);
+		send(findClient(content[1]).getOut(), str.c_str(), str.size(), 0);
 	}
 	catch(const std::exception& e)
 	{

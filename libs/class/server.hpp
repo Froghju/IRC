@@ -62,7 +62,24 @@ public:
                 return ("Channel name not found");
             }
     };
+	class ClientNotFound : public std::exception {
 
+        public:
+
+            virtual const char* what() const throw()
+            {
+                return ("Client name not found");
+            }
+    };
+	class NoMessage : public std::exception {
+
+        public:
+
+            virtual const char* what() const throw()
+            {
+                return ("No message");
+            }
+    };
 	~server();
 };
 

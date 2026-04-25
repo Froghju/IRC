@@ -176,11 +176,11 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     try
     {
         size_t i = findChannel(cmd[1]);
-        if (cmd[2] == "-i")
+        if (cmd[2] == "-i") //pas touche
             _vecCh[i].allowInvite();
         else if (cmd[2] == "-t")
             _vecCh[i].allowResTopic();
-        else if (cmd[2] == "-k") // METTRE LE MDP SI Y'EN A UN
+        else if (cmd[2] == "-k") //pas faire
             _vecCh[i].allowkey(cmd, admin.GetFdOut());
         else if (cmd[2] == "-o")
         {
