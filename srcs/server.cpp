@@ -192,7 +192,7 @@ bool server::initClient(client &cl)
 client &server::findClient(std::string clientNick)
 {
 	size_t i = 0;
-	while (i > _vecCl.size())
+	while (i < _vecCl.size())
 	{
 		if (_vecCl[i].GetNickname() == clientNick)
 			return _vecCl[i];

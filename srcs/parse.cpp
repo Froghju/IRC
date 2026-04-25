@@ -106,10 +106,10 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         {
             client cl = findClient(content[2]);
             size_t i = findChannel(content[1]);
-            if (admin.GetOperator())
+            if (admin.GetOperator()) //PROBLEME ICI, ne reconait pas l'admin
                 _vecCh[i].kick(cl);
             else
-                send(cl.GetFdOut(), "You have no right to kick another user\n", 40, 0);
+                send(admin.GetFdOut(), "You have no right to kick another user\n", 40, 0);
         }
         catch(const std::exception& e)
         {
@@ -118,7 +118,7 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         }
     }
     else
-        send(admin.GetFdOut(), "Invalid command: KICK <channel> <user>\n", 41, 0);
+        send(admin.GetFdOut(), "Invalid command: KICK <channel> <user>\n", 40, 0);
 }
 
 void server::topicCmd(std::vector<std::string> cmd, client &cl)

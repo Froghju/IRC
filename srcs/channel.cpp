@@ -66,7 +66,11 @@ void channel::addNewClient(client cl) {
     {
         _channelClients.push_back(cl);
         if (_nbAdmin == 0)
-            allowOperator(cl.GetNickname());
+        {
+            //allowOperator(cl.GetNickname());
+            cl.setOperator(true);
+            ++_nbAdmin;
+        }
     }
 }
 
@@ -78,28 +82,21 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    size_t i = 0;
-    size_t j = 0;
-    while (i <= _channelClients.size())
+    std::cerr << "NOT OKKK; " << cl.GetNickname() << std::endl;
+    if (_nbAdmin == 1 && cl.GetOperator())
     {
-        if (cl.GetOperator())
-        {
-            if (_nbAdmin == 1)
-            {
-                send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
-                return ;
-            }
-            if (_channelClients[i] == cl)
-                _channelClients.erase(_channelClients.begin() + i);
-            i++;
-        }
+        std::cerr << cl.GetNickname() << std::endl;
+        send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
+        return ;
     }
-    while (j <= _list.size())
-    {
-        if (_list[j] == cl)
-            _list.erase(_list.begin() + j);
-        j++;
-    }
+    std::cerr << "NOT OK; " << cl.GetNickname() << std::endl;
+    std::vector<client>::iterator it = std::find(_channelClients.begin(), _channelClients.end(), cl);
+    if (it != _channelClients.end())
+        _channelClients.erase(it);
+    std::vector<client>::iterator itt = std::find(_list.begin(), _list.end(), cl);
+    if (itt != _list.end())
+        _list.erase(itt);
+    std::cerr << "SIZE: " << _channelClients.size() << " " << _list.size() << std::endl;
 }
 
 void channel::allowInvite()
