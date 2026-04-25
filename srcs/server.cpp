@@ -235,37 +235,37 @@ void server::ExecCmd(client &cl, std::string mess)
     }
 	if (!content[0].empty())
 	{
-		if (content[0] == "JOIN")
+		if (content[0] == "JOIN") //pas touche
 		{
 			joinCmd(content, cl);
 			std::cout << "good join" << std::endl;
 		}
-		else if (content[0] == "KICK")
+		else if (content[0] == "KICK") //pas touche
 			kickCmd(content, cl);
-		else if (content[0] == "INVITE")
+		else if (content[0] == "INVITE") //pas touche
 			inviteCmd(content, cl);
-		else if (content[0] == "TOPIC")
+		else if (content[0] == "TOPIC") //ok
 			topicCmd(content, cl);
 		else if (content[0] == "MODE")
 			modeCmd(content, cl);
-		else if (content[0] == "Frogy")
+		else if (content[0] == "Frogy")//ok
 		{
 			size_t i = findChannel(content[1]);
 			_Fro.hello(_vecCh[i]);
 		}
-		else if (content[0] == "FROG?" || content[0] == "FUNFACT")
+		else if (content[0] == "FROG?" || content[0] == "FUNFACT")//ok
 		{
 			size_t i = findChannel(content[1]);
 			_Fro.fact(_vecCh[i]);
 		}
-		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
+		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")//ok
 		{
 			size_t i = findChannel(content[1]);
 			_Fro.frogsave(_vecCh[i]);
 		}
-		else if (content[0] == "PRIVMSG")
+		else if (content[0] == "PRIVMSG")//ok
 			sendToClient(content);
-		else
+		else //ok
 		{
 			try
 			{

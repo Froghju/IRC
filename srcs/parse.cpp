@@ -178,11 +178,11 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
         size_t i = findChannel(cmd[1]);
         if (cmd[2] == "-i") //pas touche
             _vecCh[i].allowInvite();
-        else if (cmd[2] == "-t")
+        else if (cmd[2] == "-t") //ok 
             _vecCh[i].allowResTopic();
         else if (cmd[2] == "-k") //pas faire
             _vecCh[i].allowkey(cmd, admin.GetFdOut());
-        else if (cmd[2] == "-o")
+        else if (cmd[2] == "-o") //ok
         {
             if (cmd.size() > 3)
             {
@@ -205,12 +205,14 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].allowOperator(admin.GetClientUserName());
             }
         }
-        else if (cmd[2] == "-l")
+        else if (cmd[2] == "-l") //ok
         {
             if (cmd.size() > 3)
             {
                 size_t nb = std::atoi(cmd[3].c_str());
-                if (nb < _vecCh[i].getchannelClients().size())
+                std::cerr << "nb client limit = " << nb << std::endl;
+                std::cerr << "nb client channel = " << _vecCh[i].getchannelClients().size() << std::endl; 
+                if (nb >= _vecCh[i].getchannelClients().size())
                     _vecCh[i].setLimitCl(nb);
                 else
                 {
