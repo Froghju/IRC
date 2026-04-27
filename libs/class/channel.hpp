@@ -31,7 +31,7 @@ public:
 
     void sendToAll(client &cl, std::string message);
     void FrogSendToAll(std::string message);
-    void addNewClient(client cl);
+    void addNewClient(client &cl);
     void addOnList(client cl);
 
     void kick(client cl);

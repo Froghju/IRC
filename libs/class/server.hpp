@@ -38,10 +38,10 @@ public:
 	bool initNetcat(client &cl);
 	//parse
 	void parse(std::string message, client cl);
-	void joinCmd(std::vector<std::string> content, client cl);
+	void joinCmd(std::vector<std::string> content, client &cl);
 	size_t findChannel(std::string name);
 	bool validUser(std::string name);
-	void inviteCmd(std::vector<std::string> content, client admin);
+	void inviteCmd(std::vector<std::string> content, client &admin);
 	void kickCmd(std::vector<std::string> content, client admin);
 	void modeCmd(std::vector<std::string> cmd, client cl);
 	void passCmd(std::string cmd, client &cl);

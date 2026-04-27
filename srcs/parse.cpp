@@ -5,8 +5,8 @@
 size_t server::findChannel(std::string name)
 {
     size_t i = 0;
-    std::cerr << "size vec channel " << _vecCh.size() << std::endl;
-    std::cerr << "name " << name << std::endl;  
+    //std::cerr << "size vec channel " << _vecCh.size() << std::endl;
+    //std::cerr << "name " << name << std::endl;  
     while (i < _vecCh.size())
     {
         if (_vecCh[i].sameName(name))
@@ -28,7 +28,7 @@ bool server::validUser(std::string name)
     return false;
 }
 
-void server::joinCmd(std::vector<std::string> content, client cl)
+void server::joinCmd(std::vector<std::string> content, client &cl)
 {
     if (content.size() > 1)
     {
@@ -63,7 +63,7 @@ void server::joinCmd(std::vector<std::string> content, client cl)
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            std::cerr << e.what() << ". Creating a new one..." << std::endl;
             channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);
@@ -74,7 +74,7 @@ void server::joinCmd(std::vector<std::string> content, client cl)
 }
 
 //ICI Admin est le client a l'initiative de l'action
-void server::inviteCmd(std::vector<std::string> content, client admin)
+void server::inviteCmd(std::vector<std::string> content, client &admin)
 {
     if (content.size() > 2)
     {
@@ -106,6 +106,7 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         {
             client cl = findClient(content[2]);
             size_t i = findChannel(content[1]);
+            std::cerr << admin.GetNickname() << " admin status: " << admin.GetOperator() << std::endl;
             if (admin.GetOperator()) //PROBLEME ICI, ne reconait pas l'admin
                 _vecCh[i].kick(cl);
             else
@@ -176,53 +177,58 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     try
     {
         size_t i = findChannel(cmd[1]);
-        if (cmd[2] == "-i")
-            _vecCh[i].allowInvite();
-        else if (cmd[2] == "-t")
-            _vecCh[i].allowResTopic();
-        else if (cmd[2] == "-k") // METTRE LE MDP SI Y'EN A UN
-            _vecCh[i].allowkey(cmd, admin.GetFdOut());
-        else if (cmd[2] == "-o")
+        if (_vecCh[i].isAdmin(admin))
         {
-            if (cmd.size() > 3)
+            if (cmd[2] == "-i")
+                _vecCh[i].allowInvite();
+            else if (cmd[2] == "-t")
+                _vecCh[i].allowResTopic();
+            else if (cmd[2] == "-k")
+                _vecCh[i].allowkey(cmd, admin.GetFdOut());
+            else if (cmd[2] == "-o")
             {
-                if (_vecCh[i].validUser(cmd[3]))
-                    _vecCh[i].allowOperator(cmd[3]);
+                if (cmd.size() > 3)
+                {
+                    if (_vecCh[i].validUser(cmd[3]))
+                        _vecCh[i].allowOperator(cmd[3]);
+                    else
+                    {
+                        std::string str = "Not valid user\n";
+                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                    }
+                }
                 else
                 {
-                    std::string str = "Not valid user\n";
-                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                    if (_vecCh[i].getResTopic() && !_vecCh[i].isAdmin(admin))
+                    {
+                        std::string str = "Can't be a operator\n";
+                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                    }
+                    else
+                        _vecCh[i].allowOperator(admin.GetClientUserName());
                 }
+            }
+            else if (cmd[2] == "-l")
+            {
+                if (cmd.size() > 3)
+                {
+                    size_t nb = std::atoi(cmd[3].c_str());
+                    if (nb < _vecCh[i].getchannelClients().size())
+                        _vecCh[i].setLimitCl(nb);
+                    else
+                    {
+                        std::string str = "limit to small too many client in the channel\n";
+                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                    }
+                }
+                else
+                    send(admin.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
             }
             else
-            {
-                if (_vecCh[i].getResTopic() && !_vecCh[i].isAdmin(admin))
-                {
-                    std::string str = "Can't be a operator\n";
-                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
-                }
-                else
-                    _vecCh[i].allowOperator(admin.GetClientUserName());
-            }
-        }
-        else if (cmd[2] == "-l")
-        {
-            if (cmd.size() > 3)
-            {
-                size_t nb = std::atoi(cmd[3].c_str());
-                if (nb < _vecCh[i].getchannelClients().size())
-                    _vecCh[i].setLimitCl(nb);
-                else
-                {
-                    std::string str = "limit to small too many client in the channel\n";
-                    send(admin.GetFdOut(), str.c_str(), str.size(), 0);
-                }
-            }
-            else
-                send(admin.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
+                std::cerr << "error bad extention mode" << std::endl;
         }
         else
-            std::cerr << "error bad extention mode" << std::endl;
+            send(admin.GetFdOut(), "Permission denied: You are not a channel operator\n", 51, 0);
     }
     catch(const std::exception& e)
     {
