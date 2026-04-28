@@ -62,7 +62,7 @@ public:
                 return ("Channel name not found");
             }
     };
-	class ClientNotFound : public std::exception {
+		class ClientNotFound : public std::exception {
 
         public:
 

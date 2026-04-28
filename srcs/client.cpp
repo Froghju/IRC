@@ -120,6 +120,7 @@ std::string client::GetNickname() const
 void client::setOperator(bool perm)
 {
     _Operator = perm;
+    //std::cerr << _Nickname << " est Admin: " << perm << std::endl;
 }
 
 void client::setFdOut(int out) 
@@ -174,10 +175,10 @@ bool client::operator==(const client &src) const
 
 bool client::operator!=(const client &src) const
 {
-    std::cerr << _out << std::endl;
+    /*std::cerr << _out << std::endl;
     std::cerr << _clientInfo.sin_addr.s_addr << std::endl;
     std::cerr << _clientInfo.sin_port << std::endl;
-    std::cerr << _clientId << std::endl;
+    std::cerr << _clientId << std::endl;*/
     if (_clientId != src._clientId
         && _out != src._out
         && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
