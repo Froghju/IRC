@@ -1,8 +1,8 @@
 #include "../libs/main.hpp"
 
-std::map<int, std::string> initDataBot()
+std::vector<std::string> initDataBot()
 {
-    std::map<int, std::string> frogy;
+    std::vector<std::string> frogy(42);
 
     frogy[0] = "Il existe environ 4 800 especes d'anoures dans le monde, soit 85'%' des especes d'amphibiens.";
 

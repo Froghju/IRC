@@ -198,7 +198,7 @@ client &server::findClient(std::string clientNick)
 			return _vecCl[i];
 		i++;
 	}
-	throw ;
+	throw ClientNotFound();
 }
 
 void server::sendToClient(std::vector<std::string> content)

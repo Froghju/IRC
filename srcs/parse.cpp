@@ -100,14 +100,18 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
 //ICI Admin est le client a l'initiative de l'action
 void server::kickCmd(std::vector<std::string> content, client admin)
 {
+    //SEGFAULT quand kick a user inexistant
     if (content.size() > 2)
     {
+        int subject = 0;
         try
         {
             client cl = findClient(content[2]);
+            ++subject;
+
             size_t i = findChannel(content[1]);
             std::cerr << admin.GetNickname() << " admin status: " << admin.GetOperator() << std::endl;
-            if (admin.GetOperator()) //PROBLEME ICI, ne reconait pas l'admin
+            if (admin.GetOperator()) //SWITCH dedans quand merge
                 _vecCh[i].kick(cl);
             else
                 send(admin.GetFdOut(), "You have no right to kick another user\n", 40, 0);
@@ -115,7 +119,10 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         catch(const std::exception& e)
         {
             std::cerr << e.what() << std::endl;
-            send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
+            if (subject == 0)
+                send(admin.GetFdOut(), "Invalid command: This client doesn't exist\n", 44, 0);
+            else
+                send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
         }
     }
     else

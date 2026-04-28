@@ -63,6 +63,16 @@ public:
             }
     };
 
+	class ClientNotFound : public std::exception {
+
+        public:
+
+            virtual const char* what() const throw()
+            {
+                return ("Client not found");
+            }
+    };
+
 	~server();
 };
 
