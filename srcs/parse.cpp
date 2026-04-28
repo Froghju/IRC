@@ -5,8 +5,8 @@
 size_t server::findChannel(std::string name)
 {
     size_t i = 0;
-    std::cerr << "size vec channel " << _vecCh.size() << std::endl;
-    std::cerr << "name " << name << std::endl;  
+    //std::cerr << "size vec channel " << _vecCh.size() << std::endl;
+    //std::cerr << "name " << name << std::endl;  
     while (i < _vecCh.size())
     {
         if (_vecCh[i].sameName(name))
@@ -28,7 +28,7 @@ bool server::validUser(std::string name)
     return false;
 }
 
-void server::joinCmd(std::vector<std::string> content, client cl)
+void server::joinCmd(std::vector<std::string> content, client &cl)
 {
     if (content.size() > 1)
     {
@@ -63,7 +63,7 @@ void server::joinCmd(std::vector<std::string> content, client cl)
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
+            std::cerr << e.what() << ". Creating a new one..." << std::endl;
             channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);
@@ -74,7 +74,7 @@ void server::joinCmd(std::vector<std::string> content, client cl)
 }
 
 //ICI Admin est le client a l'initiative de l'action
-void server::inviteCmd(std::vector<std::string> content, client admin)
+void server::inviteCmd(std::vector<std::string> content, client &admin)
 {
     if (content.size() > 2)
     {
