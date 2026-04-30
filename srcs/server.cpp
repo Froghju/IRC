@@ -118,59 +118,85 @@ server::~server()
 bool server::initClient(client &cl)
 {
 	bool check = true;
+	int verif = 0;
 	for (int i = 0; i < 2 && check; ++i)
 	{
 		std::string msg = read_mess(cl.getOut());
+		std::cout << "msg = " << msg << std::endl;
 		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 		{
 			std::string cmd = find_cmd(msg);
+			std::cout << "cmd = " << msg << std::endl;
 			std::string input = find_input(msg, cmd);
+			std::cout << "input = " << msg << std::endl;
 			if (cmd == "NICK")
 			{
-				if (!input.empty() && input != "\n" && input != "\r\n" && input[0] != '\0')
+				if (verif == 1)
 				{
-					for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
-					{
-						if (itt->GetNickname() == input)
-						{
-							send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
-							check = false;
-							break;
-						}
-					}
-					if (check)
-					{
-						cl.setNickname(input);
-					}
+					std::cerr << "Can't have two nickname" << std::endl;
+					check = false;
 				}
 				else
 				{
-					check = false;
-					send(cl.getOut(), "Bad nickname\nDisconnected from the server\n", 43, 0);
+					verif = 1;
+					std::cout << "enter nick "<< std::endl;
+					if (!input.empty() && input != "\n" && input != "\r\n" && input[0] != '\0')
+					{
+						for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
+						{
+							if (itt->GetNickname() == input)
+							{
+								send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
+								check = false;
+								break;
+							}
+						}
+						if (check)
+						{
+							cl.setNickname(input);
+						}
+					}
+					else
+					{
+						check = false;
+						send(cl.getOut(), "Bad nickname\nDisconnected from the server\n", 43, 0);
+					}
 				}
 			}
 			else if (cmd == "USER")
 			{
-				if (!input.empty() && input[0] != '\n')
+				if (verif == 2)
 				{
-					for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
-					{
-						if (it->GetClientUserName() == input)
-						{
-							send(cl.getOut(), "Sorry username already used\nDisconnected from the server\n", 58, 0);
-							check = false;
-							break;
-						}
-					}
-					if (check)
-						cl.setClientName(input);
+					std::cerr << "Can't have two username" << std::endl;
+					check = false;
 				}
 				else
 				{
-					check = false;
-					send(cl.getOut(), "Bad username\nDisconnected from the server\n", 43, 0);
+					verif = 2;
+					std::cout << "enter user " << std::endl;
+					if (!input.empty() && input[0] != '\n')
+					{
+						for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
+						{
+							if (it->GetClientUserName() == input)
+							{
+								send(cl.getOut(), "Sorry username already used\nDisconnected from the server\n", 58, 0);
+								check = false;
+								break;
+							}
+						}
+						if (check)
+							cl.setClientName(input);
+					}
+					else
+					{
+						check = false;
+						send(cl.getOut(), "Bad username\nDisconnected from the server\n", 43, 0);
+					}
 				}
 			}
+			else
+				check = false;
 		}
 		else
 		{
@@ -305,10 +331,13 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 	std::string msg = read_mess(cl.getOut());
 	if (!msg.empty())
 	{
+		std::cout << "msg = " << msg << std::endl;
 		std::string cmd = find_cmd(msg);
 		if (!cmd.empty())
 		{
+			std::cout << "cmd = " << msg << std::endl;
 			std::string input = find_input(msg, cmd);
+			std::cout << "input = " << msg << std::endl;
 			if (cmd == "CAP")
 			{
 				msg = read_mess(cl.getOut());
@@ -317,7 +346,6 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 			}
 			if (cmd == "PASS")
 			{
-
 				if (input.empty() || (input != _PassW && input != _PassW + "\r"))
 				{
 					std::cerr << "bad password" << std::endl;

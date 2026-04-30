@@ -27,7 +27,6 @@ bool server::validUser(std::string name)
 }
 
 void server::joinCmd(std::vector<std::string> content, client &cl)
-void server::joinCmd(std::vector<std::string> content, client &cl)
 {
     if (content.size() > 1)
     {
