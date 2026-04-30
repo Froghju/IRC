@@ -223,65 +223,72 @@ void server::sendToClient(std::vector<std::string> content)
 void server::ExecCmd(client &cl, std::string mess)
 {
 	std::vector<std::string> content = splitCpp(mess);
-	std::cout << "mess = " << mess << std::endl;
-	size_t j = 0;
+	/*size_t j = 0;
     while (j < content.size())
     {
         std::cout << "result: .." << content[j] << ".." << std::endl;
         j++;
-    }
+    }*/
 	if (!content[0].empty())
 	{
-		if (content[0] == "JOIN") //pas touche
+		if (content.size() > 1)
 		{
-			joinCmd(content, cl);
-			std::cout << "good join" << std::endl;
-		}
-		else if (content[0] == "KICK") //pas touche
-			kickCmd(content, cl);
-		else if (content[0] == "INVITE") //pas touche
-			inviteCmd(content, cl);
-		else if (content[0] == "TOPIC") //ok
-			topicCmd(content, cl);
-		else if (content[0] == "MODE")
-			modeCmd(content, cl);
-		else if (content[0] == "Frogy")//ok
-		{
-			size_t i = findChannel(content[1]);
-			_Fro.hello(_vecCh[i]);
-		}
-		else if (content[0] == "FROG?" || content[0] == "FUNFACT")//ok
-		{
-			size_t i = findChannel(content[1]);
-			_Fro.fact(_vecCh[i]);
-		}
-		else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")//ok
-		{
-			size_t i = findChannel(content[1]);
-			_Fro.frogsave(_vecCh[i]);
-		}
-		else if (content[0] == "PRIVMSG")//ok
-			sendToClient(content);
-		else //ok
-		{
-			try
+			if (content[0] == "JOIN")
 			{
-				size_t i = findChannel(content[0]);
-				if (_vecCh[i].isOnTheChannel(cl))
-					_vecCh[i].sendToAll(cl, mess);
-				else
+				joinCmd(content, cl);
+				std::cout << "good join: " << cl.GetOperator() << std::endl;
+			}
+			else if (content[0] == "KICK")
+			{
+				std::cout << "kick :" << cl.GetOperator();
+				kickCmd(content, cl);
+			}
+			else if (content[0] == "INVITE")
+				inviteCmd(content, cl);
+			else if (content[0] == "TOPIC")
+				topicCmd(content, cl);
+			else if (content[0] == "MODE")
+				modeCmd(content, cl);
+			else if (content[0] == "Frogy")
+			{
+				size_t i = findChannel(content[1]);
+				_Fro.hello(_vecCh[i]);
+			}
+			else if (content[0] == "FROG?" || content[0] == "FUNFACT")
+			{
+				size_t i = findChannel(content[1]);
+				_Fro.fact(_vecCh[i]);
+			}
+			else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
+			{
+				size_t i = findChannel(content[1]);
+				_Fro.frogsave(_vecCh[i]);
+			}
+			else if (content[0] == "PRIVMSG")
+				sendToClient(content);
+			else
+			{
+				try
 				{
+					size_t i = findChannel(content[0]);
+					if (_vecCh[i].isOnTheChannel(cl))
+						_vecCh[i].sendToAll(cl, mess);
+					else
+					{
+						//std::cerr << "check ou" << std::endl;
+						std::string str = "Join channel to talk to people\n";
+						send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+						str.clear();
+					}
+				}
+				catch(const std::exception& e)
+				{
+					//std::cerr << "check 2" << std::endl;
+					(void)e;
 					std::string str = "Join channel to talk to people\n";
 					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
 					str.clear();
 				}
-			}
-			catch(const std::exception& e)
-			{
-				(void)e;
-				std::string str = "Join channel to talk to people\n";
-				send(cl.GetFdOut(), str.c_str(), str.size(), 0);
-				str.clear();
 			}
 		}
 	}

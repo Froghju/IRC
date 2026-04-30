@@ -10,6 +10,7 @@ channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false
     else
         _hasKey = false;
     _name = content[1];
+    std::cerr << "Channel '" << _name << "' created" << std::endl;
 }
 
 channel::~channel() {}
@@ -48,14 +49,20 @@ void channel::FrogSendToAll(std::string message)
 	}
 }
 
-void channel::addNewClient(client cl) {
+void channel::addNewClient(client &cl) {
     if (isOnTheChannel(cl))
         return ;
     else
     {
-        _channelClients.push_back(cl);
+        //std::cerr << "NUBER OF ADMIN: " << std::endl;
         if (_nbAdmin == 0)
-            allowOperator(cl.GetNickname());
+        {
+            //allowOperator(cl.GetNickname());
+            cl.setOperator(true);
+             _admin.push_back(cl);
+            ++_nbAdmin;
+        }
+        _channelClients.push_back(cl);
     }
 }
 
@@ -67,28 +74,21 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    size_t i = 0;
-    size_t j = 0;
-    while (i <= _channelClients.size())
+    if (_nbAdmin == 1 && cl.GetOperator())
     {
-        if (cl.GetOperator())
-        {
-            if (_nbAdmin == 1)
-            {
-                send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
-                return ;
-            }
-            if (_channelClients[i] == cl)
-                _channelClients.erase(_channelClients.begin() + i);
-            i++;
-        }
+        std::cerr << cl.GetNickname() << std::endl;
+        send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
+        return ;
     }
-    while (j <= _list.size())
-    {
-        if (_list[j] == cl)
-            _list.erase(_list.begin() + j);
-        j++;
-    }
+
+    std::vector<client>::iterator it = std::find(_channelClients.begin(), _channelClients.end(), cl);
+    if (it != _channelClients.end())
+        _channelClients.erase(it);
+    std::vector<client>::iterator itt = std::find(_list.begin(), _list.end(), cl);
+    if (itt != _list.end())
+        _list.erase(itt);
+
+    //std::cerr << "SIZE: " << _channelClients.size() << " " << _list.size() << std::endl;
 }
 
 void channel::allowInvite()
@@ -213,6 +213,7 @@ bool channel::validUser(std::string nick)
 
 void channel::allowOperator(std::string nick)
 {
+    //SEGFAULT DANS CETTE FONCTION
     size_t  j = 0;
     while (j < _admin.size())
     {

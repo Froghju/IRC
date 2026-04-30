@@ -113,6 +113,7 @@ std::string client::GetNickname() const
 void client::setOperator(bool perm)
 {
     _Operator = perm;
+    //std::cerr << _Nickname << " est Admin: " << perm << std::endl;
 }
 
 void client::setFdOut(int out) 
