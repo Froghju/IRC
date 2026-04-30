@@ -31,7 +31,6 @@ bool server::validUser(std::string name)
 }
 
 void server::joinCmd(std::vector<std::string> content, client &cl)
-void server::joinCmd(std::vector<std::string> content, client &cl)
 {
     if (content.size() > 1)
     {
@@ -224,7 +223,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 if (cmd.size() > 3)
                 {
                     size_t nb = std::atoi(cmd[3].c_str());
-                    if (nb < _vecCh[i].getchannelClients().size())
+                    if (nb > _vecCh[i].getchannelClients().size())
                         _vecCh[i].setLimitCl(nb);
                     else
                     {
