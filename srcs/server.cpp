@@ -241,12 +241,7 @@ void server::ExecCmd(client &cl, std::string mess)
 		if (content.size() > 1)
 		{
 			if (content[0] == "JOIN")
-			{
 				joinCmd(content, cl);
-				/*std::string str = "Channel "+content[2]+" created\r\n";
-				send(cl.getOut(), str.c_str(), str.size(), 0);*/
-				std::cout << "good join: " << cl.GetOperator() << std::endl;
-			}
 			else if (content[0] == "KICK")
 			{
 				std::cout << "kick :" << cl.GetOperator();

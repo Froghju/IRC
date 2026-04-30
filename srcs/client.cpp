@@ -3,7 +3,7 @@
 
 client::client() {}
 
-client::client(int port) {
+client::client(int port) : _Operator(false) {
     _clientId = socket(AF_INET, SOCK_STREAM, 0);
 
     if (_clientId == -1)
