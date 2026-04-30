@@ -115,100 +115,80 @@ server::~server()
 	close(_IdSocket);
 }
 
+bool server::isvalidNickname(std::string input)
+{
+	if (input.empty() || input == "\n" || input == "\r\n" || input[0] == '\0')
+		return false;
+	if (!isalpha(input[0]))
+		return false;
+	if (input.size() > 9)
+		return false;
+	for (size_t i = 0; i < input.size(); ++i)
+	{
+		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '[' && input[i] != ']' && input[i] != '\\' && input[i] != '^' && input[i] != '{' && input[i] != '}' && input[i] != '|')
+			return false;
+	}
+	std::vector<client>::iterator itt = _vecCl.begin();
+	while (itt != _vecCl.end())
+	{
+		if (itt->GetNickname() == input)
+		{
+			//send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
+			return false;
+		}
+		++itt;
+	}
+	return (true);
+}
+
+bool server::isvalidUsername(std::string input)
+{
+	if (input.empty() || input == "\n" || input == "\r\n" || input[0] == '\0')
+		return false;
+	if (!isalpha(input[0]))
+		return false;
+	for (size_t i = 0; i < input.size(); ++i)
+	{
+		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '.')
+			return false;
+	}
+	return (true);
+}
+
 bool server::initClient(client &cl)
 {
-	bool check = true;
-	int verif = 0;
-	for (int i = 0; i < 2 && check; ++i)
+	bool check = false;
+	bool nick = false;
+	bool user = false;
+	while (!check)
 	{
 		std::string msg = read_mess(cl.getOut());
-		std::cout << "msg = " << msg << std::endl;
 		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 		{
 			std::string cmd = find_cmd(msg);
-			std::cout << "cmd = " << msg << std::endl;
 			std::string input = find_input(msg, cmd);
-			std::cout << "input = " << msg << std::endl;
 			if (cmd == "NICK")
 			{
-				if (verif == 1)
+				if (isvalidNickname(input))
 				{
-					std::cerr << "Can't have two nickname" << std::endl;
-					check = false;
-				}
-				else
-				{
-					verif = 1;
-					std::cout << "enter nick "<< std::endl;
-					if (!input.empty() && input != "\n" && input != "\r\n" && input[0] != '\0')
-					{
-						for (std::vector<client>::iterator itt = _vecCl.begin(); itt != _vecCl.end(); ++itt)
-						{
-							if (itt->GetNickname() == input)
-							{
-								send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
-								check = false;
-								break;
-							}
-						}
-						if (check)
-						{
-							cl.setNickname(input);
-						}
-					}
-					else
-					{
-						check = false;
-						send(cl.getOut(), "Bad nickname\nDisconnected from the server\n", 43, 0);
-					}
+					cl.setNickname(input);
+					nick = true;
 				}
 			}
 			else if (cmd == "USER")
 			{
-				if (verif == 2)
+				if (isvalidUsername(input))
 				{
-					std::cerr << "Can't have two username" << std::endl;
-					check = false;
-				}
-				else
-				{
-					verif = 2;
-					std::cout << "enter user " << std::endl;
-					if (!input.empty() && input[0] != '\n')
-					{
-						for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end(); ++it)
-						{
-							if (it->GetClientUserName() == input)
-							{
-								send(cl.getOut(), "Sorry username already used\nDisconnected from the server\n", 58, 0);
-								check = false;
-								break;
-							}
-						}
-						if (check)
-							cl.setClientName(input);
-					}
-					else
-					{
-						check = false;
-						send(cl.getOut(), "Bad username\nDisconnected from the server\n", 43, 0);
-					}
+					cl.setClientName(input);
+					user = true;
 				}
 			}
-			else
-				check = false;
-		}
-		else
-		{
-			check = false;
-			std::cerr << msg << std::endl;
+			if (user && nick)
+				check = true;
 		}
 	}
-	if (check)
-	{
-		std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
-		send(cl.getOut(), msg.c_str(), msg.size(), 0);
-	}
+	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
+	send(cl.getOut(), msg.c_str(), msg.size(), 0);
 	return check;
 }
 
@@ -248,6 +228,7 @@ void server::sendToClient(std::vector<std::string> content)
 
 void server::ExecCmd(client &cl, std::string mess)
 {
+	std::cerr << "mess = " << mess << std::endl;
 	std::vector<std::string> content = splitCpp(mess);
 	/*size_t j = 0;
     while (j < content.size())
@@ -262,6 +243,8 @@ void server::ExecCmd(client &cl, std::string mess)
 			if (content[0] == "JOIN")
 			{
 				joinCmd(content, cl);
+				/*std::string str = "Channel "+content[2]+" created\r\n";
+				send(cl.getOut(), str.c_str(), str.size(), 0);*/
 				std::cout << "good join: " << cl.GetOperator() << std::endl;
 			}
 			else if (content[0] == "KICK")
@@ -301,7 +284,6 @@ void server::ExecCmd(client &cl, std::string mess)
 						_vecCh[i].sendToAll(cl, mess);
 					else
 					{
-						//std::cerr << "check ou" << std::endl;
 						std::string str = "Join channel to talk to people\n";
 						send(cl.GetFdOut(), str.c_str(), str.size(), 0);
 						str.clear();
@@ -309,7 +291,6 @@ void server::ExecCmd(client &cl, std::string mess)
 				}
 				catch(const std::exception& e)
 				{
-					//std::cerr << "check 2" << std::endl;
 					(void)e;
 					std::string str = "Join channel to talk to people\n";
 					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
@@ -327,54 +308,60 @@ void server::ExecCmd(client &cl, std::string mess)
 
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
-	bool check  = true;
-	std::string msg = read_mess(cl.getOut());
-	if (!msg.empty())
+	bool check  = false;
+	bool pass = false;
+	bool nick = false;
+	bool user = false;
+	while (!check)
 	{
-		std::cout << "msg = " << msg << std::endl;
-		std::string cmd = find_cmd(msg);
-		if (!cmd.empty())
+		while (!pass)
 		{
-			std::cout << "cmd = " << msg << std::endl;
-			std::string input = find_input(msg, cmd);
-			std::cout << "input = " << msg << std::endl;
-			if (cmd == "CAP")
+			std::string msg = read_mess(cl.getOut());
+			if (!msg.empty())
 			{
-				msg = read_mess(cl.getOut());
-				cmd = find_cmd(msg);
-				input = find_input(msg, cmd);
-			}
-			if (cmd == "PASS")
-			{
-				if (input.empty() || (input != _PassW && input != _PassW + "\r"))
+				std::string cmd = find_cmd(msg);
+				if (!cmd.empty())
 				{
-					std::cerr << "bad password" << std::endl;
-					check = false;
+					if (cmd == "PASS")
+					{
+						std::string input = find_input(msg, cmd);
+						if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
+							pass = true;
+					}
 				}
 			}
-			else
+		}
+		if (pass)
+		{
+			std::string msg = read_mess(cl.getOut());
+			if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 			{
-				std::cerr << "bad input not PASS cmd" << std::endl;
-				check = false;
+				std::string cmd = find_cmd(msg);
+				std::string input = find_input(msg, cmd);
+				if (cmd == "NICK")
+				{
+					if (isvalidNickname(input))
+					{
+						cl.setNickname(input);
+						nick = true;
+					}
+				}
+				else if (cmd == "USER")
+				{
+					if (isvalidUsername(input))
+					{
+						cl.setClientName(input);
+						user = true;
+					}
+				}
+				if (user && nick)
+					check = true;
 			}
 		}
-		else
-			check = false;
 	}
-	else
-		check = false;
-	if (check)
-		check = initClient(cl);
-	if (check)
-	{
-		_vecCl.push_back(cl);
-        (*vec).push_back(cl.InitPollFd(cl.getOut()));
-	}
-	else
-	{
-		shutdown(cl.getOut(), SHUT_RDWR);
-		close(cl.getOut());
-		std::cerr << "Client fail to connect" << std::endl;
-	}
+	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
+	send(cl.getOut(), msg.c_str(), msg.size(), 0);
+	_vecCl.push_back(cl);
+	(*vec).push_back(cl.InitPollFd(cl.getOut()));
 	return (check);
 }
