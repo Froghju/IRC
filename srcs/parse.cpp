@@ -37,7 +37,8 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
             {
                 if (_vecCh[i].getLimitCl() == _vecCh[i].size())
                 {
-                    send(cl.GetFdOut(), "Sorry this channel is full\n", 28, 0);
+                    std::string ms = ":" + _ServName + " 471 :Channel is full\r\n";
+					send(cl.getOut(), ms.c_str(), ms.size(), 0);
                     return ;
                 }
             }
@@ -47,19 +48,26 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
                 {
                     if (content[2] != _vecCh[i].getKey())
                     {
-                        send(cl.GetFdOut(), "Invalid password\n", 18, 0);
+                        std::string ms = ":" + _ServName + " 475 :Bad Channel key\r\n";
+					    send(cl.getOut(), ms.c_str(), ms.size(), 0);
                         return ;
                     }
                 }
                 else
-                    send(cl.GetFdOut(), "This channel require a password\n", 33, 0);
+                {
+					std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
+					send(cl.getOut(), ms.c_str(), ms.size(), 0);
+                }
             }
             if (_vecCh[i].isPrivate())
             {
                 if (_vecCh[i].isOnTheList(cl))
                     _vecCh[i].addNewClient(cl);
                 else
-                    send(cl.GetFdOut(), "Sorry this channel is private\n", 31, 0);
+                {
+                    std::string ms = ":" + _ServName + " 473 :Invite only chan\r\n";
+					send(cl.getOut(), ms.c_str(), ms.size(), 0);
+                }
             }
             else
             {
@@ -69,15 +77,17 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << ". Creating a new one..." << std::endl;
-            std::cerr << e.what() << ". Creating a new one..." << std::endl;
+            //message a envoyer comme quoi ok
             channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);
         }
     }
     else
+    {
+        //aucune idee de quoi mettre ?
         send(cl.GetFdOut(), "Invalid command: JOIN <channel> (<password>)\n", 44, 0);
+    }
 }
 
 //ICI Admin est le client a l'initiative de l'action
@@ -101,7 +111,10 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
         }
     }
     else
-        send(admin.GetFdOut(), "Invalid command: INVITE <channel> <user>\n", 42, 0);
+    {
+        std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
+        send(admin.getOut(), ms.c_str(), ms.size(), 0);
+    }
 }
 
 //ICI Admin est le client a l'initiative de l'action
