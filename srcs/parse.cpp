@@ -37,6 +37,14 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
         try
         {
             size_t i = findChannel(content[1]);
+            if (_vecCh[i].hasLimit())
+            {
+                if (_vecCh[i].getLimitCl() == _vecCh[i].size())
+                {
+                    send(cl.GetFdOut(), "Sorry this channel is full\n", 28, 0);
+                    return ;
+                }
+            }
             if (_vecCh[i].hasKey())
             {
                 if (content.size() > 2)
@@ -194,7 +202,12 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
             else if (cmd[2] == "-t")
                 _vecCh[i].allowResTopic();
             else if (cmd[2] == "-k")
-                _vecCh[i].allowkey(cmd, admin.GetFdOut());
+            {
+                if (cmd.size() > 3)
+                    _vecCh[i].allowkey(cmd[3]);
+                else
+                    _vecCh[i].UnsetKey();
+            }
             else if (cmd[2] == "-o")
             {
                 if (cmd.size() > 3)
@@ -223,7 +236,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 if (cmd.size() > 3)
                 {
                     size_t nb = std::atoi(cmd[3].c_str());
-                    if (nb > _vecCh[i].getchannelClients().size())
+                    if (nb >= _vecCh[i].getchannelClients().size())
                         _vecCh[i].setLimitCl(nb);
                     else
                     {
@@ -231,6 +244,8 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                         send(admin.GetFdOut(), str.c_str(), str.size(), 0);
                     }
                 }
+                else if (cmd.size() > 2)
+                    _vecCh[i].UnsetLimitCl();
                 else
                     send(admin.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
             }

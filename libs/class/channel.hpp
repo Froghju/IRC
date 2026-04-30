@@ -18,6 +18,7 @@ private:
     int _nbAdmin;
     bool _private;
     bool _hasKey;
+    bool _hasLimit;
     bool _resTopic;
     size_t  _limitCl;
     frogy   _Frog;
@@ -36,11 +37,14 @@ public:
 
     void kick(client cl);
     void allowInvite();
-    void allowkey(std::vector<std::string> cmd, int out);
+    void allowkey(std::string pass);
+    void UnsetKey();
     void setTopic(std::string cmd);
     std::string getTopic();
     void setLimitCl(size_t limit);
+    bool hasLimit() const;
     size_t getLimitCl();
+    void UnsetLimitCl();
 
     bool sameName(std::string str);
     bool isPrivate() const;
@@ -49,8 +53,9 @@ public:
     bool isOnTheChannel(client cl);
     bool isAdmin(client cl);
     std::vector<client> getchannelClients();
-    bool getResTopic();
+    bool getResTopic() const;
     void allowResTopic();
     bool validUser(std::string name);
     void allowOperator(std::string name);
+    size_t size();
 };
