@@ -2,7 +2,7 @@
 
 server::server() {}
 
-server::server(int port, std::string password) : _PassW(password), _Port(port), _Fro()
+server::server(int port, std::string password) : _ServName("Tha_Ghj"), _PassW(password), _Port(port), _Fro()
 {
 	struct protoent *proto;
 
@@ -115,25 +115,42 @@ server::~server()
 	close(_IdSocket);
 }
 
-bool server::isvalidNickname(std::string input)
+bool server::isvalidNickname(std::string input, client &cl)
 {
 	if (input.empty() || input == "\n" || input == "\r\n" || input[0] == '\0')
+	{
+		std::string ms = ":" + _ServName + " 431 :No nickname given\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
 		return false;
+	}
 	if (!isalpha(input[0]))
+	{
+		std::string ms = ":" + _ServName + " 432 :Erroneus nickname\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
 		return false;
+	}
 	if (input.size() > 9)
+	{
+		std::string ms = ":" + _ServName + " 432 :Erroneus nickname\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
 		return false;
+	}
 	for (size_t i = 0; i < input.size(); ++i)
 	{
-		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '[' && input[i] != ']' && input[i] != '\\' && input[i] != '^' && input[i] != '{' && input[i] != '}' && input[i] != '|')
+		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '[' && input[i] != ']' && input[i] != '\\' && input[i] != '^' && input[i] != '{' && input[i] != '}' && input[i] != '|' && (i == input.size() - 2 && input[i] == '\r'))
+		{
+			std::string ms = ":" + _ServName + " 432 :Erroneus nickname\r\n";
+			send(cl.getOut(), ms.c_str(), ms.size(), 0);
 			return false;
+		}
 	}
 	std::vector<client>::iterator itt = _vecCl.begin();
 	while (itt != _vecCl.end())
 	{
 		if (itt->GetNickname() == input)
 		{
-			//send(cl.getOut(), "Sorry nickname already used\nDisconnected from the server\n", 58, 0);
+			std::string ms = ":" + _ServName + " 433 :Nickname is already in use\r\n";
+			send(cl.getOut(), ms.c_str(), ms.size(), 0);
 			return false;
 		}
 		++itt;
@@ -141,55 +158,22 @@ bool server::isvalidNickname(std::string input)
 	return (true);
 }
 
-bool server::isvalidUsername(std::string input)
+bool server::isvalidUsername(std::string input, client &cl)
 {
 	if (input.empty() || input == "\n" || input == "\r\n" || input[0] == '\0')
+	{
+		std::string ms = ":" + _ServName + " 461 USER :Not enough parameters\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
 		return false;
+	}
 	if (!isalpha(input[0]))
 		return false;
 	for (size_t i = 0; i < input.size(); ++i)
 	{
-		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '.')
+		if (!isalnum(input[i]) && input[i] != '-' && input[i] != '_' && input[i] != '.' && (i == input.size() - 2 && input[i] == '\r'))
 			return false;
 	}
 	return (true);
-}
-
-bool server::initClient(client &cl)
-{
-	bool check = false;
-	bool nick = false;
-	bool user = false;
-	while (!check)
-	{
-		std::string msg = read_mess(cl.getOut());
-		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
-		{
-			std::string cmd = find_cmd(msg);
-			std::string input = find_input(msg, cmd);
-			if (cmd == "NICK")
-			{
-				if (isvalidNickname(input))
-				{
-					cl.setNickname(input);
-					nick = true;
-				}
-			}
-			else if (cmd == "USER")
-			{
-				if (isvalidUsername(input))
-				{
-					cl.setClientName(input);
-					user = true;
-				}
-			}
-			if (user && nick)
-				check = true;
-		}
-	}
-	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
-	send(cl.getOut(), msg.c_str(), msg.size(), 0);
-	return check;
 }
 
 client &server::findClient(std::string clientNick)
@@ -322,6 +306,16 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 						std::string input = find_input(msg, cmd);
 						if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
 							pass = true;
+						else
+						{
+							std::string ms = ":" + _ServName + " 464 :Password incorrect\r\n";
+							send(cl.getOut(), ms.c_str(), ms.size(), 0);
+						}
+					}
+					else if (cmd == "CAP")
+					{
+						std::string ms = ":" + _ServName + " CAP * LS :\r\n";
+						send(cl.getOut(), ms.c_str(), ms.size(), 0);
 					}
 				}
 			}
@@ -335,7 +329,8 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 				std::string input = find_input(msg, cmd);
 				if (cmd == "NICK")
 				{
-					if (isvalidNickname(input))
+					std::cerr << "input = " << input << std::endl;
+					if (isvalidNickname(input, cl))
 					{
 						cl.setNickname(input);
 						nick = true;
@@ -343,18 +338,23 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 				}
 				else if (cmd == "USER")
 				{
-					if (isvalidUsername(input))
+					if (isvalidUsername(input, cl))
 					{
 						cl.setClientName(input);
 						user = true;
 					}
+				}
+				else if (cmd == "PASS")
+				{
+					std::string ms = ":" + _ServName + " 462 :Unauthorized command\r\n";
+					send(cl.getOut(), ms.c_str(), ms.size(), 0);
 				}
 				if (user && nick)
 					check = true;
 			}
 		}
 	}
-	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
+	std::string msg = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
 	send(cl.getOut(), msg.c_str(), msg.size(), 0);
 	_vecCl.push_back(cl);
 	(*vec).push_back(cl.InitPollFd(cl.getOut()));
