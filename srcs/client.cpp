@@ -65,7 +65,6 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
         if (pipoll.revents & POLLIN)
         {
 			std::string all_text = read_mess(pipoll.fd);
-            //std::cerr << "ICI: " << all_text << std::endl;
             if (!all_text.empty())
             {
                 serv.ExecCmd(*this, all_text);
@@ -93,27 +92,21 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
 
 void client::setClientName(std::string str)
 {
-    //std::cerr << "str : "<<str << std::endl;
     _UserName = str; 
-    //std::cerr << "_UserName : " << _UserName << std::endl;
 }
 
 std::string client::GetClientUserName() const
 {
-    //std::cerr << _UserName << std::endl;
     return (_UserName);
 }
 
 void client::setNickname(std::string str)
 {
-    //std::cerr << "str : " << str<< std::endl;  
     _Nickname = str;
-    //std::cerr << "_Nickname : " << _Nickname << std::endl;  
 }
 
 std::string client::GetNickname() const
 {
-    //std::cerr << _Nickname << std::endl;
     return (_Nickname);
 }
 
@@ -163,7 +156,6 @@ bool client::operator==(const client &src) const
         && _out == src._out
         && _clientInfo.sin_addr.s_addr == src._clientInfo.sin_addr.s_addr
         && _clientInfo.sin_port == src._clientInfo.sin_port
-        //&& _size == src._size
         && _UserName == src._UserName
         && _Nickname == src._Nickname
         && _Operator == src._Operator)
@@ -174,15 +166,10 @@ bool client::operator==(const client &src) const
 
 bool client::operator!=(const client &src) const
 {
-    std::cerr << _out << std::endl;
-    std::cerr << _clientInfo.sin_addr.s_addr << std::endl;
-    std::cerr << _clientInfo.sin_port << std::endl;
-    std::cerr << _clientId << std::endl;
     if (_clientId != src._clientId
         && _out != src._out
         && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
         && _clientInfo.sin_port != src._clientInfo.sin_port
-        //&& _size != src._size
         && _UserName != src._UserName
         && _Nickname != src._Nickname
         && _Operator != src._Operator)

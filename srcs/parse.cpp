@@ -5,8 +5,6 @@
 size_t server::findChannel(std::string name)
 {
     size_t i = 0;
-    std::cerr << "size vec channel " << _vecCh.size() << std::endl;
-    std::cerr << "name " << name << std::endl;  
     while (i < _vecCh.size())
     {
         if (_vecCh[i].sameName(name))
@@ -210,8 +208,6 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
             if (cmd.size() > 3)
             {
                 size_t nb = std::atoi(cmd[3].c_str());
-                std::cerr << "nb client limit = " << nb << std::endl;
-                std::cerr << "nb client channel = " << _vecCh[i].getchannelClients().size() << std::endl; 
                 if (nb >= _vecCh[i].getchannelClients().size())
                     _vecCh[i].setLimitCl(nb);
                 else

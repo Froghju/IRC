@@ -36,19 +36,15 @@ void frogy::hello(channel ch)
 void frogy::fact(channel ch)
 {
 	int r = rand() % _Fact.size();
-	std::cerr << _Fact[r] << std::endl;
 	ch.FrogSendToAll(_Fact[r]);
 }
 
 void frogy::frogsave(channel ch)
 {
 	int r = rand() % 17;
-	std::cerr << r << " check" << std::endl;
 	std::ifstream file(_Frogsave[r].c_str());
-	std::cerr << "check2" << std::endl;
 	std::string tmp, str_nc;
 	while (std::getline(file, tmp))
 		str_nc += tmp + "\n";
-	std::cerr << str_nc << std::endl;
 	ch.FrogSendToAll(str_nc);
 }

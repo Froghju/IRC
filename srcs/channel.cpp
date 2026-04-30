@@ -21,17 +21,11 @@ std::string channel::getKey() const
 
 void channel::sendToAll(client &cl, std::string message)
 {
-    //conditionnal jump
     int i = 0;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
                         "@localhost PRIVMSG #channel :" +
                         message + "\r\n";
-    /*std::string nc_mess = ":" + cl.GetNickname() +
-                        "!~" + cl.GetClientUserName() +
-                        "@localhost PRIVMSG #channel :" +
-                        message + "\n";*/
-    std::cerr << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
         if (_channelClients[i].getOut() != cl.getOut())
@@ -47,11 +41,6 @@ void channel::FrogSendToAll(std::string message)
     int i = 0;
     std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG #channel :" +
                         message + "\r\n";
-    /*std::string nc_mess = ":" + cl.GetNickname() +
-                        "!~" + cl.GetClientUserName() +
-                        "@localhost PRIVMSG #channel :" +
-                        message + "\n";*/
-    std::cerr << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
         send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
@@ -134,11 +123,6 @@ void channel::allowkey(std::vector<std::string> cmd, int out)
 }
 
 bool channel::sameName(std::string str) {
-    std::cerr << "channel name find : " << str << "channel name : " << _name << std::endl;
-    bool t = str == _name;
-    std::cerr << "channel name cmp channel name find: " << t << std::endl;
-    int e = strcmp(str.c_str(), _name.c_str());
-    std::cerr << "channel name cmp channel name find cmp: " << e << std::endl;
     if (str == _name)
         return true;
     return false;

@@ -26,7 +26,6 @@ std::string find_cmd(std::string str)
 {
     std::string cmd;
     size_t i = 0;
-    std::cerr << "check " << std::endl;
     if (str[i] == ':')
     {
         while (i < str.size() && !is_white_space(str[i]))
@@ -38,7 +37,6 @@ std::string find_cmd(std::string str)
     while (i < str.size() && !is_white_space(str[i]))
         i++;
     cmd.append(str, start, i);
-    std::cerr << cmd << std::endl;
     return cmd;
 }
 
@@ -66,7 +64,6 @@ std::string read_mess(int fd)
         all_text.append(buffer);
         ++check;
     }
-    std::cerr << "all_text = " << all_text << std::endl;
     return (all_text);
 }
 
@@ -87,7 +84,6 @@ void sendToAll(client &cl, std::vector<struct pollfd> *vec, std::string message,
                         "!~" + cl.GetClientUserName() +
                         "@localhost PRIVMSG #channel :" +
                         message + "\n";
-    std::cerr << hex_mess << std::endl;
     for (std::vector<struct pollfd>::iterator it = vec->begin(); it != vec->end(); it++)
 	{
         if ((*vec)[i].fd != cl.getOut())
@@ -112,7 +108,7 @@ std::vector<std::string> splitCpp(std::string str)
 
     while (str[i])
     {
-        if (str[i] == ' ')
+        if (str[i] == ' ' || str[i] == '\r')
         {
             tmp = (char *)malloc(sizeof(char) * len + 1);
             if (check == false)
@@ -145,11 +141,11 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(tmp);
         free(tmp);
     }
-    /*size_t j = 0;
+    size_t j = 0;
     while (j < cut.size())
     {
         std::cout << "result: ." << cut[j] << '.' << std::endl;
         j++;
-    }*/
+    }
     return cut;
 }
