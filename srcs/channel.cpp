@@ -1,6 +1,6 @@
 #include "../libs/main.hpp"
 
-channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false), _resTopic(false)
+channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false), _hasLimit(false), _resTopic(false)
 {
     if (content.size() > 2)
     {
@@ -102,24 +102,16 @@ void channel::allowInvite()
         _private = true;
 }
 
-void channel::allowkey(std::vector<std::string> cmd, int out)
+void channel::allowkey(std::string pass)
 {
-    if (_hasKey)
-    {
-        _hasKey = false;
-        return;
-    }
-    else
-    {
-        if (cmd.size() > 3)
-        {
-            _key.clear();
-            _key = cmd[3];
-            _hasKey = true;
-        }
-        else
-            send(out, "Error: You need to enter the password to set one\n", 50, 0);
-    }
+    _key.clear();
+    _key = pass;
+    _hasKey = true; 
+}
+
+void channel::UnsetKey()
+{
+    _hasKey = false;
 }
 
 bool channel::sameName(std::string str) {
@@ -174,6 +166,17 @@ bool channel::isAdmin(client cl)
 void channel::setLimitCl(size_t limit)
 {
     _limitCl = limit;
+    _hasLimit = true;
+}
+
+void channel::UnsetLimitCl()
+{
+    _hasLimit = false;
+}
+
+bool channel::hasLimit() const
+{
+    return _hasLimit;
 }
 
 size_t channel::getLimitCl()
@@ -186,7 +189,7 @@ std::vector<client> channel::getchannelClients()
     return (_channelClients);
 }
 
-bool channel::getResTopic()
+bool channel::getResTopic() const
 {
     return (_resTopic);
 }
@@ -234,4 +237,9 @@ void channel::allowOperator(std::string nick)
     }
     _admin.push_back(_channelClients[i]);
     ++_nbAdmin;
+}
+
+size_t channel::size()
+{
+    return _channelClients.size();
 }
