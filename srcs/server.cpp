@@ -17,7 +17,10 @@ server::server(int port, std::string password) : _PassW(password), _Port(port), 
 	_InfServ.sin_port = htons(_Port); /// htons host to network short
 	_InfServ.sin_addr.s_addr = INADDR_ANY; //peut se connecter de partout
 	if (bind(_IdSocket, (const struct sockaddr*)&_InfServ, sizeof(_InfServ)))
+	{
 		std::cerr << "Inable to connect, port already used" << std::endl;
+		throw ErrorQuit();
+	}
 
     _vpfd.fd = _IdSocket;
     _vpfd.events = POLLIN;

@@ -41,4 +41,14 @@ std::string find_input(std::string str, std::string cmd);
 std::vector<std::string> splitCpp(std::string str);
 std::vector<std::string> initDataBot();
 
+class ErrorQuit : public std::exception {
+
+public:
+
+    virtual const char* what() const throw()
+    {
+        return ("\nYou quit the server. ByeBye <3");
+    }
+};
+
 #endif

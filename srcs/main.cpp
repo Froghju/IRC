@@ -45,13 +45,31 @@ std::string checkPassword(char *str)
     return pass;
 }
 
+void sigint_handler(int sig)
+{
+    if (sig == SIGINT)
+        throw ErrorQuit();
+}
+
+void set_sig_action(void)
+{
+    struct sigaction act;
+
+    bzero(&act, sizeof(act));
+    act.sa_handler = &sigint_handler;
+    sigaction(SIGINT, &act, NULL);
+}
+
+#include <signal.h>
 int main(int ac,char **av)
 {
     if (ac == 3)
     {
+        set_sig_action();
         srand(time(NULL));
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);
+
         try
         {
             server serv(port, password);
