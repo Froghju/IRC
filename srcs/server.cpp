@@ -176,6 +176,7 @@ bool server::initClient(client &cl)
 				{
 					cl.setNickname(input);
 					nick = true;
+					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
 				}
 			}
 			else if (cmd == "USER")
@@ -184,6 +185,7 @@ bool server::initClient(client &cl)
 				{
 					cl.setClientName(input);
 					user = true;
+					std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl; 
 				}
 			}
 			if (user && nick)
@@ -324,7 +326,10 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 					{
 						std::string input = find_input(msg, cmd);
 						if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
+						{
 							pass = true;
+							std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl; 
+						}
 					}
 				}
 			}
@@ -342,6 +347,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 					{
 						cl.setNickname(input);
 						nick = true;
+						std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
 					}
 				}
 				else if (cmd == "USER")
@@ -350,6 +356,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 					{
 						cl.setClientName(input);
 						user = true;
+						std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
 					}
 				}
 				if (user && nick)

@@ -70,7 +70,6 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
         catch(const std::exception& e)
         {
             std::cerr << e.what() << ". Creating a new one..." << std::endl;
-            std::cerr << e.what() << ". Creating a new one..." << std::endl;
             channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);

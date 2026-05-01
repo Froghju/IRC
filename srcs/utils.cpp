@@ -64,6 +64,7 @@ std::string read_mess(int fd)
         all_text.append(buffer);
         ++check;
     }
+    std::cerr << BLUE << "debug: " << RESET << all_text << std::endl;
     return (all_text);
 }
 
@@ -144,7 +145,7 @@ std::vector<std::string> splitCpp(std::string str)
     size_t j = 0;
     while (j < cut.size())
     {
-        std::cout << "result: ." << cut[j] << '.' << std::endl;
+        std::cout << BLACK << "result: ." << cut[j] << '.' << RESET << std::endl;
         j++;
     }
     return cut;
