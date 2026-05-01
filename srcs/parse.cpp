@@ -85,29 +85,41 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
     }
     else
     {
-        //aucune idee de quoi mettre ?
-        send(cl.GetFdOut(), "Invalid command: JOIN <channel> (<password>)\n", 44, 0);
+        std::string ms = ":" + _ServName + " 461 :Params not ok\n";
+        send(cl.getOut(), ms.c_str(), ms.size(), 0);
     }
 }
 
-//ICI Admin est le client a l'initiative de l'action
 void server::inviteCmd(std::vector<std::string> content, client &admin)
 {
     if (content.size() > 2)
     {
+        int subject = 0;
         try
         {
             client cl = findClient(content[2]);
+            subject++;
             size_t i = findChannel(content[1]);
             if (admin.GetOperator())
                 _vecCh[i].addOnList(cl);
             else
-                send(cl.GetFdOut(), "You have no right to invite another user\n", 42, 0);
+            {
+                std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
         catch(const std::exception& e)
         {
-            std::cerr << e.what() << std::endl;
-            send(admin.GetFdOut(), "Invalid command: channel or client doesn't exist\n", 50, 0);
+            if (subject == 0)
+            {
+                std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
+            else
+            {
+                std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
     }
     else
@@ -117,10 +129,8 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
     }
 }
 
-//ICI Admin est le client a l'initiative de l'action
 void server::kickCmd(std::vector<std::string> content, client admin)
 {
-    //SEGFAULT quand kick a user inexistant
     if (content.size() > 2)
     {
         int subject = 0;
@@ -130,23 +140,34 @@ void server::kickCmd(std::vector<std::string> content, client admin)
             ++subject;
 
             size_t i = findChannel(content[1]);
-            std::cerr << admin.GetNickname() << " admin status: " << admin.GetOperator() << std::endl;
-            if (admin.GetOperator()) //SWITCH dedans quand merge
+            if (admin.GetOperator())
                 _vecCh[i].kick(cl);
             else
-                send(admin.GetFdOut(), "You have no right to kick another user\n", 40, 0);
+            {
+                std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << std::endl;
             if (subject == 0)
-                send(admin.GetFdOut(), "Invalid command: This client doesn't exist\n", 44, 0);
+            {
+                std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
             else
-                send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
+            {
+                std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
     }
     else
-        send(admin.GetFdOut(), "Invalid command: KICK <channel> <user>\n", 40, 0);
+    {
+        std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
+        send(admin.getOut(), ms.c_str(), ms.size(), 0);
+    }
 }
 
 void server::topicCmd(std::vector<std::string> cmd, client &cl)
@@ -154,35 +175,43 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
     size_t pos = findChannel(cmd[1]);
     if (cmd.size() == 3)
     {
-        if (_vecCh[pos].getResTopic())
+        if (_vecCh[pos].isOnTheChannel(cl))
         {
-            if (!_vecCh[pos].getResTopic() ||_vecCh[pos].isAdmin(cl))
+            if (_vecCh[pos].getResTopic())
+            {
+                if (_vecCh[pos].isAdmin(cl))
+                {
+                    std::string str;
+                    for (size_t i = 2; i < cmd.size(); i++)
+                    {
+                        str += cmd[i];
+                        if (i + 1 < cmd.size())
+                            str += " ";
+                        else
+                            str += "\n";
+                    }
+                    _vecCh[pos].setTopic(str);
+                }
+                else
+                {
+                    std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+                    send(cl.getOut(), ms.c_str(), ms.size(), 0);
+                }
+            }
+            else
             {
                 std::string str;
                 for (size_t i = 2; i < cmd.size(); i++)
                 {
                     str += cmd[i];
-                    if (i + 1 < cmd.size())
-                        str += " ";
-                    else
-                        str += "\n";
                 }
                 _vecCh[pos].setTopic(str);
-            }
-            else
-            {
-                std::string str = "Error you don't have the permission to change topic";
-                send(cl.getOut(), str.c_str(), str.size(), 0);
             }
         }
         else
         {
-            std::string str;
-            for (size_t i = 2; i < cmd.size(); i++)
-            {
-                str += cmd[i];
-            }
-            _vecCh[pos].setTopic(str);
+            std::string ms = ":" + _ServName + " 442 :Not on channel\n";
+            send(cl.getOut(), ms.c_str(), ms.size(), 0);
         }
     }
     else
@@ -193,8 +222,8 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
         }
         else
         {
-            std::string str = "This channel have no topic\n";
-            send(cl.getOut(), str.c_str(), str.size(), 0);
+            std::string ms = ":" + _ServName + " 461 :Need more params\n";
+            send(cl.getOut(), ms.c_str(), ms.size(), 0);
         }
     }
 }
@@ -225,16 +254,16 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                         _vecCh[i].allowOperator(cmd[3]);
                     else
                     {
-                        std::string str = "Not valid user\n";
-                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                        std::string ms = ":" + _ServName + " 401 :No such nickname\n";
+                        send(admin.getOut(), ms.c_str(), ms.size(), 0);
                     }
                 }
                 else
                 {
                     if (_vecCh[i].getResTopic() && !_vecCh[i].isAdmin(admin))
                     {
-                        std::string str = "Can't be a operator\n";
-                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                        std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+                        send(admin.getOut(), ms.c_str(), ms.size(), 0);
                     }
                     else
                         _vecCh[i].allowOperator(admin.GetClientUserName());
@@ -249,24 +278,33 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                         _vecCh[i].setLimitCl(nb);
                     else
                     {
-                        std::string str = "limit to small too many client in the channel\n";
-                        send(admin.GetFdOut(), str.c_str(), str.size(), 0);
+                        std::string ms = ":" + _ServName + " 501 :Limit too small\n";
+                        send(admin.getOut(), ms.c_str(), ms.size(), 0);
                     }
                 }
                 else if (cmd.size() > 2)
                     _vecCh[i].UnsetLimitCl();
                 else
-                    send(admin.GetFdOut(), "Invalid command: 'MODE <channel> -flag <numbers_of_users>'\n", 60, 0);
+                {
+                    std::string ms = ":" + _ServName + " 501 :Mode unknow flag\n";
+                    send(admin.getOut(), ms.c_str(), ms.size(), 0);
+                }
             }
             else
-                std::cerr << "error bad extention mode" << std::endl;
+            {
+                std::string ms = ":" + _ServName + " 501 :Mode unknow flag\n";
+                send(admin.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
         else
-            send(admin.GetFdOut(), "Permission denied: You are not a channel operator\n", 51, 0);
+        {
+            std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+            send(admin.getOut(), ms.c_str(), ms.size(), 0);
+        }
     }
     catch(const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
-        send(admin.GetFdOut(), "Invalid command: This channel doesn't exist\n", 45, 0);
+        std::string ms = ":" + _ServName + " 403 :No such channel\n";
+        send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
 }
