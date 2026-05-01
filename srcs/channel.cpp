@@ -54,12 +54,11 @@ void channel::addNewClient(client &cl) {
         return ;
     else
     {
-        //std::cerr << "NUBER OF ADMIN: " << std::endl;
         if (_nbAdmin == 0)
         {
             //allowOperator(cl.GetNickname());
             cl.setOperator(true);
-             _admin.push_back(cl);
+            _admin.push_back(cl);
             ++_nbAdmin;
         }
         _channelClients.push_back(cl);
@@ -242,4 +241,9 @@ void channel::allowOperator(std::string nick)
 size_t channel::size()
 {
     return _channelClients.size();
+}
+
+std::string channel::getname()
+{
+    return (_name);
 }

@@ -54,6 +54,7 @@ public:
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess);
 	bool initClient(client &cl);
+	std::string usernamehexchat(std::string &input);
 
 	class ChannelNotFound : public std::exception {
 

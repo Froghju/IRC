@@ -35,6 +35,7 @@ public:
     void addNewClient(client &cl);
     void addOnList(client cl);
 
+    std::string getname();
     void kick(client cl);
     void allowInvite();
     void allowkey(std::string pass);

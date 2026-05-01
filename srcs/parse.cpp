@@ -77,10 +77,19 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
         }
         catch(const std::exception& e)
         {
-            //message a envoyer comme quoi ok
             channel newchannel(content);
             newchannel.addNewClient(cl);
             _vecCh.push_back(newchannel);
+            std::cout << "nick = " << cl.GetNickname() << std::endl;
+            std::cout << "user = " << cl.GetClientUserName() << std::endl;
+            std::string ms3 = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost JOIN #" + _vecCh[_vecCh.size() - 1].getname() + "\r\n";
+            send(cl.getOut(), ms3.c_str(), ms3.size(), 0);
+            std::string ms4 = ":" + _ServName + " MODE #" + _vecCh[_vecCh.size() - 1].getname() + " +o " + cl.GetNickname() + "\r\n";
+            send(cl.getOut(), ms4.c_str(), ms4.size(), 0);
+            std::string ms = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[_vecCh.size() - 1].getname() + " :" + cl.GetNickname() + "\r\n";
+            send(cl.getOut(), ms.c_str(), ms.size(), 0);
+            std::string ms2 = ":" + _ServName + " 366 " + cl.GetNickname() + " #" + _vecCh[_vecCh.size() - 1].getname() + " :End of /NAMES list\r\n";
+            send(cl.getOut(), ms2.c_str(), ms2.size(), 0);
         }
     }
     else

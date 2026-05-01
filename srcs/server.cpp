@@ -284,6 +284,11 @@ void server::ExecCmd(client &cl, std::string mess)
 	}
 }
 
+std::string server::usernamehexchat(std::string &input)
+{
+	size_t pos = input.find(" 0");
+	return input.substr(0, pos);
+}
 
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
@@ -340,7 +345,8 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 				{
 					if (isvalidUsername(input, cl))
 					{
-						cl.setClientName(input);
+						std::string onlyuser = usernamehexchat(input);
+						cl.setClientName(onlyuser);
 						user = true;
 					}
 				}
@@ -354,7 +360,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 			}
 		}
 	}
-	std::string msg = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
+	std::string msg = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
 	send(cl.getOut(), msg.c_str(), msg.size(), 0);
 	_vecCl.push_back(cl);
 	(*vec).push_back(cl.InitPollFd(cl.getOut()));
