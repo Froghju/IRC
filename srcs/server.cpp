@@ -179,6 +179,7 @@ bool server::isvalidUsername(std::string input, client &cl)
 client &server::findClient(std::string clientNick)
 {
 	size_t i = 0;
+	std::cerr << "clientNick = " << clientNick << std::endl;
 	while (i < _vecCl.size())
 	{
 		if (_vecCl[i].GetNickname() == clientNick)
@@ -202,7 +203,7 @@ void server::sendToClient(std::vector<std::string> content)
 				str+= " ";
 		}
 		str += "\r\n";
-		send(findClient(content[1]).getOut(), str.c_str(), str.size(), 0);
+		send(findClient(content[0]).getOut(), str.c_str(), str.size(), 0);
 	}
 	catch(const std::exception& e)
 	{
@@ -253,14 +254,16 @@ void server::ExecCmd(client &cl, std::string mess)
 				_Fro.frogsave(_vecCh[i]);
 			}
 			else if (content[0] == "PRIVMSG")
-				sendToClient(content);
-			else
 			{
-				try
-				{
-					size_t i = findChannel(content[0]);
+				try {
+					std::cerr << "check1" << std::endl;
+					size_t i = findChannel(content[1]);
+					std::cerr << "check2" << std::endl;
 					if (_vecCh[i].isOnTheChannel(cl))
-						_vecCh[i].sendToAll(cl, mess);
+					{
+						_vecCh[i].sendToAll(cl, content);
+						std::cerr << "check3" << std::endl;
+					}
 					else
 					{
 						std::string str = "Join channel to talk to people\n";
@@ -270,11 +273,16 @@ void server::ExecCmd(client &cl, std::string mess)
 				}
 				catch(const std::exception& e)
 				{
+					std::cerr << "check4" << std::endl;
 					(void)e;
-					std::string str = "Join channel to talk to people\n";
-					send(cl.GetFdOut(), str.c_str(), str.size(), 0);
-					str.clear();
+					sendToClient(content);
 				}
+			}
+			else
+			{
+				std::string str = "Join channel to talk to people\n";
+				send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+				str.clear();
 			}
 		}
 	}
@@ -292,7 +300,7 @@ std::string server::usernamehexchat(std::string &input)
 
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
-	bool check  = false;
+	bool check = false;
 	bool pass = false;
 	bool nick = false;
 	bool user = false;
@@ -337,7 +345,26 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 					std::cerr << "input = " << input << std::endl;
 					if (isvalidNickname(input, cl))
 					{
-						cl.setNickname(input);
+						std::string str = input;
+						if (input[input.size() - 1] == '\r')
+						{
+							str.clear();
+							for (size_t i = 0; i < input.size() - 1; ++i)
+							{
+								str += input[i];
+							}
+						}
+						for (size_t i = 0; i < input.size(); i++)
+						{
+							std::cout << (int)(unsigned char)input[i] << " ";
+						}
+						std::cout << std::endl;
+						cl.setNickname(str);
+						for (size_t i = 0; i < cl.GetNickname().size(); i++)
+						{
+							std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
+						}
+						std::cout << std::endl;
 						nick = true;
 					}
 				}

@@ -30,7 +30,7 @@ public:
 
     std::string getKey() const;
 
-    void sendToAll(client &cl, std::string message);
+    void sendToAll(client &cl, std::vector<std::string> &content);
     void FrogSendToAll(std::string message);
     void addNewClient(client &cl);
     void addOnList(client cl);
@@ -53,7 +53,7 @@ public:
     bool isOnTheList(client cl);
     bool isOnTheChannel(client cl);
     bool isAdmin(client cl);
-    std::vector<client> getchannelClients();
+    std::vector<client> &getchannelClients();
     bool getResTopic() const;
     void allowResTopic();
     bool validUser(std::string name);

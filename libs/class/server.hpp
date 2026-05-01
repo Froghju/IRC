@@ -56,6 +56,14 @@ public:
 	bool initClient(client &cl);
 	std::string usernamehexchat(std::string &input);
 
+	void	sendjoin(size_t pos, client &cl);
+	void	sendlistclchannel(size_t pos);
+	void	sendoperator(size_t pos, client &cl);
+	void	sendNoTopic(size_t pos, client &cl);
+	void	sendTopic(size_t pos, client &cl);
+	void	sendNoTopicAll(size_t pos);
+	void	sendTopicAll(size_t pos);
+
 	class ChannelNotFound : public std::exception {
 
         public:

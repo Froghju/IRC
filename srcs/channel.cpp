@@ -20,15 +20,27 @@ std::string channel::getKey() const
     return _key;
 }
 
-void channel::sendToAll(client &cl, std::string message)
+void channel::sendToAll(client &cl, std::vector<std::string> &content)
 {
     int i = 0;
+    std::string message;
+    for (std::vector<std::string>::iterator it = content.begin() + 2; it != content.end(); ++it)
+    {
+        message += *it;
+        if (it + 1 != content.end())
+            message += " ";
+        else
+            message += "\r\n";
+    }
+    std::cerr << "message = " << message << std::endl;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
-                        "@localhost PRIVMSG #channel :" +
-                        message + "\r\n";
+                        "@localhost PRIVMSG " + content[1] + " " +
+                        message;
+    std::cerr << "hex_mess = " << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
+        std::cerr << "client nickname send mess = " << _channelClients[i].GetNickname() << std::endl;
         if (_channelClients[i].getOut() != cl.getOut())
         {
             send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
@@ -183,7 +195,7 @@ size_t channel::getLimitCl()
     return (_limitCl);
 }
 
-std::vector<client> channel::getchannelClients()
+std::vector<client> &channel::getchannelClients()
 {
     return (_channelClients);
 }
