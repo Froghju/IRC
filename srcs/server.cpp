@@ -182,7 +182,7 @@ client &server::findClient(std::string clientNick)
 	std::cerr << "clientNick = " << clientNick << std::endl;
 	while (i < _vecCl.size())
 	{
-		if (_vecCl[i].GetNickname() == clientNick)
+		if (_vecCl[i].GetNickname() == clientNick || _vecCl[i].GetNickname() == ":"+clientNick)
 			return _vecCl[i];
 		i++;
 	}
@@ -215,12 +215,6 @@ void server::ExecCmd(client &cl, std::string mess)
 {
 	std::cerr << "mess = " << mess << std::endl;
 	std::vector<std::string> content = splitCpp(mess);
-	/*size_t j = 0;
-    while (j < content.size())
-    {
-        std::cout << "result: .." << content[j] << ".." << std::endl;
-        j++;
-    }*/
 	if (!content[0].empty())
 	{
 		if (content.size() > 1)
@@ -228,10 +222,7 @@ void server::ExecCmd(client &cl, std::string mess)
 			if (content[0] == "JOIN")
 				joinCmd(content, cl);
 			else if (content[0] == "KICK")
-			{
-				std::cout << "kick :" << cl.GetOperator();
 				kickCmd(content, cl);
-			}
 			else if (content[0] == "INVITE")
 				inviteCmd(content, cl);
 			else if (content[0] == "TOPIC")
@@ -343,23 +334,19 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 				if (cmd == "NICK")
 				{
 					std::cerr << "input = " << input << std::endl;
+					if (input[input.size() - 1] == '\r')
+					{
+						std::string str;
+						for (size_t i = 0; i < input.size() - 1; ++i)
+						{
+							str += input[i];
+						}
+						input.clear();
+						input = str;
+					}
 					if (isvalidNickname(input, cl))
 					{
-						std::string str = input;
-						if (input[input.size() - 1] == '\r')
-						{
-							str.clear();
-							for (size_t i = 0; i < input.size() - 1; ++i)
-							{
-								str += input[i];
-							}
-						}
-						for (size_t i = 0; i < input.size(); i++)
-						{
-							std::cout << (int)(unsigned char)input[i] << " ";
-						}
-						std::cout << std::endl;
-						cl.setNickname(str);
+						cl.setNickname(input);
 						for (size_t i = 0; i < cl.GetNickname().size(); i++)
 						{
 							std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";

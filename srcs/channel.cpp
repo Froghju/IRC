@@ -35,7 +35,7 @@ void channel::sendToAll(client &cl, std::vector<std::string> &content)
     std::cerr << "message = " << message << std::endl;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
-                        "@localhost PRIVMSG " + content[1] + " " +
+                        "@localhost " + content[0] + " " + content[1] + " " +
                         message;
     std::cerr << "hex_mess = " << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)

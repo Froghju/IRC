@@ -63,6 +63,8 @@ public:
 	void	sendTopic(size_t pos, client &cl);
 	void	sendNoTopicAll(size_t pos);
 	void	sendTopicAll(size_t pos);
+	void	sendInvite(client &cl, size_t pos);
+	void	sendInviteOnly(client &cl, size_t pos);
 
 	class ChannelNotFound : public std::exception {
 

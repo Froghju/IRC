@@ -85,6 +85,19 @@ void server::sendNoTopicAll(size_t pos)
 		sendNoTopic(pos, *it);
 	}
 }
+
+void server::sendInvite(client &cl, size_t pos)
+{
+	std::string mess = ":" + _ServName + " 341 " + cl.GetNickname() + " #" + _vecCh[pos].getname() + "\r\n";
+	std::cerr << "mess = " << mess << std::endl;
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+}
+
+void server::sendInviteOnly(client &cl, size_t pos)
+{
+	std::string mess = ":" + _ServName + " 346 " + cl.GetNickname() + " #" + _vecCh[pos].getname() + "\r\n";
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+}
 /*std::string ms3 = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost JOIN #" + _vecCh[_vecCh.size() - 1].getname() + "\r\n";
 send(cl.getOut(), ms3.c_str(), ms3.size(), 0);*/
 /*std::string ms4 = ":" + _ServName + " MODE #" + _vecCh[_vecCh.size() - 1].getname() + " +o " + cl.GetNickname() + "\r\n";

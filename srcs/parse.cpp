@@ -130,29 +130,42 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
 {
     if (content.size() > 2)
     {
+        std::cerr << "check 0" << std::endl;
         int subject = 0;
         try
         {
-            client cl = findClient(content[2]);
+            std::cerr << "check 1" << std::endl;
+            client cl = findClient(content[1]);
+            std::cerr << "check 2" << std::endl;
             subject++;
-            size_t i = findChannel(content[1]);
+            size_t i = findChannel(content[2]);
+            std::cerr << "check 3" << std::endl;
             if (admin.GetOperator())
+            {
+                std::cerr << "check 4" << std::endl;
+                _vecCh[i].sendToAll(admin, content);
+                sendInvite(cl, i);
                 _vecCh[i].addOnList(cl);
+            }
             else
             {
+                std::cerr << "check 5" << std::endl;
                 std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
         }
         catch (const std::exception &e)
         {
+            std::cerr << "check 6" << std::endl;
             if (subject == 0)
             {
+                std::cerr << "check 7" << std::endl;
                 std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
             else
             {
+                std::cerr << "check 8" << std::endl;
                 std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
@@ -160,6 +173,7 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
     }
     else
     {
+        std::cerr << "check 9" << std::endl;
         std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
         send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
@@ -172,14 +186,21 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         int subject = 0;
         try
         {
+            std::cerr<< "check 0" << std::endl;
             client cl = findClient(content[2]);
             ++subject;
-
+            std::cerr<< "check 1" << std::endl;
             size_t i = findChannel(content[1]);
             if (admin.GetOperator())
+            {
+                std::cerr<< "check 2" << std::endl;
+                _vecCh[i].sendToAll(admin, content);
                 _vecCh[i].kick(cl);
+                sendlistclchannel(i);
+            }
             else
             {
+                std::cerr<< "check 3" << std::endl;
                 std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
@@ -189,11 +210,13 @@ void server::kickCmd(std::vector<std::string> content, client admin)
             std::cerr << e.what() << std::endl;
             if (subject == 0)
             {
+                std::cerr<< "check 4" << std::endl;
                 std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
             else
             {
+                std::cerr<< "check 5" << std::endl;
                 std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
@@ -201,6 +224,7 @@ void server::kickCmd(std::vector<std::string> content, client admin)
     }
     else
     {
+        std::cerr<< "check 6" << std::endl;
         std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
         send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
