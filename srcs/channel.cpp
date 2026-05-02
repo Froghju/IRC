@@ -113,16 +113,14 @@ void channel::allowInvite()
         _private = true;
 }
 
-void channel::allowkey(std::string pass)
+void channel::setInviteOnly()
 {
-    _key.clear();
-    _key = pass;
-    _hasKey = true; 
+    _private = true;
 }
 
-void channel::UnsetKey()
+void channel::unsetInviteOnly()
 {
-    _hasKey = false;
+    _private = false;
 }
 
 bool channel::sameName(std::string str) {
@@ -139,6 +137,42 @@ bool channel::isPrivate() const
 bool channel::hasKey() const
 {
     return _hasKey;
+}
+
+void channel::allowkey(std::string pass)
+{
+    _key.clear();
+    _key = pass;
+    _hasKey = true; 
+}
+
+void channel::UnsetKey(std::vector<std::string> cmd)
+{
+    if (!_hasKey)
+        return;
+    if (cmd.size() != 4)
+    {
+        //message error input
+        return;
+    }
+    if (cmd[3] != _key)
+    {
+        //message error wrong key
+        return;
+    }
+    _hasKey = false;
+}
+
+void channel::setKey(std::vector<std::string> cmd)
+{
+    if (cmd.size() != 4)
+    {
+        //message error input
+        return;
+    }
+    _key.clear();
+    _key = cmd[4];
+    _hasKey = true;
 }
 
 bool channel::isOnTheList(client cl)
@@ -213,6 +247,16 @@ void channel::allowResTopic()
         _resTopic = true;
 }
 
+void channel::setResTopic()
+{
+    _resTopic = true;
+}
+
+void channel::unsetResTopic()
+{
+    _resTopic = false;
+}
+
 bool channel::validUser(std::string nick)
 {
     size_t i = 0;
@@ -225,29 +269,41 @@ bool channel::validUser(std::string nick)
     return false;
 }
 
-void channel::allowOperator(std::string nick)
+void channel::allowOperator(std::vector<std::string> cmd)
 {
-    //SEGFAULT DANS CETTE FONCTION
-    size_t  j = 0;
-    while (j < _admin.size())
-    {
-        if (_admin[j].GetNickname() == nick)
-        {
-            _admin.erase(_admin.begin() + j);
-            --_nbAdmin;
-            return;
-        }
-        j++;
-    }
     size_t i = 0;
-    while (i < _channelClients.size())
+    for (size_t i = 0; i < _channelClients.size(); i++)
     {
-        if (_channelClients[i].GetNickname() == nick)
-            break;
-        i++;
+        if (_channelClients[i].GetNickname() == cmd[3])
+        {
+            if (!isAdmin(_channelClients[i]))
+            {
+                _admin.push_back(_channelClients[i]);
+                ++_nbAdmin;
+            }
+        }
     }
-    _admin.push_back(_channelClients[i]);
-    ++_nbAdmin;
+}
+
+void channel::unallowOperator(std::vector<std::string> cmd)
+{
+    size_t i = 0;
+    for (size_t i = 0; i < _channelClients.size(); i++)
+    {
+        if (_channelClients[i].GetNickname() == cmd[3])
+        {
+            if (isAdmin(_channelClients[i]) && _nbAdmin > 1)
+            {
+                std::vector<client>::iterator it = std::find(_admin.begin(), _admin.end(), _channelClients[i]);
+                _admin.erase(it);
+                --_nbAdmin;
+            }
+            /*else if (!isAdmin(_channelClients[i]))
+                mess wrong nickname
+            else
+                mess can't unallow last operator*/
+        }
+    }
 }
 
 size_t channel::size()

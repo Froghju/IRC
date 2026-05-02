@@ -311,60 +311,53 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
             size_t i = findChannel(cmd[1]);
             if (_vecCh[i].isAdmin(admin))
             {
-                if (cmd[2] == "-i")
-                    _vecCh[i].allowInvite();
+                if (cmd[2] == "+i")
+                    _vecCh[i].setInviteOnly();
+                else if (cmd[2] == "-i")
+                    _vecCh[i].unsetInviteOnly();
                 else if (cmd[2] == "-t")
-                    _vecCh[i].allowResTopic();
+                    _vecCh[i].unsetResTopic();
+                else if (cmd[2] == "+t")
+                    _vecCh[i].setResTopic();
                 else if (cmd[2] == "-k")
                 {
-                    if (cmd.size() > 3)
-                        _vecCh[i].allowkey(cmd[3]);
-                    else
-                        _vecCh[i].UnsetKey();
+                    _vecCh[i].UnsetKey(cmd);//rajouter message erreur
+                }
+                else if (cmd[2] == "+k")
+                {
+                    _vecCh[i].setKey(cmd);//rajouter message erreur
                 }
                 else if (cmd[2] == "-o")
                 {
-                    if (cmd.size() > 3)
-                    {
-                        if (_vecCh[i].validUser(cmd[3]))
-                            _vecCh[i].allowOperator(cmd[3]);
-                        else
-                        {
-                            std::string ms = ":" + _ServName + " 401 :No such nickname\n";
-                            send(admin.getOut(), ms.c_str(), ms.size(), 0);
-                        }
-                    }
-                    else
-                    {
-                        if (_vecCh[i].getResTopic() && !_vecCh[i].isAdmin(admin))
-                        {
-                            std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
-                            send(admin.getOut(), ms.c_str(), ms.size(), 0);
-                        }
-                        else
-                            _vecCh[i].allowOperator(admin.GetClientUserName());
-                    }
+                    _vecCh[i].allowOperator(cmd);
+                }
+                else if (cmd[2] == "+o")
+                {
+                    _vecCh[i].unallowOperator(cmd);
                 }
                 else if (cmd[2] == "-l")
                 {
-                    if (cmd.size() > 3)
+                    _vecCh[i].UnsetLimitCl();
+                }
+                else if (cmd[2] == "+l")
+                {
+                    if (cmd.size() == 4)
                     {
-                        size_t nb = std::atoi(cmd[3].c_str());
-                        if (nb >= _vecCh[i].getchannelClients().size())
-                            _vecCh[i].setLimitCl(nb);
-                        else
-                        {
-                            std::string ms = ":" + _ServName + " 501 :Limit too small\n";
-                            send(admin.getOut(), ms.c_str(), ms.size(), 0);
-                        }
+                        char *end;
+                        double val;
+                        val = std::strtod(cmd[3].c_str(), &end);
+                        /*if (cmd[3].size() == 1 && *end != '\0')
+                            mess bad parm
+                        if (val > 2147483647 || val < -2147483648)
+                            mess bad parm*/
+                        int v;
+                        v = static_cast<int>(val);
+                        /*if (v < 0)
+                            mess bad parm*/
+                        _vecCh[i].setLimitCl(v);
                     }
-                    else if (cmd.size() > 2)
-                        _vecCh[i].UnsetLimitCl();
-                    else
-                    {
-                        std::string ms = ":" + _ServName + " 501 :Mode unknow flag\n";
-                        send(admin.getOut(), ms.c_str(), ms.size(), 0);
-                    }
+                    /*esle
+                        mess error bad nb param*/
                 }
                 else
                 {

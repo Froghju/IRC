@@ -37,11 +37,20 @@ public:
 
     std::string getname();
     void kick(client cl);
+
     void allowInvite();
+    void setInviteOnly();
+    void unsetInviteOnly();
+
     void allowkey(std::string pass);
-    void UnsetKey();
+    void UnsetKey(std::vector<std::string> cmd);
+    void setKey(std::vector<std::string> cmd);
+
     void setTopic(std::string cmd);
     std::string getTopic();
+    void setResTopic();
+    void unsetResTopic();
+
     void setLimitCl(size_t limit);
     bool hasLimit() const;
     size_t getLimitCl();
@@ -57,6 +66,8 @@ public:
     bool getResTopic() const;
     void allowResTopic();
     bool validUser(std::string name);
-    void allowOperator(std::string name);
+
+    void unallowOperator(std::vector<std::string> cmd);
+    void allowOperator(std::vector<std::string> cmd);
     size_t size();
 };
