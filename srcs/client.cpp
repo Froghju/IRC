@@ -5,6 +5,7 @@ client::client() {}
 
 client::client(int port) : _Operator(false) {
     _clientId = socket(AF_INET, SOCK_STREAM, 0);
+    //fcntl(_clientId, F_SETFL, O_NONBLOCK);
 
     if (_clientId == -1)
         throw InvalidClientSig("Invalid Client Socket");

@@ -19,6 +19,7 @@
 #include <map>
 #include <deque>
 #include <bits/stdc++.h>
+#include <fcntl.h>
 
 #include "class/client.hpp"
 #include "class/server.hpp"

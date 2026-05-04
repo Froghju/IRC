@@ -10,6 +10,7 @@ server::server(int port, std::string password) : _PassW(password), _Port(port), 
 	if (proto == 0)
 		std::cerr << "Protobyname error" << std::endl;
 	_IdSocket = socket(PF_INET, SOCK_STREAM, proto->p_proto);
+	//fcntl(_IdSocket, F_SETFL, O_NONBLOCK);
 	if (_IdSocket == -1)
 		std::cerr << "Socket error" << std::endl;
 
