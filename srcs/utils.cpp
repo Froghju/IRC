@@ -40,15 +40,22 @@ std::string find_cmd(std::string str)
     return cmd;
 }
 
+bool lastChar(char *buff)
+{
+    if (buff[0] == '\r' && buff[1] == '\n')
+        return true;
+    return false;
+} // NE FONCTIONNE PAS
+
 std::string read_mess(int fd)
 {
     std::string all_text;
     int nb = 0;
     char buffer[2];
     int check = 0;
-    while (1)
+    while (!lastChar(buffer))
     {
-        nb = recv(fd, buffer, 1, 0);
+        nb = recv(fd, buffer, 1, 0); //REGARDER ICI
         if (nb == -1)
         {
             send(fd, "Sorry fail of recv you leave the serv\n", 39, 0);

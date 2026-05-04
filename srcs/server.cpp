@@ -9,11 +9,13 @@ server::server(int port, std::string password) : _PassW(password), _Port(port), 
 	proto = getprotobyname("tcp");//check si pas tcp/ip
 	if (proto == 0)
 		std::cerr << "Protobyname error" << std::endl;
-	_IdSocket = socket(PF_INET, SOCK_STREAM, proto->p_proto);
-	//fcntl(_IdSocket, F_SETFL, O_NONBLOCK);
+	//_IdSocket = socket(PF_INET, SOCK_STREAM, proto->p_proto);
+	_IdSocket = socket(AF_INET, SOCK_STREAM, 0); //*
+	fcntl(_IdSocket, F_SETFL, O_NONBLOCK);
 	if (_IdSocket == -1)
 		std::cerr << "Socket error" << std::endl;
 
+	std::memset(&_InfServ, 0, sizeof(_InfServ));  //*
 	_InfServ.sin_family = AF_INET;
 	_InfServ.sin_port = htons(_Port); /// htons host to network short
 	_InfServ.sin_addr.s_addr = INADDR_ANY; //peut se connecter de partout

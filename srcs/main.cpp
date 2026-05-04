@@ -61,6 +61,7 @@ void set_sig_action(void)
     act.sa_handler = &sigint_handler;
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGTERM, &act, NULL);
+    sigaction(SIGQUIT, &act, NULL);
 
     /*struct sigaction pipeAct;
     memset(&pipeAct, 0, sizeof(pipeAct));
