@@ -271,7 +271,6 @@ bool channel::validUser(std::string nick)
 
 void channel::allowOperator(std::vector<std::string> cmd)
 {
-    size_t i = 0;
     for (size_t i = 0; i < _channelClients.size(); i++)
     {
         if (_channelClients[i].GetNickname() == cmd[3])
@@ -287,7 +286,6 @@ void channel::allowOperator(std::vector<std::string> cmd)
 
 void channel::unallowOperator(std::vector<std::string> cmd)
 {
-    size_t i = 0;
     for (size_t i = 0; i < _channelClients.size(); i++)
     {
         if (_channelClients[i].GetNickname() == cmd[3])
