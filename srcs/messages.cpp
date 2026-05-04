@@ -32,8 +32,16 @@ void server::sendoperator(size_t pos, client &cl)
 {
 	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " +o " + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
-	std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
+}
+
+void server::unsendoperator(size_t pos, client &cl)
+{
+	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " -o " + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
 }
 
 void server::sendTopic(size_t pos, client &cl)

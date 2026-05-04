@@ -165,14 +165,23 @@ void channel::UnsetKey(std::vector<std::string> cmd)
 
 void channel::setKey(std::vector<std::string> cmd)
 {
+    std::cerr << "check" << std::endl;
     if (cmd.size() != 4)
     {
+        std::cerr << "check 2" << std::endl;
         //message error input
         return;
     }
-    _key.clear();
-    _key = cmd[4];
+    std::cerr << "check 3" << std::endl;
+    if (!_key.empty())
+    {
+        std::cerr << "check 4" << std::endl;
+        _key.clear();
+    }
+    std::cerr << "check 5" << std::endl;
+    _key = cmd[3];
     _hasKey = true;
+    std::cerr << "check 6" << std::endl;
 }
 
 bool channel::isOnTheList(client cl)

@@ -315,9 +315,9 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].setInviteOnly();
                 else if (cmd[2] == "-i")
                     _vecCh[i].unsetInviteOnly();
-                else if (cmd[2] == "-t") //marche pas
+                else if (cmd[2] == "-t")
                     _vecCh[i].unsetResTopic();
-                else if (cmd[2] == "+t") //marche pas
+                else if (cmd[2] == "+t")
                     _vecCh[i].setResTopic();
                 else if (cmd[2] == "-k") //segfault
                 {
@@ -327,13 +327,15 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 {
                     _vecCh[i].setKey(cmd);//rajouter message erreur
                 }
-                else if (cmd[2] == "-o") //marche mais n'affiche pas les messages comme quoi il est admin 
-                {
-                    _vecCh[i].allowOperator(cmd);
-                }
                 else if (cmd[2] == "+o") //marche mais n'affiche pas les messages comme quoi il est admin 
                 {
+                    _vecCh[i].allowOperator(cmd);
+                    sendoperator(i, findClient(cmd[3]));
+                }
+                else if (cmd[2] == "-o") //marche mais n'affiche pas les messages comme quoi il est admin 
+                {
                     _vecCh[i].unallowOperator(cmd);
+                    unsendoperator(i, findClient(cmd[3]));
                 }
                 else if (cmd[2] == "-l")
                 {
