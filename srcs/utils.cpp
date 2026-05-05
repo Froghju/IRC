@@ -49,7 +49,7 @@ bool lastChar(char *buff)
 
 std::string read_mess(int fd)
 {
-    std::string all_text;
+    /*std::string all_text;
     int nb = 0;
     char buffer[2];
     int check = 0;
@@ -72,7 +72,7 @@ std::string read_mess(int fd)
         ++check;
     }
     std::cerr << BLUE << "debug: " << RESET << all_text << std::endl;
-    return (all_text);
+    return (all_text);*/
 }
 
 #include <stdio.h>
