@@ -47,7 +47,7 @@ bool lastChar(char *buff)
     return false;
 } // NE FONCTIONNE PAS
 
-std::string read_mess(int fd)
+std::string read_mess(client &cl)
 {
     /*std::string all_text;
     int nb = 0;
@@ -73,6 +73,39 @@ std::string read_mess(int fd)
     }
     std::cerr << BLUE << "debug: " << RESET << all_text << std::endl;
     return (all_text);*/
+    char buff[512];
+    int nb = recv(cl.getOut(), buff, sizeof(buff) - 1, 0);
+    
+    if (nb <= 0)
+    {
+        if ( nb == 0)
+        {
+            //send(cl.getOut(), "Client Disconected from the server\n", 36, 0);
+            std::cerr << "Client Disconected from the server" << std::endl;
+        }
+        else
+        {
+            //send(cl.getOut(), "Sorry fail of recv\n", 20, 0);
+            std::cerr << "Sorry fail of recv" << std::endl;
+        }
+        shutdown(cl.getOut(), SHUT_RDWR);
+        close(cl.getOut());
+        return "";
+    }
+    buff[nb] = '\0';
+    std::string all_text = cl.conCat(buff);
+    std::string::size_type pos = all_text.find('\n');
+
+    if (pos != std::string::npos)
+    {
+        std::string mess = all_text.substr(0, pos);
+        cl.resetMess();
+        all_text.erase(0, pos + 1);
+        return mess;
+    }
+    if (all_text.empty())
+        cl.resetMess();
+    return "";
 }
 
 #include <stdio.h>

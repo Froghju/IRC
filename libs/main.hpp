@@ -43,7 +43,7 @@ class frogy;
 class server;
 
 //utils.cpp
-std::string read_mess(int fd);
+std::string read_mess(client &cl);
 char *strTochar(std::string str);
 void sendToAll(client &cl, std::vector<struct pollfd> *vec, std::string message, server &serv);
 std::string find_cmd(std::string str);

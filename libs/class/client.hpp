@@ -10,7 +10,6 @@ private:
     int _clientId;
     int _out;
     sockaddr_in _clientInfo;
-    //socklen_t _size;
 
     std::string _UserName;
     std::string _Nickname;
@@ -18,6 +17,8 @@ private:
     bool _Hex;
     bool _admin;
     bool _inChannel;
+    std::string _buffMessage;
+
 public:
     client(int port);
     client &operator=(const client & src);
@@ -36,7 +37,7 @@ public:
 	std::string GetClientUserName() const;
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
-    //socklen_t GetClientSize() const;
+    int GetClientID() const;
     bool GetOperator() const;
     int GetFdOut() const;
 
@@ -44,6 +45,8 @@ public:
     bool checkPollRevents(struct pollfd pipoll, server &serv);
     void doCmd(std::string msg, server *serv);
     bool getInChannel();
+    std::string conCat(const char *buff);
+    void resetMess();
 
     bool operator==(const client &src) const;
     bool operator!=(const client &src) const;

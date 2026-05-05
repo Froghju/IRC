@@ -61,7 +61,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 	}
 }
 
-bool server::checkPassword(int fd)
+/*bool server::checkPassword(int fd)
 {
 	std::string mess;
 	for (int i = 0; i < 3; i++)
@@ -85,7 +85,7 @@ bool server::checkPassword(int fd)
 			break;
 	}
 	return true;
-}
+}*/
 
 void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
@@ -168,7 +168,7 @@ bool server::initClient(client &cl)
 	bool user = false;
 	while (!check)
 	{
-		std::string msg = read_mess(cl.getOut());
+		std::string msg = read_mess(cl);
 		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 		{
 			std::string cmd = find_cmd(msg);
@@ -319,7 +319,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 	{
 		while (!pass)
 		{
-			std::string msg = read_mess(cl.getOut());
+			std::string msg = read_mess(cl);
 			if (!msg.empty())
 			{
 				std::string cmd = find_cmd(msg);
@@ -339,7 +339,7 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 		}
 		if (pass)
 		{
-			std::string msg = read_mess(cl.getOut());
+			std::string msg = read_mess(cl);
 			if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 			{
 				std::string cmd = find_cmd(msg);

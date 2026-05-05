@@ -54,10 +54,10 @@ sockaddr_in client::GetClientInfo() const
 	return (_clientInfo);
 }
 
-/*socklen_t client::GetClientSize() const
+int client::GetClientID() const
 {
-    return (_size);
-}*/
+    return (_clientId);
+}
 
 bool client::checkPollRevents(struct pollfd pipoll, server &serv)
 {
@@ -183,4 +183,15 @@ bool client::operator!=(const client &src) const
 bool client::getInChannel()
 {
     return _inChannel;
+}
+
+std::string client::conCat(const char *buff)
+{
+    _buffMessage += buff;
+    return _buffMessage;
+}
+
+void client::resetMess()
+{
+    _buffMessage.clear();
 }
