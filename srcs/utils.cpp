@@ -37,7 +37,31 @@ std::string find_cmd(std::string str)
 
 std::string read_mess(client &cl)
 {
-    char buff[512];
+        std::string all_text;
+    int nb = 0;
+    char buffer[2];
+    int check = 0;
+    while (1)
+    {
+        nb = recv(cl.getOut(), buffer, 1, 0);
+        if (nb == -1)
+        {
+            send(cl.getOut(), "Sorry fail of recv you leave the serv\n", 39, 0);
+            //throw ClientQuit();
+            return NULL;
+        }
+        buffer[nb] = '\0';
+        if (buffer[0] == '\0' || (buffer[0] == '\n' && buffer[1] == '\0'))
+        {
+            if (check == 0)
+                all_text.append(buffer);
+            break;
+        }
+        all_text.append(buffer);
+        ++check;
+    }
+    return (all_text);
+    /*char buff[512];
     int nb = recv(cl.getOut(), buff, sizeof(buff) - 1, 0);
     std::cerr << CYAN << "bytes: " << nb << std::endl;
 
@@ -79,7 +103,7 @@ std::string read_mess(client &cl)
         cl.resetMess("");
         //std::cerr << "cl buf: " << cl.GetMess() << "/" << RESET << std::endl;
     }
-    return "";
+    return "";*/
 }
 
 char *strTochar(std::string str) {
