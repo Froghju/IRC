@@ -35,9 +35,6 @@ public:
 	bool Identification(std::vector<struct pollfd> *vec, client &cl);
 	bool isvalidNickname(std::string input);
 	bool isvalidUsername(std::string input);
-	//bool initUserNick(client &cl);
-	//bool initHex(client &cl);
-	//bool initNetcat(client &cl);
 	void deleteClient(client &cl);
 
 	//parse

@@ -139,7 +139,7 @@ void server::deleteClient(client &cl)
 {
 	shutdown(cl.GetClientID(), SHUT_RDWR);
     close(cl.GetClientID());
-	_vecCl.erase(std::find(_vecCl.begin(), _vecCl.end(), cl));
+	//_vecCl.erase(std::find(_vecCl.begin(), _vecCl.end(), cl));
 }
 
 client &server::findClient(std::string clientNick)
@@ -319,9 +319,9 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		deleteClient(cl); //BIZARRERIE
-		
-		std::cerr << _vecCl.size() << std::endl;
+		deleteClient(cl);
+
+		std::cerr << "vector size: " << _vecCl.size() << std::endl;
 	}
 	return false;
 }

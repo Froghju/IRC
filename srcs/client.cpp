@@ -191,7 +191,8 @@ std::string client::conCat(const char *buff)
     return _buffMessage;
 }
 
-void client::resetMess()
+void client::resetMess(std::string str)
 {
     _buffMessage.clear();
+    _buffMessage += str;
 }

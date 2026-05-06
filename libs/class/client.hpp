@@ -46,7 +46,8 @@ public:
     void doCmd(std::string msg, server *serv);
     bool getInChannel();
     std::string conCat(const char *buff);
-    void resetMess();
+    void resetMess(std::string str);
+    //std::string GetMess() {return _buffMessage;} //sert au degug
 
     bool operator==(const client &src) const;
     bool operator!=(const client &src) const;
