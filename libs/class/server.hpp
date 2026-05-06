@@ -33,8 +33,8 @@ public:
 	std::vector<client> &getVecCl();
 
 	bool Identification(std::vector<struct pollfd> *vec, client &cl);
-	bool isvalidNickname(std::string input);
-	bool isvalidUsername(std::string input);
+	bool isvalidNickname(std::string input, client &cl);
+	bool isvalidUsername(std::string input, client &cl);
 	void deleteClient(client &cl);
 
 	//parse

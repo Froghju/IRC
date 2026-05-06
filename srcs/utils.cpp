@@ -70,14 +70,14 @@ std::string read_mess(client &cl)
         all_text.erase(0, pos + 1);
         std::cerr << "all_text erase: " << all_text << std::endl;
         cl.resetMess(all_text);
-        std::cerr << "cl buf: " << cl.GetMess() << "/" << std::endl;
+        //std::cerr << "cl buf: " << cl.GetMess() << "/" << std::endl;
         
         return mess;
     }
     if (all_text.empty())
     {
         cl.resetMess("");
-        std::cerr << "cl buf: " << cl.GetMess() << "/" << RESET << std::endl;
+        //std::cerr << "cl buf: " << cl.GetMess() << "/" << RESET << std::endl;
     }
     return "";
 }
