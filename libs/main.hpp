@@ -61,4 +61,14 @@ public:
     }
 };
 
+class ClientQuit : public std::exception {
+
+public:
+
+    virtual const char* what() const throw()
+    {
+        return ("Unable to connect client");
+    }
+};
+
 #endif

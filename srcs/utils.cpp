@@ -75,7 +75,8 @@ std::string read_mess(client &cl)
     return (all_text);*/
     char buff[512];
     int nb = recv(cl.getOut(), buff, sizeof(buff) - 1, 0);
-    
+    std::cerr << CYAN << "bytes: " << nb << std::endl;
+
     if (nb <= 0)
     {
         if ( nb == 0)
@@ -87,14 +88,16 @@ std::string read_mess(client &cl)
         {
             //send(cl.getOut(), "Sorry fail of recv\n", 20, 0);
             std::cerr << "Sorry fail of recv" << std::endl;
+            throw ClientQuit();
         }
         shutdown(cl.getOut(), SHUT_RDWR);
-        close(cl.getOut());
+        close(cl.getOut()); //peut-etre un try/catch dans le serv pour supp le client
         return "";
     }
     buff[nb] = '\0';
     std::string all_text = cl.conCat(buff);
     std::string::size_type pos = all_text.find('\n');
+    //std::string::size_type pos;
 
     if (pos != std::string::npos)
     {

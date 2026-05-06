@@ -65,16 +65,16 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
     {
         if (pipoll.revents & POLLIN)
         {
-			std::string all_text = read_mess(pipoll.fd);
+			std::string all_text = read_mess(*this);
             if (!all_text.empty())
             {
                 serv.ExecCmd(*this, all_text);
             }
-            else
+            /*else
             {
                 std::cout << _UserName << " quit serv" << std::endl;
                 return false;
-            }
+            }*/
         }
         if (pipoll.revents & POLLHUP)
         {

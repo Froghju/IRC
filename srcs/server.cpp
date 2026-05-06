@@ -61,32 +61,6 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 	}
 }
 
-/*bool server::checkPassword(int fd)
-{
-	std::string mess;
-	for (int i = 0; i < 3; i++)
-	{
-		mess = read_mess(fd);
-		if (mess.empty())
-			return false;
-		if (_PassW != mess)
-		{
-			if (i + 1 < 3)
-				send(fd, "Wrong password, try again\n", 27, 0);
-			else
-			{
-				send(fd, "Wrong password 3 time, I can't connect you\nBye Bye <3", 54, 0);
-				shutdown(fd, SHUT_RDWR);
-				close(fd);
-				return false;
-			}
-		}
-		else
-			break;
-	}
-	return true;
-}*/
-
 void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
 	if ((*vec)[0].revents & POLLIN)
@@ -161,43 +135,11 @@ bool server::isvalidUsername(std::string input)
 	return (true);
 }
 
-bool server::initClient(client &cl)
+void server::deleteClient(client &cl)
 {
-	bool check = false;
-	bool nick = false;
-	bool user = false;
-	while (!check)
-	{
-		std::string msg = read_mess(cl);
-		if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
-		{
-			std::string cmd = find_cmd(msg);
-			std::string input = find_input(msg, cmd);
-			if (cmd == "NICK")
-			{
-				if (isvalidNickname(input))
-				{
-					cl.setNickname(input);
-					nick = true;
-					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
-				}
-			}
-			else if (cmd == "USER")
-			{
-				if (isvalidUsername(input))
-				{
-					cl.setClientName(input);
-					user = true;
-					std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl; 
-				}
-			}
-			if (user && nick)
-				check = true;
-		}
-	}
-	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
-	send(cl.getOut(), msg.c_str(), msg.size(), 0);
-	return check;
+	shutdown(cl.GetClientID(), SHUT_RDWR);
+    close(cl.GetClientID());
+	_vecCl.erase(std::find(_vecCl.begin(), _vecCl.end(), cl));
 }
 
 client &server::findClient(std::string clientNick)
@@ -236,7 +178,7 @@ void server::sendToClient(std::vector<std::string> content)
 
 void server::ExecCmd(client &cl, std::string mess)
 {
-	std::cerr << "mess = " << mess << std::endl;
+	std::cerr << "mesS = " << mess << std::endl;
 	std::vector<std::string> content = splitCpp(mess);
 	/*size_t j = 0;
     while (j < content.size())
@@ -308,68 +250,78 @@ void server::ExecCmd(client &cl, std::string mess)
 	}
 }
 
-
 bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
 	bool check  = false;
 	bool pass = false;
 	bool nick = false;
 	bool user = false;
-	while (!check)
+	try
 	{
-		while (!pass)
+		while (!check)
 		{
-			std::string msg = read_mess(cl);
-			if (!msg.empty())
+			while (!pass)
 			{
-				std::string cmd = find_cmd(msg);
-				if (!cmd.empty())
+				std::string msg = read_mess(cl);
+				if (!msg.empty())
 				{
-					if (cmd == "PASS")
+					std::string cmd = find_cmd(msg);
+					if (!cmd.empty())
 					{
-						std::string input = find_input(msg, cmd);
-						if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
+						if (cmd == "PASS")
 						{
-							pass = true;
-							std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl; 
+							std::string input = find_input(msg, cmd);
+							if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
+							{
+								pass = true;
+								std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl; 
+							}
 						}
 					}
 				}
 			}
-		}
-		if (pass)
-		{
-			std::string msg = read_mess(cl);
-			if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
+			if (pass)
 			{
-				std::string cmd = find_cmd(msg);
-				std::string input = find_input(msg, cmd);
-				if (cmd == "NICK")
+				std::string msg = read_mess(cl);
+				if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 				{
-					if (isvalidNickname(input))
+					std::string cmd = find_cmd(msg);
+					std::string input = find_input(msg, cmd);
+					if (cmd == "NICK")
 					{
-						cl.setNickname(input);
-						nick = true;
-						std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
+						if (isvalidNickname(input))
+						{
+							cl.setNickname(input);
+							nick = true;
+							std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
+						}
 					}
-				}
-				else if (cmd == "USER")
-				{
-					if (isvalidUsername(input))
+					else if (cmd == "USER")
 					{
-						cl.setClientName(input);
-						user = true;
-						std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
+						if (isvalidUsername(input))
+						{
+							cl.setClientName(input);
+							user = true;
+							std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
+						}
 					}
+					if (user && nick)
+						check = true;
 				}
-				if (user && nick)
-					check = true;
 			}
 		}
+		std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
+		send(cl.getOut(), msg.c_str(), msg.size(), 0);
+		_vecCl.push_back(cl);
+		(*vec).push_back(cl.InitPollFd(cl.getOut()));
+		return (check);
 	}
-	std::string msg = ":localhost 001 " + cl.GetClientUserName() + " :Welcome to IRC server\r\n" + ":localhost 002 " + cl.GetClientUserName() + " :Your host is server\r\n" + ":localhost 003 " + cl.GetClientUserName() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetClientUserName() + " server 1.0 o o\r\n";
-	send(cl.getOut(), msg.c_str(), msg.size(), 0);
-	_vecCl.push_back(cl);
-	(*vec).push_back(cl.InitPollFd(cl.getOut()));
-	return (check);
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		deleteClient(cl); //BIZARRERIE
+		
+		std::cerr << _vecCl.size() << std::endl;
+	}
+	return false;
 }

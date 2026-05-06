@@ -35,9 +35,11 @@ public:
 	bool Identification(std::vector<struct pollfd> *vec, client &cl);
 	bool isvalidNickname(std::string input);
 	bool isvalidUsername(std::string input);
-	bool initUserNick(client &cl);
-	bool initHex(client &cl);
-	bool initNetcat(client &cl);
+	//bool initUserNick(client &cl);
+	//bool initHex(client &cl);
+	//bool initNetcat(client &cl);
+	void deleteClient(client &cl);
+
 	//parse
 	void parse(std::string message, client cl);
 	void joinCmd(std::vector<std::string> content, client &cl);
@@ -53,7 +55,6 @@ public:
 	void joinCmd(std::string channelName, std::string clientName, client cl);
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess);
-	bool initClient(client &cl);
 
 	class ChannelNotFound : public std::exception {
 
