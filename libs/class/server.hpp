@@ -33,11 +33,10 @@ public:
 	std::vector<client> &getVecCl();
 
 	bool Identification(std::vector<struct pollfd> *vec, client &cl);
-	bool isvalidNickname(std::string input, client &cl);
-	bool isvalidUsername(std::string input, client &cl);
-	bool initUserNick(client &cl);
-	bool initHex(client &cl);
-	bool initNetcat(client &cl);
+	bool isvalidNickname(std::string input);
+	bool isvalidUsername(std::string input);
+	void deleteClient(client &cl);
+
 	//parse
 	void parse(std::string message, client cl);
 	void joinCmd(std::vector<std::string> content, client &cl);
@@ -88,7 +87,7 @@ public:
 	class NoMessage : public std::exception {
 
         public:
-
+		
             virtual const char* what() const throw()
             {
                 return ("No message");

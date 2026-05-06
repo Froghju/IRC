@@ -1,6 +1,8 @@
 #include "../libs/main.hpp"
 #include <stdio.h>
 
+volatile sig_atomic_t stop = 0;
+
 int checkPort(char *str)
 {
     size_t i = 0;
@@ -45,24 +47,50 @@ std::string checkPassword(char *str)
     return pass;
 }
 
+void sigint_handler(int sig)
+{
+    if (sig == SIGINT || sig == SIGTERM)
+        stop = 1;
+}
+
+void set_sig_action(void)
+{
+    struct sigaction act;
+
+    memset(&act, 0, sizeof(act));
+    act.sa_handler = &sigint_handler;
+    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGTERM, &act, NULL);
+    sigaction(SIGQUIT, &act, NULL);
+
+    /*struct sigaction pipeAct;
+    memset(&pipeAct, 0, sizeof(pipeAct));
+    pipeAct.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &pipeAct, NULL);*/
+}
+
+#include <signal.h>
 int main(int ac,char **av)
 {
     if (ac == 3)
     {
+        set_sig_action();
         srand(time(NULL));
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);
+
         try
         {
             server serv(port, password);
             std::vector<struct pollfd> vec;
             vec.push_back(serv.GetPollFd());
 
-            while (1)
+            while (stop == 0)
             {
                 poll(&vec[0], vec.size(), 5000);
                 serv.checkPollRevents(&vec);
             }
+            throw ErrorQuit();
         }
         catch (const std::exception& e)
         {

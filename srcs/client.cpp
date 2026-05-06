@@ -5,6 +5,7 @@ client::client() {}
 
 client::client(int port) : _Operator(false) {
     _clientId = socket(AF_INET, SOCK_STREAM, 0);
+    fcntl(_clientId, F_SETFL, O_NONBLOCK);
 
     if (_clientId == -1)
         throw InvalidClientSig("Invalid Client Socket");
@@ -53,10 +54,10 @@ sockaddr_in client::GetClientInfo() const
 	return (_clientInfo);
 }
 
-/*socklen_t client::GetClientSize() const
+int client::GetClientID() const
 {
-    return (_size);
-}*/
+    return (_clientId);
+}
 
 bool client::checkPollRevents(struct pollfd pipoll, server &serv)
 {
@@ -64,16 +65,16 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
     {
         if (pipoll.revents & POLLIN)
         {
-			std::string all_text = read_mess(pipoll.fd);
+			std::string all_text = read_mess(*this);
             if (!all_text.empty())
             {
                 serv.ExecCmd(*this, all_text);
             }
-            else
+            /*else
             {
                 std::cout << _UserName << " quit serv" << std::endl;
                 return false;
-            }
+            }*/
         }
         if (pipoll.revents & POLLHUP)
         {
@@ -182,4 +183,16 @@ bool client::operator!=(const client &src) const
 bool client::getInChannel()
 {
     return _inChannel;
+}
+
+std::string client::conCat(const char *buff)
+{
+    _buffMessage += buff;
+    return _buffMessage;
+}
+
+void client::resetMess(std::string str)
+{
+    _buffMessage.clear();
+    _buffMessage += str;
 }

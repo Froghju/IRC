@@ -1,10 +1,5 @@
 #include "../libs/main.hpp"
 
-/*void send_hexchat_format(client cl, std::string mes)
-{
-
-}*/
-
 bool is_white_space(char c)
 {
     if (c == ' ' || (c >= 9 && c <= 13))
@@ -40,34 +35,53 @@ std::string find_cmd(std::string str)
     return cmd;
 }
 
-std::string read_mess(int fd)
+std::string read_mess(client &cl)
 {
-    std::string all_text;
-    int nb = 0;
-    char buffer[2];
-    int check = 0;
-    while (1)
+    char buff[512];
+    int nb = recv(cl.getOut(), buff, sizeof(buff) - 1, 0);
+    std::cerr << CYAN << "bytes: " << nb << std::endl;
+
+    if (nb <= 0)
     {
-        nb = recv(fd, buffer, 1, 0);
-        if (nb == -1)
+        if ( nb == 0)
         {
-            send(fd, "Sorry fail of recv you leave the serv\n", 39, 0);
-            return NULL;
+            std::cerr << "Client Disconected from the server" << std::endl;
         }
-        buffer[nb] = '\0';
-        if (buffer[0] == '\0' || (buffer[0] == '\n' && buffer[1] == '\0'))
+        else
         {
-            if (check == 0)
-                all_text.append(buffer);
-            break;
+            std::cerr << "Sorry fail of recv" << std::endl;
+            throw ClientQuit();
         }
-        all_text.append(buffer);
-        ++check;
+        shutdown(cl.getOut(), SHUT_RDWR);
+        close(cl.getOut());
+        return "";
     }
-    return (all_text);
+    buff[nb] = '\0';
+    std::cerr << "buff :" << buff << "/" << std::endl;
+    std::string all_text = cl.conCat(buff);
+    std::cerr << "all_text: " << all_text << "/" << std::endl;
+    std::string::size_type pos = all_text.find('\n');
+    std::cerr << "pos: " << pos << " npos: " << all_text.npos << std::endl;
+    
+    if (pos != std::string::npos)
+    {
+        std::string mess = all_text.substr(0, pos);
+        std::cerr << "Mess : " << mess << "/" << std::endl;
+        all_text.erase(0, pos + 1);
+        std::cerr << "all_text erase: " << all_text << std::endl;
+        cl.resetMess(all_text);
+        std::cerr << "cl buf: " << cl.GetMess() << "/" << std::endl;
+        
+        return mess;
+    }
+    if (all_text.empty())
+    {
+        cl.resetMess("");
+        std::cerr << "cl buf: " << cl.GetMess() << "/" << RESET << std::endl;
+    }
+    return "";
 }
 
-#include <stdio.h>
 char *strTochar(std::string str) {
     char* buff = (char*)str.c_str();
     return (buff);
@@ -141,11 +155,11 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(tmp);
         free(tmp);
     }
-    size_t j = 0;
+    /*size_t j = 0;
     while (j < cut.size())
     {
-        std::cout << "result: ." << cut[j] << '.' << std::endl;
+        std::cout << BLACK << "result: ." << cut[j] << '.' << RESET << std::endl;
         j++;
-    }
+    }*/
     return cut;
 }
