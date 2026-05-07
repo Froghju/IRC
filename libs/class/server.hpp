@@ -51,7 +51,7 @@ public:
 	void ExecCmd(client &cl, std::string mess);
 	void joinCmd(std::string channelName, std::string clientName, client cl);
 	void topicCmd(std::vector<std::string> cmd, client &cl);
-	void sendToClient(std::vector<std::string> mess);
+	void sendToClient(std::vector<std::string> mess, client &cl);
 	bool initClient(client &cl);
 	std::string usernamehexchat(std::string &input);
 

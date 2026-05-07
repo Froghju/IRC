@@ -6,6 +6,7 @@ size_t server::findChannel(std::string name)
 {
     size_t i = 0;
     std::string tmp;
+    std::cerr << "channel = " << name << std::endl;
     if (!name.empty() && name[0] == '#')
     {
         for (size_t i = 1; i < name.size(); ++i)
@@ -319,23 +320,25 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].unsetResTopic();
                 else if (cmd[2] == "+t")
                     _vecCh[i].setResTopic();
-                else if (cmd[2] == "-k") //segfault
+                else if (cmd[2] == "-k") //REGARDER SI ENTRER LE MDP OU PAS
                 {
-                    _vecCh[i].UnsetKey(cmd);//rajouter message erreur
+                    _vecCh[i].UnsetKey(cmd);
                 }
-                else if (cmd[2] == "+k") //segfault
+                else if (cmd[2] == "+k")
                 {
-                    _vecCh[i].setKey(cmd);//rajouter message erreur
+                    _vecCh[i].setKey(cmd);
                 }
-                else if (cmd[2] == "+o") //marche mais n'affiche pas les messages comme quoi il est admin 
+                else if (cmd[2] == "+o")
                 {
                     _vecCh[i].allowOperator(cmd);
                     sendoperator(i, findClient(cmd[3]));
+                    sendlistclchannel(i);
                 }
-                else if (cmd[2] == "-o") //marche mais n'affiche pas les messages comme quoi il est admin 
+                else if (cmd[2] == "-o")
                 {
                     _vecCh[i].unallowOperator(cmd);
                     unsendoperator(i, findClient(cmd[3]));
+                    sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-l")
                 {
@@ -358,7 +361,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                             mess bad parm*/
                         _vecCh[i].setLimitCl(v);
                     }
-                    /*esle
+                    /*else
                         mess error bad nb param*/
                 }
                 else

@@ -160,7 +160,7 @@ void server::deleteClient(client &cl)
 {
 	shutdown(cl.GetClientID(), SHUT_RDWR);
     close(cl.GetClientID());
-	//_vecCl.erase(std::find(_vecCl.begin(), _vecCl.end(), cl));
+	_vecCl.erase(std::find(_vecCl.begin(), _vecCl.end(), cl));
 }
 
 client &server::findClient(std::string clientNick)
@@ -176,7 +176,7 @@ client &server::findClient(std::string clientNick)
 	throw ClientNotFound();
 }
 
-void server::sendToClient(std::vector<std::string> content)
+void server::sendToClient(std::vector<std::string> content, client &cl)
 {
 	try
 	{
@@ -188,9 +188,15 @@ void server::sendToClient(std::vector<std::string> content)
 			str += content[i];
 			if (i + 1 < content.size())
 				str+= " ";
+			std::cerr << "content = " << content[i] << std::endl;
+			std::cerr << "str = " << str << std::endl;
 		}
 		str += "\r\n";
-		send(findClient(content[0]).getOut(), str.c_str(), str.size(), 0);
+		std::string hex_mess = ":" + cl.GetNickname() +
+					"!~" + cl.GetClientUserName() +
+					"@localhost " + content[0] + " " + content[1] + " " +
+					str;
+		send(findClient(content[1]).getOut(), hex_mess.c_str(), hex_mess.size(), 0);
 	}
 	catch(const std::exception& e)
 	{
@@ -200,6 +206,7 @@ void server::sendToClient(std::vector<std::string> content)
 
 void server::ExecCmd(client &cl, std::string mess)
 {
+
 	std::cerr << "mesS = " << mess << std::endl;
 	std::vector<std::string> content = splitCpp(mess);
 	if (!content[0].empty())
@@ -253,7 +260,7 @@ void server::ExecCmd(client &cl, std::string mess)
 				{
 					std::cerr << "check4" << std::endl;
 					(void)e;
-					sendToClient(content);
+					sendToClient(content, cl);
 				}
 			}
 		}
@@ -283,14 +290,17 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 			while (!pass)
 			{
 				std::string msg = read_mess(cl);
+				std::cerr << "msg = " << msg << std::endl;
 				if (!msg.empty())
 				{
 					std::string cmd = find_cmd(msg);
+					std::cerr << "cmd = " << cmd << std::endl;
 					if (!cmd.empty())
 					{
 						if (cmd == "PASS")
 						{
 							std::string input = find_input(msg, cmd);
+							std::cerr << "input = " << input << std::endl;
 							if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
 								pass = true;
 						}
@@ -304,20 +314,22 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 					{
 						std::string ms = ":" + _ServName + " CAP * LS :\r\n";
 						send(cl.getOut(), ms.c_str(), ms.size(), 0);
-								std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl; 
+								std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl;
 					}
 				}
 			}
 			if (pass)
 			{
 				std::string msg = read_mess(cl);
+				std::cerr << "msg = " << msg << std::endl;
 				if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
 				{
 					std::string cmd = find_cmd(msg);
+					std::cerr << "cmd = " << cmd << std::endl;
 					std::string input = find_input(msg, cmd);
+					std::cerr << "input = " << input << std::endl;
 					if (cmd == "NICK")
 					{
-						std::cerr << "input = " << input << std::endl;
 						if (input[input.size() - 1] == '\r')
 						{
 							std::string str;

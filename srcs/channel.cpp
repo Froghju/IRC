@@ -1,6 +1,6 @@
 #include "../libs/main.hpp"
 
-channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false), _hasLimit(false), _resTopic(false)
+channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false), _hasLimit(false), _resTopic(true)
 {
     if (content.size() > 2)
     {

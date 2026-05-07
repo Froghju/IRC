@@ -19,6 +19,7 @@ void server::sendlistclchannel(size_t pos)
 		else
 			str += "\r\n";
 	}
+	std::cerr << "list = " << str << std::endl;
 	for (std::vector<client>::iterator it = _vecCh[pos].getchannelClients().begin(); it != _vecCh[pos].getchannelClients().end(); ++it)
 	{
 		std::string mess = ":" + _ServName + " 353 " + it->GetNickname() + " = #" + _vecCh[pos].getname() + " :" + str;
