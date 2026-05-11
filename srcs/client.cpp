@@ -14,9 +14,12 @@ client::client(int port) : _Operator(false) {
         _clientInfo.sin_family = AF_INET;
         _clientInfo.sin_port = htons(port);
         _clientInfo.sin_addr.s_addr = INADDR_ANY;
-        //_size = socklen_t(sizeof(_clientInfo));
         _out = -1;
         _inChannel = false;
+        _isReady.pass = false;
+        _isReady.user = false;
+        _isReady.nick = false;
+        _isReady.all = false;
     }
 }
 
@@ -24,7 +27,6 @@ client &client::operator=(const client & src)
 {
     _clientId = src._clientId;
     _clientInfo = src._clientInfo;
-    //_size = src._size;
     _Hex = src._Hex;
     return(*this);
 }
@@ -39,7 +41,6 @@ struct pollfd client::InitPollFd(int fd)
 }
 
 client::~client() {
-    //delete _size;
     shutdown(_clientId, SHUT_RDWR);
     close(_clientId);
 }
@@ -68,7 +69,10 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
 			std::string all_text = read_mess(*this);
             if (!all_text.empty())
             {
-                serv.ExecCmd(*this, all_text);
+                /*SI PAS Identification*/
+                    serv.ExecCmd(*this, all_text);
+                /*SINON
+                    IDENTIFICATION*/
             }
             /*else
             {
@@ -114,7 +118,6 @@ std::string client::GetNickname() const
 void client::setOperator(bool perm)
 {
     _Operator = perm;
-    //std::cerr << _Nickname << " est Admin: " << perm << std::endl;
 }
 
 void client::setFdOut(int out) 
@@ -142,14 +145,9 @@ void client::setOut(int out)
     _out = out;
 }
 
-int client::getOut() const //ATTENTION 2 FOIS LES MEME
+int client::getOut() const
 {
     return(_out);
-}
-
-int client::GetFdOut() const //ATTENTION 2 FOIS LES MEME
-{
-    return _out;
 }
 
 bool client::operator==(const client &src) const
@@ -195,4 +193,26 @@ void client::resetMess(std::string str)
 {
     _buffMessage.clear();
     _buffMessage += str;
+}
+
+void client::setReady(char c) 
+{
+    if (c == 'P')
+        _isReady.pass = true;
+    else if (c == 'U')
+        _isReady.user = true;
+    else if (c == 'N')
+        _isReady.nick = true;
+    if (_isReady.pass && _isReady.user && _isReady.nick)
+        _isReady.all = true;
+}
+
+bool client::GetReady() const 
+{
+    return _isReady.all;
+}
+
+bool client::GetPass() const 
+{
+    return _isReady.pass;
 }

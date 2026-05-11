@@ -52,6 +52,16 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
+		if (!_sas[i - 1].GetReady())
+		{
+			if (!_sas[i - 1].checkPollRevents((*vec)[i], *this))
+			{
+				shutdown((*vec)[i].fd, SHUT_RDWR);
+				(*vec).erase((*vec).begin() + i);
+				_sas.erase(_sas.begin() + i - 1);
+			}
+		}
+		else
 		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], *this))
 		{
 			shutdown((*vec)[i].fd, SHUT_RDWR);
@@ -61,7 +71,8 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 	}
 }
 
-void server::checkPollRevents(std::vector<struct pollfd> *vec)
+//OLD WORKING
+/*void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
 	if ((*vec)[0].revents & POLLIN)
     {
@@ -75,6 +86,31 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			cl.setOut(fd_client);
 			if (!Identification(vec, cl))
 				std::cerr << "Client fail to connect" << std::endl;
+		}
+	}
+	if ((*vec)[0].revents & POLLERR)
+		std::cerr << "erreur err" << std::endl;
+	if ((*vec)[0].revents & POLLHUP)
+		std::cerr << "erreur hup" << std::endl;
+	(*vec)[0].revents = 0;
+	returnPollClients(vec);
+}*/
+
+void server::checkPollRevents(std::vector<struct pollfd> *vec)
+{
+	if ((*vec)[0].revents & POLLIN)
+    {
+        client cl(_Port);
+		socklen_t len = sizeof(cl.GetClientInfo());
+		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), &len);
+		if (fd_client == -1)
+			std::cerr << "ERROR: can't accept connection" << std::endl;
+		else
+		{
+			cl.setOut(fd_client);
+			_sas.push_back(cl);
+			/*if (!Identification(vec, cl))
+				std::cerr << "Client fail to connect" << std::endl;*/
 		}
 	}
 	if ((*vec)[0].revents & POLLERR)
@@ -252,7 +288,7 @@ void server::ExecCmd(client &cl, std::string mess)
 					else
 					{
 						std::string str = "Join channel to talk to people\n";
-						send(cl.GetFdOut(), str.c_str(), str.size(), 0);
+						send(cl.getOut(), str.c_str(), str.size(), 0);
 						str.clear();
 					}
 				}

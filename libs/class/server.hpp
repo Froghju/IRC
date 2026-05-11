@@ -18,9 +18,10 @@ private:
 
 	sockaddr_in	_InfServ;
 	struct pollfd _vpfd;
+	std::vector<client> _sas;
 	std::vector<client>	_vecCl;
-	frogy	_Fro;
 	std::vector<channel> _vecCh;
+	frogy	_Fro;
 
 public:
 	server(int port, std::string password);

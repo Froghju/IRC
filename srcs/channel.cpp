@@ -88,7 +88,7 @@ void channel::kick(client cl)
     if (_nbAdmin == 1 && cl.GetOperator())
     {
         std::cerr << cl.GetNickname() << std::endl;
-        send(cl.GetFdOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
+        send(cl.getOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
         return ;
     }
 
