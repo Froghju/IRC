@@ -33,10 +33,13 @@ public:
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
 
-	bool Identification(std::vector<struct pollfd> *vec, client &cl);
+	//bool Identification(std::vector<struct pollfd> *vec, client &cl); //OLD ONE
+	void Identification(client &cl, std::string all_text);
 	bool isvalidNickname(std::string input, client &cl);
 	bool isvalidUsername(std::string input, client &cl);
 	void deleteClient(client &cl);
+	void mooveToServ(client &cl);
+	void cleanSas(client &cl);
 
 	//parse
 	void parse(std::string message, client cl);

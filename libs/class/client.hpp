@@ -7,7 +7,7 @@ struct ready {
     bool user;
     bool nick;
     bool all;
-} ready;
+};
 
 class client {
 
@@ -39,7 +39,7 @@ public:
     void setHex(bool b);
     void setOut(int c);
     void setFdOut(int out);
-    void setReady(char c);
+    void setReady(char c, server &serv);
 
     int getOut() const;
     bool getHex() const;
@@ -52,7 +52,7 @@ public:
     bool GetPass() const;
 
     struct pollfd InitPollFd(int fd);
-    bool checkPollRevents(struct pollfd pipoll, server &serv);
+    bool checkPollRevents(std::vector<struct pollfd> *vec, int i, server &serv);
     void doCmd(std::string msg, server *serv);
     bool getInChannel();
     std::string conCat(const char *buff);

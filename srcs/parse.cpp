@@ -383,3 +383,14 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
         send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
 }
+
+void server::mooveToServ(client &cl)
+{
+    _vecCl.push_back(cl);
+    _sas.erase(std::find(_sas.begin(), _sas.end(), cl));
+}
+
+void server::cleanSas(client &cl)
+{
+    _sas.erase(find(_sas.begin(), _sas.end(), cl));
+}

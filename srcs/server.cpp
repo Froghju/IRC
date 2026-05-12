@@ -54,7 +54,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 	{
 		if (!_sas[i - 1].GetReady())
 		{
-			if (!_sas[i - 1].checkPollRevents((*vec)[i], *this))
+			if (!_sas[i - 1].checkPollRevents(vec, i, *this))
 			{
 				shutdown((*vec)[i].fd, SHUT_RDWR);
 				(*vec).erase((*vec).begin() + i);
@@ -62,11 +62,14 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 			}
 		}
 		else
-		if (!_vecCl[i - 1].checkPollRevents((*vec)[i], *this))
 		{
-			shutdown((*vec)[i].fd, SHUT_RDWR);
-			(*vec).erase((*vec).begin() + i);
-			_vecCl.erase(_vecCl.begin() + i - 1);
+			if (!_vecCl[i - 1].checkPollRevents(vec, i, *this))
+			{
+				std::cout << "EEEEEEEE" << std::endl;
+				shutdown((*vec)[i].fd, SHUT_RDWR);
+				(*vec).erase((*vec).begin() + i);
+				_vecCl.erase(_vecCl.begin() + i - 1);
+			}
 		}
 	}
 }
@@ -109,6 +112,8 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 		{
 			cl.setOut(fd_client);
 			_sas.push_back(cl);
+			(*vec).push_back(cl.InitPollFd(cl.getOut()));
+			std::cerr << "Size of sas: " << _sas.size();
 			/*if (!Identification(vec, cl))
 				std::cerr << "Client fail to connect" << std::endl;*/
 		}
@@ -313,7 +318,7 @@ std::string server::usernamehexchat(std::string &input)
 	return input.substr(0, pos);
 }
 
-bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
+/*bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 {
 	bool check = false;
 	bool pass = false;
@@ -420,4 +425,92 @@ bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
 		std::cerr << "vector size: " << _vecCl.size() << std::endl;
 	}
 	return false;
+}*/
+
+void server::Identification(client &cl, std::string msg)
+{
+	try
+	{
+		std::string cmd = find_cmd(msg);
+		if (!cmd.empty())
+		{
+			std::string input = find_input(msg, cmd);
+			if (!cl.GetPass() && !input.empty())
+			{
+				if (cmd == "PASS")
+				{
+					if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
+					{
+						cl.setReady('P', *this);
+						std::cerr << YELLOW << "[log]: Password OK" << RESET << std::endl; 
+					}
+				}
+				else
+				{
+					std::string ms = ":" + _ServName + " 464 :Password incorrect\r\n";
+					send(cl.getOut(), ms.c_str(), ms.size(), 0);
+				}
+			}
+			else if (cmd == "CAP")
+			{
+				std::string ms = ":" + _ServName + " CAP * LS :\r\n";
+				send(cl.getOut(), ms.c_str(), ms.size(), 0);
+				std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl;
+			}
+			else
+			{
+				if (!input.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
+				{
+					if (cmd == "NICK")
+					{
+						if (input[input.size() - 1] == '\r')
+						{
+							std::string str;
+							for (size_t i = 0; i < input.size() - 1; ++i)
+								str += input[i];
+							input.clear();
+							input = str;
+						}
+						if (isvalidNickname(input, cl))
+						{
+							cl.setNickname(input);
+							for (size_t i = 0; i < cl.GetNickname().size(); i++)
+								std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
+							std::cout << std::endl;
+							cl.setReady('N', *this);
+							std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
+						}
+					}
+					else if (cmd == "USER")
+					{
+						if (isvalidUsername(input, cl))
+						{
+							std::string onlyuser = usernamehexchat(input);
+							cl.setClientName(onlyuser);
+							cl.setReady('U', *this);
+							std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
+						}
+					}
+					else if (cmd == "PASS")
+					{
+						std::string ms = ":" + _ServName + " 462 :Unauthorized command\r\n";
+						send(cl.getOut(), ms.c_str(), ms.size(), 0);
+					}
+				}
+			}
+		}
+		if (cl.GetReady())
+		{
+			std::string enter = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
+			send(cl.getOut(), enter.c_str(), enter.size(), 0);
+			_sas.push_back(cl);
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		deleteClient(cl);
+
+		std::cerr << "vector size: " << _vecCl.size() << std::endl;
+	}
 }

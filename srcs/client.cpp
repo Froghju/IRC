@@ -60,19 +60,28 @@ int client::GetClientID() const
     return (_clientId);
 }
 
-bool client::checkPollRevents(struct pollfd pipoll, server &serv)
+bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &serv)
 {
-    if (pipoll.events != 0)
+    if ((*vec)[i].events != 0)
     {
-        if (pipoll.revents & POLLIN)
+        if ((*vec)[i].revents & POLLIN)
         {
-			std::string all_text = read_mess(*this);
-            if (!all_text.empty())
+            try
             {
-                /*SI PAS Identification*/
-                    serv.ExecCmd(*this, all_text);
-                /*SINON
-                    IDENTIFICATION*/
+                std::string all_text = read_mess(*this);
+                if (!all_text.empty())
+                {
+                    if (this->GetReady())
+                        serv.ExecCmd(*this, all_text);
+                    else
+                        serv.Identification(*this, all_text);
+                }
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+                (*vec).erase((*vec).begin() + i);
+                serv.cleanSas(*this);
             }
             /*else
             {
@@ -80,17 +89,17 @@ bool client::checkPollRevents(struct pollfd pipoll, server &serv)
                 return false;
             }*/
         }
-        if (pipoll.revents & POLLHUP)
+        if ((*vec)[i].revents & POLLHUP)
         {
             std::cerr << "erreur pollhup" << std::endl;
             return false;
         }
-        if (pipoll.revents & POLLERR)
+        if ((*vec)[i].revents & POLLERR)
         {
             std::cerr << "erreur pollerr" << std::endl;
             return false;
         }
-        pipoll.revents = 0;
+        (*vec)[i].revents = 0;
     }
     return true;
 }
@@ -195,7 +204,7 @@ void client::resetMess(std::string str)
     _buffMessage += str;
 }
 
-void client::setReady(char c) 
+void client::setReady(char c, server &serv)
 {
     if (c == 'P')
         _isReady.pass = true;
@@ -204,7 +213,10 @@ void client::setReady(char c)
     else if (c == 'N')
         _isReady.nick = true;
     if (_isReady.pass && _isReady.user && _isReady.nick)
+    {
         _isReady.all = true;
+        serv.mooveToServ(*this);
+    }
 }
 
 bool client::GetReady() const 

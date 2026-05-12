@@ -68,31 +68,25 @@ std::string read_mess(client &cl)
     char buff[2];
     int nb;
     std::string text;
-    //std::cerr << RED << "check" << std::endl;
     while (1)
     {
         nb = recv(cl.getOut(), buff, 1, 0);
         if (nb == -1)
         {
-            //std::cerr << RED << "check 1" << std::endl;
             break;
         }
         buff[nb] = '\0';
         if (buff[0] == '\0')
         {
-            //std::cerr << RED << "check 2" << std::endl;
             break;
         }
         if (buff[0] == '\n' || buff[0] == '\r')
         {
-            //std::cerr << RED << "check 3" << std::endl;
             text.append(buff);
             break;
         }
         text.append(buff);
     }
-    //std::cerr << RED << "check 4" << std::endl;
-    //std::cerr << CYAN << "bytes: " << nb << std::endl;
     /*for (size_t i = 0; i < text.size(); i++)
 		std::cout << MAGENTA << (int)(unsigned char)text[i] << " ";
 	std::cout << std::endl;*/
@@ -101,6 +95,8 @@ std::string read_mess(client &cl)
         if ( nb == 0)
         {
             std::cerr << "Client Disconected from the server" << std::endl;
+            text.clear();
+            throw ClientQuit();
         }
         else
         {
@@ -112,20 +108,13 @@ std::string read_mess(client &cl)
         return "";
     }
     buff[nb] = '\0';
-    //std::cerr << "buff :" << text << "/" << std::endl;
     std::string all_text = cl.conCat(text.c_str());
     std::cerr << "all_text: " << all_text << "/" << std::endl;
-    //std::cerr << YELLOW << "check 1" << std::endl;
     std::string::size_type pos = all_text.find('\r');
-    //std::cerr << "1st pos: " << pos << std::endl;
-    //std::cerr << YELLOW << "check 2" << std::endl;
     if (pos == std::string::npos)
     {
-        //std::cerr << YELLOW << "check 3" << std::endl;
         pos = all_text.find('\n');
     }
-    //std::cerr << YELLOW << "check 4" << std::endl;
-    //std::cerr << "pos: " << pos << " npos: " << all_text.npos << std::endl;
     std::string mess = all_text.substr(0, pos);
     std::cerr << "Mess : " << mess << "/" << std::endl;
     all_text.erase(0, pos + 1);
@@ -212,11 +201,5 @@ std::vector<std::string> splitCpp(std::string str)
         cut.push_back(tmp);
         free(tmp);
     }
-    /*size_t j = 0;
-    while (j < cut.size())
-    {
-        std::cout << BLACK << "result: ." << cut[j] << '.' << RESET << std::endl;
-        j++;
-    }*/
     return cut;
 }
