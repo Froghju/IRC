@@ -14,10 +14,10 @@ class frogy
 	public :
 		frogy(/* args */);
 		~frogy();
-		void hello(channel ch);
+		void hello(channel ch, std::vector<std::string> &content);
 		//void draw(std::vector<struct pollfd> *vec);
-		void fact(channel ch);
-		void frogsave(channel ch);
+		void fact(channel ch, std::vector<std::string> &content);
+		void frogsave(channel ch, std::vector<std::string> &content);
 };
 
 #endif

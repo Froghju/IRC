@@ -31,7 +31,7 @@ public:
     std::string getKey() const;
 
     void sendToAll(client &cl, std::vector<std::string> &content);
-    void FrogSendToAll(std::string message);
+    void FrogSendToAll(std::string message, std::vector<std::string> &content);
     void addNewClient(client &cl);
     void addOnList(client cl);
 
@@ -69,5 +69,7 @@ public:
 
     void unallowOperator(std::vector<std::string> cmd);
     void allowOperator(std::vector<std::string> cmd);
+    void sendoperator(client &cl);
+    void unsendoperator(client &cl);
     size_t size();
 };

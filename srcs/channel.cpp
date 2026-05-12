@@ -49,10 +49,10 @@ void channel::sendToAll(client &cl, std::vector<std::string> &content)
 	}
 }
 
-void channel::FrogSendToAll(std::string message)
+void channel::FrogSendToAll(std::string message, std::vector<std::string> &content)
 {
     int i = 0;
-    std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG #channel :" +
+    std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG " + content[1] + " :" +
                         message + "\r\n";
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
@@ -287,6 +287,7 @@ void channel::allowOperator(std::vector<std::string> cmd)
             if (!isAdmin(_channelClients[i]))
             {
                 _admin.push_back(_channelClients[i]);
+                sendoperator(_channelClients[i]);
                 ++_nbAdmin;
             }
         }
@@ -303,6 +304,7 @@ void channel::unallowOperator(std::vector<std::string> cmd)
             {
                 std::vector<client>::iterator it = std::find(_admin.begin(), _admin.end(), _channelClients[i]);
                 _admin.erase(it);
+                unsendoperator(_channelClients[i]);
                 --_nbAdmin;
             }
             /*else if (!isAdmin(_channelClients[i]))

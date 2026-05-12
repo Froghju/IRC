@@ -17,7 +17,7 @@ void server::sendlistclchannel(size_t pos)
 		if (it + 1 != _vecCh[pos].getchannelClients().end())
 			str += " ";
 		else
-			str += "\r\n";
+			str += " Frogy\r\n";
 	}
 	std::cerr << "list = " << str << std::endl;
 	for (std::vector<client>::iterator it = _vecCh[pos].getchannelClients().begin(); it != _vecCh[pos].getchannelClients().end(); ++it)
@@ -29,19 +29,27 @@ void server::sendlistclchannel(size_t pos)
 	}
 }
 
-void server::sendoperator(size_t pos, client &cl)
+void channel::sendoperator(client &cl)
 {
-	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " +o " + cl.GetNickname() + "\r\n";
-	send(cl.getOut(), mess.c_str(), mess.size(), 0);
-	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	std::string mess = ":Tha_Ghj MODE #" + _name + " +o " + cl.GetNickname() + "\r\n";
+	for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it)
+	{
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+	/*send(cl.getOut(), mess.c_str(), mess.size(), 0);
+	std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
 }
 
-void server::unsendoperator(size_t pos, client &cl)
+void channel::unsendoperator(client &cl)
 {
-	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " -o " + cl.GetNickname() + "\r\n";
-	send(cl.getOut(), mess.c_str(), mess.size(), 0);
-	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	std::string mess = ":Tha_Ghj MODE #" + _name + " -o " + cl.GetNickname() + "\r\n";
+	for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it)
+	{
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+	/*send(cl.getOut(), mess.c_str(), mess.size(), 0);
+	std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
 }
 
