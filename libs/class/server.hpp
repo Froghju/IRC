@@ -65,7 +65,7 @@ public:
 	void	sendInvite(client &cl, size_t pos);
 	void	sendInviteOnly(client &cl, size_t pos);
 	void	unsendoperator(size_t pos, client &cl);
-	
+	void	sendNewNick(client &cl, std::string newname);
 	class ChannelNotFound : public std::exception {
 
         public:

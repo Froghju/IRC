@@ -223,6 +223,28 @@ void server::ExecCmd(client &cl, std::string mess)
 				topicCmd(content, cl);
 			else if (content[0] == "MODE")
 				modeCmd(content, cl);
+			else if (content[0] == "NICK")
+			{
+				if (content[1][content[1].size() - 1] == '\r')
+				{
+					std::string str;
+					for (size_t i = 0; i < content[1].size() - 1; ++i)
+					{
+						str += content[1][i];
+					}
+					content[1].clear();
+					content[1] = str;
+				}
+				if (isvalidNickname(content[1], cl))
+				{
+					sendNewNick(cl, content[1]);
+					cl.setNickname(content[1]);
+					for (size_t i = 0; i < cl.GetNickname().size(); i++)
+						std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
+					std::cout << std::endl;
+					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
+				}
+			}
 			else if (content[0] == "PRIVMSG")
 			{
 				try {

@@ -115,6 +115,12 @@ void server::sendInviteOnly(client &cl, size_t pos)
 	std::string mess = ":" + _ServName + " 346 " + cl.GetNickname() + " #" + _vecCh[pos].getname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
 }
+
+void server::sendNewNick(client &cl, std::string newname)
+{
+	std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + newname + "\r\n";
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+}
 /*std::string ms3 = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost JOIN #" + _vecCh[_vecCh.size() - 1].getname() + "\r\n";
 send(cl.getOut(), ms3.c_str(), ms3.size(), 0);*/
 /*std::string ms4 = ":" + _ServName + " MODE #" + _vecCh[_vecCh.size() - 1].getname() + " +o " + cl.GetNickname() + "\r\n";
