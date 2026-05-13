@@ -59,10 +59,11 @@ public:
     bool sameName(std::string str);
     bool isPrivate() const;
     bool hasKey() const;
-    bool isOnTheList(client cl);
-    bool isOnTheChannel(client cl);
-    bool isAdmin(client cl);
+    bool isOnTheList(client &cl);
+    bool isOnTheChannel(client &cl);
+    bool isAdmin(client &cl);
     std::vector<client> &getchannelClients();
+    std::vector<client> &getchannelAdmin();
     bool getResTopic() const;
     void allowResTopic();
     bool validUser(std::string name);

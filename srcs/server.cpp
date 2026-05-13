@@ -125,6 +125,12 @@ bool server::isvalidNickname(std::string input, client &cl)
 		}
 	}
 	std::vector<client>::iterator itt = _vecCl.begin();
+	if (input == "Frogy")
+	{
+		std::string ms = ":" + _ServName + " 433 :Nickname is already in use\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
+		return false;
+	}
 	while (itt != _vecCl.end())
 	{
 		if (itt->GetNickname() == input)
@@ -238,11 +244,40 @@ void server::ExecCmd(client &cl, std::string mess)
 				if (isvalidNickname(content[1], cl))
 				{
 					sendNewNick(cl, content[1]);
+					for (size_t j = 0; j < _vecCh.size(); ++j)
+					{
+						for (size_t i = 0; i < _vecCh[j].getchannelClients().size(); ++i)
+						{
+							if (_vecCh[j].getchannelClients()[i] == cl)
+							{
+								std::cerr << "verif 2" << std::endl;
+								std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + content[1] + "\r\n";
+								for (std::vector<client>::iterator it = _vecCh[j].getchannelClients().begin(); it != _vecCh[j].getchannelClients().end(); it++)
+								{
+									send(it->getOut(), mess.c_str(), mess.size(), 0);
+								}
+								if (_vecCh[j].isAdmin(cl))
+								{
+									for (size_t k = 0; k < _vecCh[j].getchannelAdmin().size(); ++k)
+									{
+										if (_vecCh[j].getchannelAdmin()[k] == cl)
+										{
+											_vecCh[j].getchannelAdmin()[i].setNickname(content[1]);
+											break;
+										}
+									}
+								}
+								_vecCh[j].getchannelClients()[i].setNickname(content[1]);
+							}
+						}
+					}
 					cl.setNickname(content[1]);
 					for (size_t i = 0; i < cl.GetNickname().size(); i++)
 						std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
 					std::cout << std::endl;
-					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
+					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl;
+					std::cout << "getNickname =" << cl.GetNickname() << std::endl;
+					std::cerr << "add client serveur = " << &cl << std::endl;
 				}
 			}
 			else if (content[0] == "PRIVMSG")

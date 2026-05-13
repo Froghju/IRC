@@ -73,7 +73,9 @@ void channel::addNewClient(client &cl) {
             _admin.push_back(cl);
             ++_nbAdmin;
         }
+        std::cerr << "add client channel = " << &cl << std::endl;
         _channelClients.push_back(cl);
+        std::cerr << "add client channel push = " << &(--_channelClients.end()) << std::endl;
     }
 }
 
@@ -184,12 +186,12 @@ void channel::setKey(std::vector<std::string> cmd)
     std::cerr << "check 6" << std::endl;
 }
 
-bool channel::isOnTheList(client cl)
+bool channel::isOnTheList(client &cl)
 {
     return (find(_list.begin(), _list.end(), cl) != _list.end());
 }
 
-bool channel::isOnTheChannel(client cl)
+bool channel::isOnTheChannel(client &cl)
 {
     return (find(_channelClients.begin(), _channelClients.end(), cl) != _channelClients.end());
 }
@@ -207,7 +209,7 @@ std::string channel::getTopic()
     return (_topic);
 }
 
-bool channel::isAdmin(client cl)
+bool channel::isAdmin(client &cl)
 {
     for (size_t i = 0; i < _admin.size(); i++)
     {
@@ -241,6 +243,11 @@ size_t channel::getLimitCl()
 std::vector<client> &channel::getchannelClients()
 {
     return (_channelClients);
+}
+
+std::vector<client> &channel::getchannelAdmin()
+{
+    return (_admin);
 }
 
 bool channel::getResTopic() const

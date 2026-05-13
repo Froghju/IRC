@@ -121,6 +121,46 @@ void server::sendNewNick(client &cl, std::string newname)
 	std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + newname + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
 }
+
+
+void server::sendlistclchannel(channel &chan)
+{
+	std::string str;
+	for (std::vector<client>::iterator it = chan.getchannelClients().begin(); it != chan.getchannelClients().end(); ++it)
+	{
+		if (chan.isAdmin(*it))
+			str +="@";
+		str += it->GetNickname();
+		if (it + 1 != chan.getchannelClients().end())
+			str += " ";
+		else
+			str += " Frogy\r\n";
+	}
+	std::cerr << "list = " << str << std::endl;
+	for (std::vector<client>::iterator it = chan.getchannelClients().begin(); it != chan.getchannelClients().end(); ++it)
+	{
+		std::string mess = ":" + _ServName + " 353 " + it->GetNickname() + " = #" + chan.getname() + " :" + str;
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+		std::string mess2 = ":" + _ServName + " 366 " + it->GetNickname() + " #" + chan.getname() + " :End of /NAMES list\r\n";
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+}
+
+void server::sendlistclallchannel(client &cl)
+{
+	std::cerr << "start" << std::endl;
+	for (std::vector<channel>::iterator it = _vecCh.begin(); it != _vecCh.end(); ++it)
+	{
+		std::cerr << "check 1" << std::endl;
+		std::cerr << "is on channel = " << it->isOnTheChannel(cl);
+		if (it->isOnTheChannel(cl))
+		{
+			std::cerr << "check 2" << std::endl;
+			sendlistclchannel(*it);
+		}
+	}
+	std::cerr << "end" << std::endl;
+}
 /*std::string ms3 = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost JOIN #" + _vecCh[_vecCh.size() - 1].getname() + "\r\n";
 send(cl.getOut(), ms3.c_str(), ms3.size(), 0);*/
 /*std::string ms4 = ":" + _ServName + " MODE #" + _vecCh[_vecCh.size() - 1].getname() + " +o " + cl.GetNickname() + "\r\n";
