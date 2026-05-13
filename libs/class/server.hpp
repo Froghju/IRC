@@ -33,7 +33,6 @@ public:
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
 
-	//bool Identification(std::vector<struct pollfd> *vec, client &cl); //OLD ONE
 	void Identification(client &cl, std::string all_text);
 	bool isvalidNickname(std::string input, client &cl);
 	bool isvalidUsername(std::string input, client &cl);

@@ -74,31 +74,6 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 	}
 }
 
-//OLD WORKING
-/*void server::checkPollRevents(std::vector<struct pollfd> *vec)
-{
-	if ((*vec)[0].revents & POLLIN)
-    {
-        client cl(_Port);
-		socklen_t len = sizeof(cl.GetClientInfo());
-		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), &len);
-		if (fd_client == -1)
-			std::cerr << "ERROR: can't accept connection" << std::endl;
-		else
-		{
-			cl.setOut(fd_client);
-			if (!Identification(vec, cl))
-				std::cerr << "Client fail to connect" << std::endl;
-		}
-	}
-	if ((*vec)[0].revents & POLLERR)
-		std::cerr << "erreur err" << std::endl;
-	if ((*vec)[0].revents & POLLHUP)
-		std::cerr << "erreur hup" << std::endl;
-	(*vec)[0].revents = 0;
-	returnPollClients(vec);
-}*/
-
 void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
 	if ((*vec)[0].revents & POLLIN)
@@ -110,8 +85,11 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			std::cerr << "ERROR: can't accept connection" << std::endl;
 		else
 		{
-			cl.setOut(fd_client);
-			_sas.push_back(cl);
+			if (!cl.GetReady())
+			{
+				cl.setOut(fd_client);
+				_sas.push_back(cl);
+			}
 			(*vec).push_back(cl.InitPollFd(cl.getOut()));
 			std::cerr << "Size of sas: " << _sas.size();
 			/*if (!Identification(vec, cl))
@@ -170,7 +148,7 @@ bool server::isvalidNickname(std::string input, client &cl)
 	{
 		if (itt->GetNickname() == input)
 		{
-			std::string ms = ":" + _ServName + " 433 :Nickname is already in use\r\n";
+			std::string ms = ":" + _ServName + " 433 :Nickname is already used\r\n";
 			send(cl.getOut(), ms.c_str(), ms.size(), 0);
 			return false;
 		}
@@ -503,7 +481,6 @@ void server::Identification(client &cl, std::string msg)
 		{
 			std::string enter = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
 			send(cl.getOut(), enter.c_str(), enter.size(), 0);
-			_sas.push_back(cl);
 		}
 	}
 	catch (const std::exception& e)

@@ -37,34 +37,6 @@ std::string find_cmd(std::string str)
 
 std::string read_mess(client &cl)
 {
-    /*std::string all_text;
-    int nb = 0;
-    char buffer[2];
-    int check = 0;
-    while (1)
-    {
-        nb = recv(cl.getOut(), buffer, 1, 0);
-        if (nb == -1)
-        {
-            send(cl.getOut(), "Sorry fail of recv you leave the serv\n", 39, 0);
-            throw ClientQuit();
-            return NULL;
-        }
-        buffer[nb] = '\0';
-        if (buffer[0] == '\0' || (buffer[0] == '\n' && buffer[1] == '\0'))
-        {
-            if (check == 0)
-                all_text.append(buffer);
-            break;
-        }
-        all_text.append(buffer);
-        ++check;
-    }
-    return (all_text);*/
-
-    /*char buff[512];
-    int nb = recv(cl.getOut(), buff, sizeof(buff) - 1, 0);*/
-
     char buff[2];
     int nb;
     std::string text;
@@ -87,9 +59,6 @@ std::string read_mess(client &cl)
         }
         text.append(buff);
     }
-    /*for (size_t i = 0; i < text.size(); i++)
-		std::cout << MAGENTA << (int)(unsigned char)text[i] << " ";
-	std::cout << std::endl;*/
     if (nb <= 0)
     {
         if ( nb == 0)
@@ -109,16 +78,13 @@ std::string read_mess(client &cl)
     }
     buff[nb] = '\0';
     std::string all_text = cl.conCat(text.c_str());
-    std::cerr << "all_text: " << all_text << "/" << std::endl;
     std::string::size_type pos = all_text.find('\r');
     if (pos == std::string::npos)
     {
         pos = all_text.find('\n');
     }
     std::string mess = all_text.substr(0, pos);
-    std::cerr << "Mess : " << mess << "/" << std::endl;
     all_text.erase(0, pos + 1);
-    //std::cerr << "all_text erase: " << all_text << std::endl;
     cl.resetMess(all_text);
     return mess;
     if (all_text.empty())

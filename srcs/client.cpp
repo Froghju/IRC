@@ -83,11 +83,6 @@ bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &se
                 (*vec).erase((*vec).begin() + i);
                 serv.cleanSas(*this);
             }
-            /*else
-            {
-                std::cout << _UserName << " quit serv" << std::endl;
-                return false;
-            }*/
         }
         if ((*vec)[i].revents & POLLHUP)
         {

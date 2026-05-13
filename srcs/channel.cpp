@@ -68,7 +68,6 @@ void channel::addNewClient(client &cl) {
     {
         if (_nbAdmin == 0)
         {
-            //allowOperator(cl.GetNickname());
             cl.setOperator(true);
             _admin.push_back(cl);
             ++_nbAdmin;
@@ -98,8 +97,6 @@ void channel::kick(client cl)
     std::vector<client>::iterator itt = std::find(_list.begin(), _list.end(), cl);
     if (itt != _list.end())
         _list.erase(itt);
-
-    //std::cerr << "SIZE: " << _channelClients.size() << " " << _list.size() << std::endl;
 }
 
 void channel::allowInvite()
@@ -152,12 +149,10 @@ void channel::UnsetKey(std::vector<std::string> cmd)
         return;
     if (cmd.size() != 4)
     {
-        //message error input
         return;
     }
     if (cmd[3] != _key)
     {
-        //message error wrong key
         return;
     }
     _hasKey = false;
@@ -169,7 +164,6 @@ void channel::setKey(std::vector<std::string> cmd)
     if (cmd.size() != 4)
     {
         std::cerr << "check 2" << std::endl;
-        //message error input
         return;
     }
     std::cerr << "check 3" << std::endl;

@@ -45,7 +45,6 @@ bool server::validUser(std::string name)
 
 void server::joinCmd(std::vector<std::string> content, client &cl)
 {
-    // faire boucle pour join plusieur channel en meme temps
     if (content.size() > 1)
     {
         try
@@ -320,7 +319,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].unsetResTopic();
                 else if (cmd[2] == "+t")
                     _vecCh[i].setResTopic();
-                else if (cmd[2] == "-k") //REGARDER SI ENTRER LE MDP OU PAS
+                else if (cmd[2] == "-k")
                 {
                     _vecCh[i].UnsetKey(cmd);
                 }
@@ -392,5 +391,20 @@ void server::mooveToServ(client &cl)
 
 void server::cleanSas(client &cl)
 {
-    _sas.erase(find(_sas.begin(), _sas.end(), cl));
+    if (cl.GetReady())
+    {
+        std::vector<client>::iterator it = find(_vecCl.begin(), _vecCl.end(), cl);
+        if (it != _vecCl.end())
+           _vecCl.erase(it);
+        return ;
+    }
+    else
+    {
+        std::vector<client>::iterator it = find(_sas.begin(), _sas.end(), cl);
+        if (it != _sas.end())
+        {
+            _sas.erase(it);
+            std::cerr << "nb vec client size: " << _vecCl.size() << std::endl;;
+        }
+    }
 }
