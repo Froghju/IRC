@@ -17,7 +17,7 @@ void server::sendlistclchannel(size_t pos)
 		if (it + 1 != _vecCh[pos].getchannelClients().end())
 			str += " ";
 		else
-			str += "\r\n";
+			str += " Frogy\r\n";
 	}
 	std::cerr << "list = " << str << std::endl;
 	for (std::vector<client>::iterator it = _vecCh[pos].getchannelClients().begin(); it != _vecCh[pos].getchannelClients().end(); ++it)
@@ -29,19 +29,27 @@ void server::sendlistclchannel(size_t pos)
 	}
 }
 
-void server::sendoperator(size_t pos, client &cl)
+void channel::sendoperator(client &cl)
 {
-	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " +o " + cl.GetNickname() + "\r\n";
-	send(cl.getOut(), mess.c_str(), mess.size(), 0);
-	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	std::string mess = ":Tha_Ghj MODE #" + _name + " +o " + cl.GetNickname() + "\r\n";
+	for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it)
+	{
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+	/*send(cl.getOut(), mess.c_str(), mess.size(), 0);
+	std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
 }
 
-void server::unsendoperator(size_t pos, client &cl)
+void channel::unsendoperator(client &cl)
 {
-	std::string mess = ":" + _ServName + " MODE #" + _vecCh[pos].getname() + " -o " + cl.GetNickname() + "\r\n";
-	send(cl.getOut(), mess.c_str(), mess.size(), 0);
-	/*std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
+	std::string mess = ":Tha_Ghj MODE #" + _name + " -o " + cl.GetNickname() + "\r\n";
+	for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); ++it)
+	{
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+	/*send(cl.getOut(), mess.c_str(), mess.size(), 0);
+	std::string mess2 = ":" + _ServName + " 353 " + cl.GetNickname() + " = #" + _vecCh[pos].getname() + " :@" + cl.GetNickname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);*/
 }
 
@@ -106,6 +114,52 @@ void server::sendInviteOnly(client &cl, size_t pos)
 {
 	std::string mess = ":" + _ServName + " 346 " + cl.GetNickname() + " #" + _vecCh[pos].getname() + "\r\n";
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+}
+
+void server::sendNewNick(client &cl, std::string newname)
+{
+	std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + newname + "\r\n";
+	send(cl.getOut(), mess.c_str(), mess.size(), 0);
+}
+
+
+void server::sendlistclchannel(channel &chan)
+{
+	std::string str;
+	for (std::vector<client>::iterator it = chan.getchannelClients().begin(); it != chan.getchannelClients().end(); ++it)
+	{
+		if (chan.isAdmin(*it))
+			str +="@";
+		str += it->GetNickname();
+		if (it + 1 != chan.getchannelClients().end())
+			str += " ";
+		else
+			str += " Frogy\r\n";
+	}
+	std::cerr << "list = " << str << std::endl;
+	for (std::vector<client>::iterator it = chan.getchannelClients().begin(); it != chan.getchannelClients().end(); ++it)
+	{
+		std::string mess = ":" + _ServName + " 353 " + it->GetNickname() + " = #" + chan.getname() + " :" + str;
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+		std::string mess2 = ":" + _ServName + " 366 " + it->GetNickname() + " #" + chan.getname() + " :End of /NAMES list\r\n";
+		send(it->getOut(), mess.c_str(), mess.size(), 0);
+	}
+}
+
+void server::sendlistclallchannel(client &cl)
+{
+	std::cerr << "start" << std::endl;
+	for (std::vector<channel>::iterator it = _vecCh.begin(); it != _vecCh.end(); ++it)
+	{
+		std::cerr << "check 1" << std::endl;
+		std::cerr << "is on channel = " << it->isOnTheChannel(cl);
+		if (it->isOnTheChannel(cl))
+		{
+			std::cerr << "check 2" << std::endl;
+			sendlistclchannel(*it);
+		}
+	}
+	std::cerr << "end" << std::endl;
 }
 /*std::string ms3 = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost JOIN #" + _vecCh[_vecCh.size() - 1].getname() + "\r\n";
 send(cl.getOut(), ms3.c_str(), ms3.size(), 0);*/

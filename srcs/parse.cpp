@@ -116,7 +116,7 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
             sendjoin(pos, cl);
             sendNoTopic(pos, cl);
             sendlistclchannel(pos);
-            sendoperator(pos, cl);
+            _vecCh[pos].sendoperator(cl);
         }
     }
     else
@@ -330,13 +330,11 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 else if (cmd[2] == "+o")
                 {
                     _vecCh[i].allowOperator(cmd);
-                    sendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-o")
                 {
                     _vecCh[i].unallowOperator(cmd);
-                    unsendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-l")
