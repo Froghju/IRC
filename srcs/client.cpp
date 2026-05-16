@@ -25,10 +25,20 @@ client::client(int port) : _Operator(false) {
 
 client &client::operator=(const client & src)
 {
+    if (this == &src)
+        return *this;
     _clientId = src._clientId;
     _clientInfo = src._clientInfo;
     _Hex = src._Hex;
-    return(*this);
+    _out = src._out;
+    _UserName = src._UserName;
+    _Nickname = src._Nickname;
+    _Operator = src._Operator;
+    _admin = src._admin;
+    _inChannel = src._inChannel;
+    _buffMessage = src._buffMessage;
+    _isReady = src._isReady;
+    return *this;
 }
 
 struct pollfd client::InitPollFd(int fd)
@@ -80,8 +90,8 @@ bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &se
             catch(const std::exception& e)
             {
                 std::cerr << e.what() << '\n';
+                serv.eraseClient(*this);
                 (*vec).erase((*vec).begin() + i);
-                serv.cleanSas(*this);
             }
         }
         if ((*vec)[i].revents & POLLHUP)
@@ -159,12 +169,7 @@ int client::getOut() const
 bool client::operator==(const client &src) const
 {
     if (_clientId == src._clientId
-        && _out == src._out
-        && _clientInfo.sin_addr.s_addr == src._clientInfo.sin_addr.s_addr
-        && _clientInfo.sin_port == src._clientInfo.sin_port
-        && _UserName == src._UserName
-        && _Nickname == src._Nickname
-        && _Operator == src._Operator)
+        && _Nickname == src._Nickname)
         return true;
     else
         return false;
@@ -173,12 +178,7 @@ bool client::operator==(const client &src) const
 bool client::operator!=(const client &src) const
 {
     if (_clientId != src._clientId
-        && _out != src._out
-        && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
-        && _clientInfo.sin_port != src._clientInfo.sin_port
-        && _UserName != src._UserName
-        && _Nickname != src._Nickname
-        && _Operator != src._Operator)
+        || _Nickname != src._Nickname)
         return true;
     else
         return false;
@@ -201,7 +201,7 @@ void client::resetMess(std::string str)
     _buffMessage += str;
 }
 
-void client::setReady(char c, server &serv)
+void client::setReady(char c)
 {
     if (c == 'P')
         _isReady.pass = true;
@@ -210,10 +210,7 @@ void client::setReady(char c, server &serv)
     else if (c == 'N')
         _isReady.nick = true;
     if (_isReady.pass && _isReady.user && _isReady.nick)
-    {
         _isReady.all = true;
-        serv.mooveToServ(*this);
-    }
 }
 
 bool client::GetReady() const 

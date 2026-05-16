@@ -87,11 +87,6 @@ std::string read_mess(client &cl)
     all_text.erase(0, pos + 1);
     cl.resetMess(all_text);
     return mess;
-    if (all_text.empty())
-    {
-        cl.resetMess("");
-    }
-    return "";
 }
 
 char *strTochar(std::string str) {

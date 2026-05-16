@@ -150,13 +150,9 @@ void channel::UnsetKey(std::vector<std::string> cmd)
     if (!_hasKey)
         return;
     if (cmd.size() != 4)
-    {
         return;
-    }
     if (cmd[3] != _key)
-    {
         return;
-    }
     _hasKey = false;
 }
 
@@ -229,7 +225,7 @@ bool channel::hasLimit() const
     return _hasLimit;
 }
 
-size_t channel::getLimitCl()
+size_t channel::getLimitCl() const
 {
     return (_limitCl);
 }
@@ -267,7 +263,7 @@ void channel::unsetResTopic()
     _resTopic = false;
 }
 
-bool channel::validUser(std::string nick)
+bool channel::validUser(std::string nick) const
 {
     size_t i = 0;
     while (i < _channelClients.size())
@@ -308,20 +304,16 @@ void channel::unallowOperator(std::vector<std::string> cmd)
                 unsendoperator(_channelClients[i]);
                 --_nbAdmin;
             }
-            /*else if (!isAdmin(_channelClients[i]))
-                mess wrong nickname
-            else
-                mess can't unallow last operator*/
         }
     }
 }
 
-size_t channel::size()
+size_t channel::size() const
 {
     return _channelClients.size();
 }
 
-std::string channel::getname()
+std::string channel::getname() const
 {
     return (_name);
 }

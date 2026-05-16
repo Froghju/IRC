@@ -330,11 +330,13 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 else if (cmd[2] == "+o")
                 {
                     _vecCh[i].allowOperator(cmd);
+                    sendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-o")
                 {
                     _vecCh[i].unallowOperator(cmd);
+                    unsendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-l")
@@ -348,18 +350,10 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                         char *end;
                         double val;
                         val = std::strtod(cmd[3].c_str(), &end);
-                        /*if (cmd[3].size() == 1 && *end != '\0')
-                            mess bad parm
-                        if (val > 2147483647 || val < -2147483648)
-                            mess bad parm*/
                         int v;
                         v = static_cast<int>(val);
-                        /*if (v < 0)
-                            mess bad parm*/
                         _vecCh[i].setLimitCl(v);
                     }
-                    /*else
-                        mess error bad nb param*/
                 }
                 else
                 {
@@ -381,28 +375,12 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     }
 }
 
-void server::mooveToServ(client &cl)
+void server::eraseClient(client &cl)
 {
-    _vecCl.push_back(cl);
-    _sas.erase(std::find(_sas.begin(), _sas.end(), cl));
-}
-
-void server::cleanSas(client &cl)
-{
-    if (cl.GetReady())
-    {
-        std::vector<client>::iterator it = find(_vecCl.begin(), _vecCl.end(), cl);
-        if (it != _vecCl.end())
-           _vecCl.erase(it);
-        return ;
-    }
-    else
-    {
-        std::vector<client>::iterator it = find(_sas.begin(), _sas.end(), cl);
-        if (it != _sas.end())
-        {
-            _sas.erase(it);
-            std::cerr << "nb vec client size: " << _vecCl.size() << std::endl;;
-        }
-    }
+    std::cerr << cl.GetNickname() << " has been erased" << std::endl;
+    shutdown(cl.GetClientID(), SHUT_RDWR);
+    close(cl.GetClientID());
+    std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
+    std::cerr << "IT : " << it->GetNickname() << std::endl;
+    _vecCl.erase(it);
 }
