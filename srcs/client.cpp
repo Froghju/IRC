@@ -80,14 +80,11 @@ bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &se
             catch(const std::exception& e)
             {
                 std::cerr << e.what() << '\n';
+                serv.eraseClient(*this);
+                //shutdown((*vec)[i].fd, SHUT_RDWR);
                 (*vec).erase((*vec).begin() + i);
-                serv.cleanSas(*this);
+                //serv.cleanSas(*this);
             }
-            /*else
-            {
-                std::cout << _UserName << " quit serv" << std::endl;
-                return false;
-            }*/
         }
         if ((*vec)[i].revents & POLLHUP)
         {
@@ -161,13 +158,7 @@ int client::getOut() const
 
 bool client::operator==(const client &src) const
 {
-    if (_clientId == src._clientId
-        && _out == src._out
-        && _clientInfo.sin_addr.s_addr == src._clientInfo.sin_addr.s_addr
-        && _clientInfo.sin_port == src._clientInfo.sin_port
-        && _UserName == src._UserName
-        && _Nickname == src._Nickname
-        && _Operator == src._Operator)
+    if (_clientId == src._clientId)
         return true;
     else
         return false;
@@ -175,13 +166,7 @@ bool client::operator==(const client &src) const
 
 bool client::operator!=(const client &src) const
 {
-    if (_clientId != src._clientId
-        && _out != src._out
-        && _clientInfo.sin_addr.s_addr != src._clientInfo.sin_addr.s_addr
-        && _clientInfo.sin_port != src._clientInfo.sin_port
-        && _UserName != src._UserName
-        && _Nickname != src._Nickname
-        && _Operator != src._Operator)
+    if (_clientId != src._clientId)
         return true;
     else
         return false;
@@ -204,7 +189,7 @@ void client::resetMess(std::string str)
     _buffMessage += str;
 }
 
-void client::setReady(char c, server &serv)
+void client::setReady(char c)
 {
     if (c == 'P')
         _isReady.pass = true;
@@ -213,10 +198,7 @@ void client::setReady(char c, server &serv)
     else if (c == 'N')
         _isReady.nick = true;
     if (_isReady.pass && _isReady.user && _isReady.nick)
-    {
         _isReady.all = true;
-        serv.mooveToServ(*this);
-    }
 }
 
 bool client::GetReady() const 

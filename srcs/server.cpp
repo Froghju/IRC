@@ -52,26 +52,17 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 {
 	for (unsigned int i = 1; i < vec->size(); i++)
 	{
-		if (!_sas[i - 1].GetReady())
+		if (!_vecCl[i - 1].checkPollRevents(vec, i, *this))
 		{
-			if (!_sas[i - 1].checkPollRevents(vec, i, *this))
-			{
-				shutdown((*vec)[i].fd, SHUT_RDWR);
-				(*vec).erase((*vec).begin() + i);
-				_sas.erase(_sas.begin() + i - 1);
-			}
-		}
-		else
-		{
-			if (!_vecCl[i - 1].checkPollRevents(vec, i, *this))
-			{
-				std::cout << "EEEEEEEE" << std::endl;
-				shutdown((*vec)[i].fd, SHUT_RDWR);
-				(*vec).erase((*vec).begin() + i);
-				_vecCl.erase(_vecCl.begin() + i - 1);
-			}
+			shutdown((*vec)[i].fd, SHUT_RDWR);
+			(*vec).erase((*vec).begin() + i);
+			_vecCl.erase(_vecCl.begin() + i - 1);
 		}
 	}
+	for (size_t i = 0; i < _vecCl.size(); i++)
+    {
+        std::cerr << "Client2 " << i << " : " << _vecCl[i].GetNickname() << std::endl;
+    }
 }
 
 //OLD WORKING
@@ -101,6 +92,10 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 
 void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
+	if ((*vec)[0].revents & POLLERR)
+		std::cerr << "erreur err" << std::endl;
+	if ((*vec)[0].revents & POLLHUP)
+		std::cerr << "erreur hup" << std::endl;
 	if ((*vec)[0].revents & POLLIN)
     {
         client cl(_Port);
@@ -111,17 +106,13 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 		else
 		{
 			cl.setOut(fd_client);
-			_sas.push_back(cl);
+			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(cl.getOut()));
-			std::cerr << "Size of sas: " << _sas.size();
+			std::cerr << "Size of vecCl: " << _vecCl.size();
 			/*if (!Identification(vec, cl))
 				std::cerr << "Client fail to connect" << std::endl;*/
 		}
 	}
-	if ((*vec)[0].revents & POLLERR)
-		std::cerr << "erreur err" << std::endl;
-	if ((*vec)[0].revents & POLLHUP)
-		std::cerr << "erreur hup" << std::endl;
 	(*vec)[0].revents = 0;
 	returnPollClients(vec);
 }
@@ -441,7 +432,7 @@ void server::Identification(client &cl, std::string msg)
 				{
 					if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
 					{
-						cl.setReady('P', *this);
+						cl.setReady('P');
 						std::cerr << YELLOW << "[log]: Password OK" << RESET << std::endl; 
 					}
 				}
@@ -477,7 +468,7 @@ void server::Identification(client &cl, std::string msg)
 							for (size_t i = 0; i < cl.GetNickname().size(); i++)
 								std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
 							std::cout << std::endl;
-							cl.setReady('N', *this);
+							cl.setReady('N');
 							std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
 						}
 					}
@@ -487,7 +478,7 @@ void server::Identification(client &cl, std::string msg)
 						{
 							std::string onlyuser = usernamehexchat(input);
 							cl.setClientName(onlyuser);
-							cl.setReady('U', *this);
+							cl.setReady('U');
 							std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
 						}
 					}
@@ -503,7 +494,7 @@ void server::Identification(client &cl, std::string msg)
 		{
 			std::string enter = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
 			send(cl.getOut(), enter.c_str(), enter.size(), 0);
-			_sas.push_back(cl);
+			//_sas.push_back(cl);
 		}
 	}
 	catch (const std::exception& e)

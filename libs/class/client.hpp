@@ -39,7 +39,7 @@ public:
     void setHex(bool b);
     void setOut(int c);
     void setFdOut(int out);
-    void setReady(char c, server &serv);
+    void setReady(char c);
 
     int getOut() const;
     bool getHex() const;

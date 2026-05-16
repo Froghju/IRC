@@ -18,7 +18,6 @@ private:
 
 	sockaddr_in	_InfServ;
 	struct pollfd _vpfd;
-	std::vector<client> _sas;
 	std::vector<client>	_vecCl;
 	std::vector<channel> _vecCh;
 	frogy	_Fro;
@@ -38,8 +37,8 @@ public:
 	bool isvalidNickname(std::string input, client &cl);
 	bool isvalidUsername(std::string input, client &cl);
 	void deleteClient(client &cl);
-	void mooveToServ(client &cl);
-	void cleanSas(client &cl);
+	//void mooveToServ(client &cl);
+	//void cleanSas(client &cl);
 
 	//parse
 	void parse(std::string message, client cl);
@@ -57,6 +56,7 @@ public:
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess, client &cl);
 	bool initClient(client &cl);
+	void eraseClient(client &cl);
 	std::string usernamehexchat(std::string &input);
 
 	void	sendjoin(size_t pos, client &cl);

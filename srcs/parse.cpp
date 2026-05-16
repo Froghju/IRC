@@ -384,13 +384,24 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     }
 }
 
-void server::mooveToServ(client &cl)
+void server::eraseClient(client &cl)
 {
-    _vecCl.push_back(cl);
-    _sas.erase(std::find(_sas.begin(), _sas.end(), cl));
-}
+    std::cerr << cl.GetNickname() << " has been erased" << std::endl;
+    shutdown(cl.GetClientID(), SHUT_RDWR);
+    close(cl.GetClientID());
+    /*std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
+    std::cerr << "IT : " << it->GetNickname() << std::endl;
+    _vecCl.erase(it);*/
 
-void server::cleanSas(client &cl)
-{
-    _sas.erase(find(_sas.begin(), _sas.end(), cl));
+    std::vector<client> tmp = _vecCl;
+    _vecCl.clear();
+    for (size_t i = 0; i < tmp.size(); i++)
+    {
+        if (tmp[i] != cl)
+            _vecCl.push_back(tmp[i]);
+    }
+    for (size_t j = 0; j < _vecCl.size(); j++)
+    {
+        std::cerr << "Client " << j << " : " << _vecCl[j].GetNickname() << std::endl;
+    }
 }
