@@ -52,14 +52,14 @@ public:
 
 	void	sendjoin(size_t pos, client &cl);
 	void	sendlistclchannel(size_t pos);
-	void	sendoperator(size_t pos, client &cl);
+	//void	sendoperator(size_t pos, client &cl);
 	void	sendNoTopic(size_t pos, client &cl);
 	void	sendTopic(size_t pos, client &cl);
 	void	sendNoTopicAll(size_t pos);
 	void	sendTopicAll(size_t pos);
 	void	sendInvite(client &cl, size_t pos);
 	void	sendInviteOnly(client &cl, size_t pos);
-	void	unsendoperator(size_t pos, client &cl);
+	//void	unsendoperator(size_t pos, client &cl);
 	void	sendNewNick(client &cl, std::string newname);
 	void	sendlistclallchannel(client &cl);
 	void	sendlistclchannel(channel &chan);

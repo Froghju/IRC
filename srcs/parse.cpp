@@ -330,13 +330,13 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                 else if (cmd[2] == "+o")
                 {
                     _vecCh[i].allowOperator(cmd);
-                    sendoperator(i, findClient(cmd[3]));
+                    //sendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-o")
                 {
                     _vecCh[i].unallowOperator(cmd);
-                    unsendoperator(i, findClient(cmd[3]));
+                    //unsendoperator(i, findClient(cmd[3]));
                     sendlistclchannel(i);
                 }
                 else if (cmd[2] == "-l")

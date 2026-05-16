@@ -78,7 +78,6 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			cl.setOut(fd_client);
 			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(cl.getOut()));
-			std::cerr << "Size of vecCl: " << _vecCl.size();
 		}
 	}
 	(*vec)[0].revents = 0;
@@ -186,23 +185,27 @@ void server::sendToClient(std::vector<std::string> content, client &cl)
 {
 	try
 	{
-		if (content.size() < 3)
-			throw NoMessage();
-		std::string str;
-		for (size_t i = 2; i < content.size(); i++)
+		client &tmp = findClient(content[1]);
+		if (tmp.GetReady())
 		{
-			str += content[i];
-			if (i + 1 < content.size())
-				str+= " ";
-			std::cerr << "content = " << content[i] << std::endl;
-			std::cerr << "str = " << str << std::endl;
+			if (content.size() < 3)
+				throw NoMessage();
+			std::string str;
+			for (size_t i = 2; i < content.size(); i++)
+			{
+				str += content[i];
+				if (i + 1 < content.size())
+					str+= " ";
+				std::cerr << "content = " << content[i] << std::endl;
+				std::cerr << "str = " << str << std::endl;
+			}
+			str += "\r\n";
+			std::string hex_mess = ":" + cl.GetNickname() +
+						"!~" + cl.GetClientUserName() +
+						"@localhost " + content[0] + " " + content[1] + " " +
+						str;
+			send(tmp.getOut(), hex_mess.c_str(), hex_mess.size(), 0);
 		}
-		str += "\r\n";
-		std::string hex_mess = ":" + cl.GetNickname() +
-					"!~" + cl.GetClientUserName() +
-					"@localhost " + content[0] + " " + content[1] + " " +
-					str;
-		send(findClient(content[1]).getOut(), hex_mess.c_str(), hex_mess.size(), 0);
 	}
 	catch(const std::exception& e)
 	{
@@ -283,13 +286,10 @@ void server::ExecCmd(client &cl, std::string mess)
 			else if (content[0] == "PRIVMSG")
 			{
 				try {
-					std::cerr << "check1" << std::endl;
 					size_t i = findChannel(content[1]);
-					std::cerr << "check2" << std::endl;
 					if (_vecCh[i].isOnTheChannel(cl))
 					{
 						_vecCh[i].sendToAll(cl, content);
-						std::cerr << "check3" << std::endl;
 						if (content.size() > 2)
 						{
 							if (content[2] == ":Frogy")
