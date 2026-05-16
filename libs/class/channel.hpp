@@ -25,7 +25,6 @@ private:
 
 public:
     channel(std::vector<std::string> content);
-    channel(std::string _name);
     ~channel();
 
     std::string getKey() const;
@@ -35,7 +34,7 @@ public:
     void addNewClient(client &cl);
     void addOnList(client cl);
 
-    std::string getname();
+    std::string getname() const;
     void kick(client cl);
 
     void allowInvite();
@@ -53,7 +52,7 @@ public:
 
     void setLimitCl(size_t limit);
     bool hasLimit() const;
-    size_t getLimitCl();
+    size_t getLimitCl() const;
     void UnsetLimitCl();
 
     bool sameName(std::string str);
@@ -65,9 +64,9 @@ public:
     std::vector<client> &getchannelClients();
     bool getResTopic() const;
     void allowResTopic();
-    bool validUser(std::string name);
+    bool validUser(std::string name) const;
 
     void unallowOperator(std::vector<std::string> cmd);
     void allowOperator(std::vector<std::string> cmd);
-    size_t size();
+    size_t size() const;
 };

@@ -53,11 +53,9 @@ public:
 
     struct pollfd InitPollFd(int fd);
     bool checkPollRevents(std::vector<struct pollfd> *vec, int i, server &serv);
-    void doCmd(std::string msg, server *serv);
     bool getInChannel();
     std::string conCat(const char *buff);
     void resetMess(std::string str);
-    //std::string GetMess() {return _buffMessage;} //sert au degug
 
     bool operator==(const client &src) const;
     bool operator!=(const client &src) const;

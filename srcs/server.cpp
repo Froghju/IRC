@@ -9,13 +9,12 @@ server::server(int port, std::string password) : _ServName("Tha_Ghj"), _PassW(pa
 	proto = getprotobyname("tcp");//check si pas tcp/ip
 	if (proto == 0)
 		std::cerr << "Protobyname error" << std::endl;
-	//_IdSocket = socket(PF_INET, SOCK_STREAM, proto->p_proto);
-	_IdSocket = socket(AF_INET, SOCK_STREAM, 0); //*
+	_IdSocket = socket(AF_INET, SOCK_STREAM, 0);
 	fcntl(_IdSocket, F_SETFL, O_NONBLOCK);
 	if (_IdSocket == -1)
 		std::cerr << "Socket error" << std::endl;
 
-	std::memset(&_InfServ, 0, sizeof(_InfServ));  //*
+	std::memset(&_InfServ, 0, sizeof(_InfServ));
 	_InfServ.sin_family = AF_INET;
 	_InfServ.sin_port = htons(_Port); /// htons host to network short
 	_InfServ.sin_addr.s_addr = INADDR_ANY; //peut se connecter de partout
@@ -36,7 +35,7 @@ struct pollfd server::GetPollFd() const
 	return (_vpfd);
 }
 
-int	server::getIdSocket()
+int	server::getIdSocket() const
 {
 	return (_IdSocket);
 }
@@ -59,36 +58,7 @@ void server::returnPollClients(std::vector<struct pollfd> *vec)
 			_vecCl.erase(_vecCl.begin() + i - 1);
 		}
 	}
-	for (size_t i = 0; i < _vecCl.size(); i++)
-    {
-        std::cerr << "Client2 " << i << " : " << _vecCl[i].GetNickname() << std::endl;
-    }
 }
-
-//OLD WORKING
-/*void server::checkPollRevents(std::vector<struct pollfd> *vec)
-{
-	if ((*vec)[0].revents & POLLIN)
-    {
-        client cl(_Port);
-		socklen_t len = sizeof(cl.GetClientInfo());
-		int fd_client = accept(_IdSocket, (sockaddr *)&cl.SetClientInfo(), &len);
-		if (fd_client == -1)
-			std::cerr << "ERROR: can't accept connection" << std::endl;
-		else
-		{
-			cl.setOut(fd_client);
-			if (!Identification(vec, cl))
-				std::cerr << "Client fail to connect" << std::endl;
-		}
-	}
-	if ((*vec)[0].revents & POLLERR)
-		std::cerr << "erreur err" << std::endl;
-	if ((*vec)[0].revents & POLLHUP)
-		std::cerr << "erreur hup" << std::endl;
-	(*vec)[0].revents = 0;
-	returnPollClients(vec);
-}*/
 
 void server::checkPollRevents(std::vector<struct pollfd> *vec)
 {
@@ -109,8 +79,6 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(cl.getOut()));
 			std::cerr << "Size of vecCl: " << _vecCl.size();
-			/*if (!Identification(vec, cl))
-				std::cerr << "Client fail to connect" << std::endl;*/
 		}
 	}
 	(*vec)[0].revents = 0;
@@ -308,115 +276,6 @@ std::string server::usernamehexchat(std::string &input)
 	size_t pos = input.find(" 0");
 	return input.substr(0, pos);
 }
-
-/*bool server::Identification(std::vector<struct pollfd> *vec, client &cl)
-{
-	bool check = false;
-	bool pass = false;
-	bool nick = false;
-	bool user = false;
-	try
-	{
-		while (!check)
-		{
-			while (!pass)
-			{
-				std::string msg = read_mess(cl);
-				std::cerr << "msg = " << msg << std::endl;
-				if (!msg.empty())
-				{
-					std::string cmd = find_cmd(msg);
-					std::cerr << "cmd = " << cmd << std::endl;
-					if (!cmd.empty())
-					{
-						if (cmd == "PASS")
-						{
-							std::string input = find_input(msg, cmd);
-							std::cerr << "input = " << input << std::endl;
-							if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
-								pass = true;
-						}
-						else
-						{
-							std::string ms = ":" + _ServName + " 464 :Password incorrect\r\n";
-							send(cl.getOut(), ms.c_str(), ms.size(), 0);
-						}
-					}
-					else if (cmd == "CAP")
-					{
-						std::string ms = ":" + _ServName + " CAP * LS :\r\n";
-						send(cl.getOut(), ms.c_str(), ms.size(), 0);
-								std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl;
-					}
-				}
-			}
-			if (pass)
-			{
-				std::string msg = read_mess(cl);
-				std::cerr << "msg = " << msg << std::endl;
-				if (!msg.empty() && msg != "\n" && msg != "\r\n" && msg[0] != '\0')
-				{
-					std::string cmd = find_cmd(msg);
-					std::cerr << "cmd = " << cmd << std::endl;
-					std::string input = find_input(msg, cmd);
-					std::cerr << "input = " << input << std::endl;
-					if (cmd == "NICK")
-					{
-						if (input[input.size() - 1] == '\r')
-						{
-							std::string str;
-							for (size_t i = 0; i < input.size() - 1; ++i)
-							{
-								str += input[i];
-							}
-							input.clear();
-							input = str;
-						}
-						if (isvalidNickname(input, cl))
-						{
-							cl.setNickname(input);
-							for (size_t i = 0; i < cl.GetNickname().size(); i++)
-								std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
-							std::cout << std::endl;
-							nick = true;
-							std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
-						}
-					}
-					else if (cmd == "USER")
-					{
-						if (isvalidUsername(input, cl))
-						{
-							std::string onlyuser = usernamehexchat(input);
-							cl.setClientName(onlyuser);
-							user = true;
-							std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
-						}
-					}
-					else if (cmd == "PASS")
-					{
-						std::string ms = ":" + _ServName + " 462 :Unauthorized command\r\n";
-						send(cl.getOut(), ms.c_str(), ms.size(), 0);
-					}
-					if (user && nick)
-						check = true;
-				}
-			}
-		}
-		std::string msg = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
-		send(cl.getOut(), msg.c_str(), msg.size(), 0);
-		_vecCl.push_back(cl);
-		(*vec).push_back(cl.InitPollFd(cl.getOut()));
-		return (check);
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		deleteClient(cl);
-
-		std::cerr << "vector size: " << _vecCl.size() << std::endl;
-	}
-	return false;
-}*/
 
 void server::Identification(client &cl, std::string msg)
 {

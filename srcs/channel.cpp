@@ -68,7 +68,6 @@ void channel::addNewClient(client &cl) {
     {
         if (_nbAdmin == 0)
         {
-            //allowOperator(cl.GetNickname());
             cl.setOperator(true);
             _admin.push_back(cl);
             ++_nbAdmin;
@@ -98,8 +97,6 @@ void channel::kick(client cl)
     std::vector<client>::iterator itt = std::find(_list.begin(), _list.end(), cl);
     if (itt != _list.end())
         _list.erase(itt);
-
-    //std::cerr << "SIZE: " << _channelClients.size() << " " << _list.size() << std::endl;
 }
 
 void channel::allowInvite()
@@ -151,15 +148,9 @@ void channel::UnsetKey(std::vector<std::string> cmd)
     if (!_hasKey)
         return;
     if (cmd.size() != 4)
-    {
-        //message error input
         return;
-    }
     if (cmd[3] != _key)
-    {
-        //message error wrong key
         return;
-    }
     _hasKey = false;
 }
 
@@ -169,7 +160,6 @@ void channel::setKey(std::vector<std::string> cmd)
     if (cmd.size() != 4)
     {
         std::cerr << "check 2" << std::endl;
-        //message error input
         return;
     }
     std::cerr << "check 3" << std::endl;
@@ -233,7 +223,7 @@ bool channel::hasLimit() const
     return _hasLimit;
 }
 
-size_t channel::getLimitCl()
+size_t channel::getLimitCl() const
 {
     return (_limitCl);
 }
@@ -266,7 +256,7 @@ void channel::unsetResTopic()
     _resTopic = false;
 }
 
-bool channel::validUser(std::string nick)
+bool channel::validUser(std::string nick) const
 {
     size_t i = 0;
     while (i < _channelClients.size())
@@ -305,20 +295,16 @@ void channel::unallowOperator(std::vector<std::string> cmd)
                 _admin.erase(it);
                 --_nbAdmin;
             }
-            /*else if (!isAdmin(_channelClients[i]))
-                mess wrong nickname
-            else
-                mess can't unallow last operator*/
         }
     }
 }
 
-size_t channel::size()
+size_t channel::size() const
 {
     return _channelClients.size();
 }
 
-std::string channel::getname()
+std::string channel::getname() const
 {
     return (_name);
 }

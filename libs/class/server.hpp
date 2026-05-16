@@ -26,36 +26,27 @@ public:
 	server(int port, std::string password);
 	struct pollfd GetPollFd() const;
 	void WaitForConnectServ();
-	int	getIdSocket();
+	int	getIdSocket() const;
 	void checkPollRevents(std::vector<struct pollfd> *vec);
-	bool checkPassword(int fd);
 	void returnPollClients(std::vector<struct pollfd> *vec);
 	std::vector<client> &getVecCl();
 
-	//bool Identification(std::vector<struct pollfd> *vec, client &cl); //OLD ONE
 	void Identification(client &cl, std::string all_text);
 	bool isvalidNickname(std::string input, client &cl);
 	bool isvalidUsername(std::string input, client &cl);
 	void deleteClient(client &cl);
-	//void mooveToServ(client &cl);
-	//void cleanSas(client &cl);
 
 	//parse
-	void parse(std::string message, client cl);
 	void joinCmd(std::vector<std::string> content, client &cl);
 	size_t findChannel(std::string name);
 	bool validUser(std::string name);
 	void inviteCmd(std::vector<std::string> content, client &admin);
 	void kickCmd(std::vector<std::string> content, client admin);
 	void modeCmd(std::vector<std::string> cmd, client cl);
-	void passCmd(std::string cmd, client &cl);
 	client &findClient(std::string clientNick);
-	std::vector<std::string> findAllOptCmd(std::string mess, std::string cmd);
 	void ExecCmd(client &cl, std::string mess);
-	void joinCmd(std::string channelName, std::string clientName, client cl);
 	void topicCmd(std::vector<std::string> cmd, client &cl);
 	void sendToClient(std::vector<std::string> mess, client &cl);
-	bool initClient(client &cl);
 	void eraseClient(client &cl);
 	std::string usernamehexchat(std::string &input);
 

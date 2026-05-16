@@ -45,7 +45,6 @@ bool server::validUser(std::string name)
 
 void server::joinCmd(std::vector<std::string> content, client &cl)
 {
-    // faire boucle pour join plusieur channel en meme temps
     if (content.size() > 1)
     {
         try
@@ -320,7 +319,7 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                     _vecCh[i].unsetResTopic();
                 else if (cmd[2] == "+t")
                     _vecCh[i].setResTopic();
-                else if (cmd[2] == "-k") //REGARDER SI ENTRER LE MDP OU PAS
+                else if (cmd[2] == "-k")
                 {
                     _vecCh[i].UnsetKey(cmd);
                 }
@@ -351,18 +350,10 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
                         char *end;
                         double val;
                         val = std::strtod(cmd[3].c_str(), &end);
-                        /*if (cmd[3].size() == 1 && *end != '\0')
-                            mess bad parm
-                        if (val > 2147483647 || val < -2147483648)
-                            mess bad parm*/
                         int v;
                         v = static_cast<int>(val);
-                        /*if (v < 0)
-                            mess bad parm*/
                         _vecCh[i].setLimitCl(v);
                     }
-                    /*else
-                        mess error bad nb param*/
                 }
                 else
                 {
@@ -389,19 +380,7 @@ void server::eraseClient(client &cl)
     std::cerr << cl.GetNickname() << " has been erased" << std::endl;
     shutdown(cl.GetClientID(), SHUT_RDWR);
     close(cl.GetClientID());
-    /*std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
+    std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
     std::cerr << "IT : " << it->GetNickname() << std::endl;
-    _vecCl.erase(it);*/
-
-    std::vector<client> tmp = _vecCl;
-    _vecCl.clear();
-    for (size_t i = 0; i < tmp.size(); i++)
-    {
-        if (tmp[i] != cl)
-            _vecCl.push_back(tmp[i]);
-    }
-    for (size_t j = 0; j < _vecCl.size(); j++)
-    {
-        std::cerr << "Client " << j << " : " << _vecCl[j].GetNickname() << std::endl;
-    }
+    _vecCl.erase(it);
 }
