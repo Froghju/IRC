@@ -17,6 +17,15 @@ size_t server::findChannel(std::string name)
             i++;
         }
     }
+    else
+    {
+        while (i < _vecCh.size())
+        {
+            if (_vecCh[i].sameName(name))
+                return i;
+            i++;
+        }
+    }
     throw ChannelNotFound();
 }
 
