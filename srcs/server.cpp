@@ -78,7 +78,6 @@ void server::checkPollRevents(std::vector<struct pollfd> *vec)
 			cl.setOut(fd_client);
 			_vecCl.push_back(cl);
 			(*vec).push_back(cl.InitPollFd(cl.getOut()));
-			std::cerr << "Size of vecCl: " << _vecCl.size();
 		}
 	}
 	(*vec)[0].revents = 0;
@@ -172,7 +171,6 @@ void server::deleteClient(client &cl)
 client &server::findClient(std::string clientNick)
 {
 	size_t i = 0;
-	std::cerr << "clientNick = " << clientNick << std::endl;
 	while (i < _vecCl.size())
 	{
 		if (_vecCl[i].GetNickname() == clientNick || _vecCl[i].GetNickname() == ":"+clientNick)
@@ -194,8 +192,6 @@ void server::sendToClient(std::vector<std::string> content, client &cl)
 			str += content[i];
 			if (i + 1 < content.size())
 				str+= " ";
-			std::cerr << "content = " << content[i] << std::endl;
-			std::cerr << "str = " << str << std::endl;
 		}
 		str += "\r\n";
 		std::string hex_mess = ":" + cl.GetNickname() +
@@ -212,8 +208,6 @@ void server::sendToClient(std::vector<std::string> content, client &cl)
 
 void server::ExecCmd(client &cl, std::string mess)
 {
-
-	std::cerr << "mesS = " << mess << std::endl;
 	std::vector<std::string> content = splitCpp(mess);
 	if (!content[0].empty())
 	{
@@ -250,7 +244,6 @@ void server::ExecCmd(client &cl, std::string mess)
 						{
 							if (_vecCh[j].getchannelClients()[i] == cl)
 							{
-								std::cerr << "verif 2" << std::endl;
 								std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + content[1] + "\r\n";
 								for (std::vector<client>::iterator it = _vecCh[j].getchannelClients().begin(); it != _vecCh[j].getchannelClients().end(); it++)
 								{
@@ -269,27 +262,29 @@ void server::ExecCmd(client &cl, std::string mess)
 								}
 								_vecCh[j].getchannelClients()[i].setNickname(content[1]);
 							}
+							if (_vecCh[j].getchannelList()[i] == cl)
+							{
+								for (size_t k = 0; k < _vecCh[j].getchannelList().size(); ++k)
+								{
+									if (_vecCh[j].getchannelList()[k] == cl)
+									{
+										_vecCh[j].getchannelList()[i].setNickname(content[1]);
+										break;
+									}
+								}
+							}
 						}
 					}
 					cl.setNickname(content[1]);
-					for (size_t i = 0; i < cl.GetNickname().size(); i++)
-						std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
-					std::cout << std::endl;
-					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl;
-					std::cout << "getNickname =" << cl.GetNickname() << std::endl;
-					std::cerr << "add client serveur = " << &cl << std::endl;
 				}
 			}
 			else if (content[0] == "PRIVMSG")
 			{
 				try {
-					std::cerr << "check1" << std::endl;
 					size_t i = findChannel(content[1]);
-					std::cerr << "check2" << std::endl;
 					if (_vecCh[i].isOnTheChannel(cl))
 					{
 						_vecCh[i].sendToAll(cl, content);
-						std::cerr << "check3" << std::endl;
 						if (content.size() > 2)
 						{
 							if (content[2] == ":Frogy")
@@ -315,17 +310,16 @@ void server::ExecCmd(client &cl, std::string mess)
 				}
 				catch(const std::exception& e)
 				{
-					std::cerr << "check4" << std::endl;
 					(void)e;
 					sendToClient(content, cl);
 				}
 			}
 		}
 	}
-	else
+	/*else
 	{
 		std::cerr << "bad message" << std::endl;
-	}
+	}*/
 }
 
 std::string server::usernamehexchat(std::string &input)
@@ -349,7 +343,6 @@ void server::Identification(client &cl, std::string msg)
 					if (!input.empty() && (input == _PassW || input == _PassW + "\r"))
 					{
 						cl.setReady('P');
-						std::cerr << YELLOW << "[log]: Password OK" << RESET << std::endl; 
 					}
 				}
 				else
@@ -362,7 +355,6 @@ void server::Identification(client &cl, std::string msg)
 			{
 				std::string ms = ":" + _ServName + " CAP * LS :\r\n";
 				send(cl.getOut(), ms.c_str(), ms.size(), 0);
-				std::cerr << YELLOW << "[log]: Password register" << RESET << std::endl;
 			}
 			else
 			{
@@ -381,11 +373,7 @@ void server::Identification(client &cl, std::string msg)
 						if (isvalidNickname(input, cl))
 						{
 							cl.setNickname(input);
-							for (size_t i = 0; i < cl.GetNickname().size(); i++)
-								std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
-							std::cout << std::endl;
 							cl.setReady('N');
-							std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl; 
 						}
 					}
 					else if (cmd == "USER")
@@ -395,7 +383,6 @@ void server::Identification(client &cl, std::string msg)
 							std::string onlyuser = usernamehexchat(input);
 							cl.setClientName(onlyuser);
 							cl.setReady('U');
-							std::cerr << YELLOW << "[log]: Username register" << RESET << std::endl;
 						}
 					}
 					else if (cmd == "PASS")
@@ -410,14 +397,11 @@ void server::Identification(client &cl, std::string msg)
 		{
 			std::string enter = ":localhost 001 " + cl.GetNickname() + " :Welcome to " + _ServName + "\r\n" + ":localhost 002 " + cl.GetNickname() + " :Your host is " + _ServName + "\r\n" + ":localhost 003 " + cl.GetNickname() + " :This server was created today\r\n" + ":localhost 004 " + cl.GetNickname() + " server 1.0 o o\r\n";
 			send(cl.getOut(), enter.c_str(), enter.size(), 0);
-			//_sas.push_back(cl);
 		}
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << e.what() << std::endl;
+		(void)e;
 		deleteClient(cl);
-
-		std::cerr << "vector size: " << _vecCl.size() << std::endl;
 	}
 }

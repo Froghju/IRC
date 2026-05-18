@@ -10,7 +10,6 @@ channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false
     else
         _hasKey = false;
     _name = content[1];
-    std::cerr << "Channel '" << _name << "' created" << std::endl;
 }
 
 channel::~channel() {}
@@ -32,15 +31,12 @@ void channel::sendToAll(client &cl, std::vector<std::string> &content)
         else
             message += "\r\n";
     }
-    std::cerr << "message = " << message << std::endl;
     std::string hex_mess = ":" + cl.GetNickname() +
                         "!~" + cl.GetClientUserName() +
                         "@localhost " + content[0] + " " + content[1] + " " +
                         message;
-    std::cerr << "hex_mess = " << hex_mess << std::endl;
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
-        std::cerr << "client nickname send mess = " << _channelClients[i].GetNickname() << std::endl;
         if (_channelClients[i].getOut() != cl.getOut())
         {
             send(_channelClients[i].getOut(), hex_mess.c_str(), hex_mess.size(), 0);
@@ -72,9 +68,7 @@ void channel::addNewClient(client &cl) {
             _admin.push_back(cl);
             ++_nbAdmin;
         }
-        std::cerr << "add client channel = " << &cl << std::endl;
         _channelClients.push_back(cl);
-        std::cerr << "add client channel push = " << &(--_channelClients.end()) << std::endl;
     }
 }
 
@@ -88,7 +82,6 @@ void channel::kick(client cl)
 {
     if (_nbAdmin == 1 && cl.GetOperator())
     {
-        std::cerr << cl.GetNickname() << std::endl;
         send(cl.getOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
         return ;
     }
@@ -158,22 +151,16 @@ void channel::UnsetKey(std::vector<std::string> cmd)
 
 void channel::setKey(std::vector<std::string> cmd)
 {
-    std::cerr << "check" << std::endl;
     if (cmd.size() != 4)
     {
-        std::cerr << "check 2" << std::endl;
         return;
     }
-    std::cerr << "check 3" << std::endl;
     if (!_key.empty())
     {
-        std::cerr << "check 4" << std::endl;
         _key.clear();
     }
-    std::cerr << "check 5" << std::endl;
     _key = cmd[3];
     _hasKey = true;
-    std::cerr << "check 6" << std::endl;
 }
 
 bool channel::isOnTheList(client &cl)
@@ -316,4 +303,9 @@ size_t channel::size() const
 std::string channel::getname() const
 {
     return (_name);
+}
+
+std::vector<client> &channel::getchannelList()
+{
+    return (_list);
 }

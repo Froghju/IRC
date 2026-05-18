@@ -63,13 +63,11 @@ std::string read_mess(client &cl)
     {
         if ( nb == 0)
         {
-            std::cerr << "Client Disconected from the server" << std::endl;
             text.clear();
             throw ClientQuit();
         }
         else
         {
-            std::cerr << "Sorry fail of recv" << std::endl;
             throw ClientQuit();
         }
         shutdown(cl.getOut(), SHUT_RDWR);

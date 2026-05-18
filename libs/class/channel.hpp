@@ -71,5 +71,6 @@ public:
     void allowOperator(std::vector<std::string> cmd);
     void sendoperator(client &cl);
     void unsendoperator(client &cl);
-    size_t size();
+    size_t size() const;
+    std::vector<client> &getchannelList();
 };

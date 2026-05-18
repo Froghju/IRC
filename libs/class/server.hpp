@@ -63,6 +63,8 @@ public:
 	void	sendNewNick(client &cl, std::string newname);
 	void	sendlistclallchannel(client &cl);
 	void	sendlistclchannel(channel &chan);
+	void	eraseClientChannel(client &cl);
+	void	sendlistclall();
 	class ChannelNotFound : public std::exception {
 
         public:

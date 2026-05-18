@@ -89,19 +89,16 @@ bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &se
             }
             catch(const std::exception& e)
             {
-                std::cerr << e.what() << '\n';
                 serv.eraseClient(*this);
                 (*vec).erase((*vec).begin() + i);
             }
         }
         if ((*vec)[i].revents & POLLHUP)
         {
-            std::cerr << "erreur pollhup" << std::endl;
             return false;
         }
         if ((*vec)[i].revents & POLLERR)
         {
-            std::cerr << "erreur pollerr" << std::endl;
             return false;
         }
         (*vec)[i].revents = 0;
@@ -121,9 +118,7 @@ std::string client::GetClientUserName() const
 
 void client::setNickname(std::string str)
 {
-    std::cout << "Nickname =" << _Nickname << std::endl;
     _Nickname = str;
-    std::cout << "Nickname =" << _Nickname << std::endl;
 }
 
 std::string client::GetNickname() const

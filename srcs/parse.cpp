@@ -6,12 +6,10 @@ size_t server::findChannel(std::string name)
 {
     size_t i = 0;
     std::string tmp;
-    std::cerr << "channel = " << name << std::endl;
     if (!name.empty() && name[0] == '#')
     {
         for (size_t i = 1; i < name.size(); ++i)
             tmp += name[i];
-        std::cerr << "tmp = " << tmp << std::endl;
         while (i < _vecCh.size())
         {
             if (_vecCh[i].sameName(tmp))
@@ -130,42 +128,33 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
 {
     if (content.size() > 2)
     {
-        std::cerr << "check 0" << std::endl;
         int subject = 0;
         try
         {
-            std::cerr << "check 1" << std::endl;
             client cl = findClient(content[1]);
-            std::cerr << "check 2" << std::endl;
             subject++;
             size_t i = findChannel(content[2]);
-            std::cerr << "check 3" << std::endl;
             if (admin.GetOperator())
             {
-                std::cerr << "check 4" << std::endl;
                 _vecCh[i].sendToAll(admin, content);
                 sendInvite(cl, i);
                 _vecCh[i].addOnList(cl);
             }
             else
             {
-                std::cerr << "check 5" << std::endl;
                 std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
         }
         catch (const std::exception &e)
         {
-            std::cerr << "check 6" << std::endl;
             if (subject == 0)
             {
-                std::cerr << "check 7" << std::endl;
                 std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
             else
             {
-                std::cerr << "check 8" << std::endl;
                 std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
@@ -173,7 +162,6 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
     }
     else
     {
-        std::cerr << "check 9" << std::endl;
         std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
         send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
@@ -186,37 +174,31 @@ void server::kickCmd(std::vector<std::string> content, client admin)
         int subject = 0;
         try
         {
-            std::cerr<< "check 0" << std::endl;
             client cl = findClient(content[2]);
             ++subject;
-            std::cerr<< "check 1" << std::endl;
             size_t i = findChannel(content[1]);
             if (admin.GetOperator())
             {
-                std::cerr<< "check 2" << std::endl;
                 _vecCh[i].sendToAll(admin, content);
                 _vecCh[i].kick(cl);
                 sendlistclchannel(i);
             }
             else
             {
-                std::cerr<< "check 3" << std::endl;
                 std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
         }
         catch (const std::exception &e)
         {
-            std::cerr << e.what() << std::endl;
+            (void)e;
             if (subject == 0)
             {
-                std::cerr<< "check 4" << std::endl;
                 std::string ms = ":" + _ServName + " 442 :Not on channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
             else
             {
-                std::cerr<< "check 5" << std::endl;
                 std::string ms = ":" + _ServName + " 403 :No such channel\r\n";
                 send(admin.getOut(), ms.c_str(), ms.size(), 0);
             }
@@ -224,7 +206,6 @@ void server::kickCmd(std::vector<std::string> content, client admin)
     }
     else
     {
-        std::cerr<< "check 6" << std::endl;
         std::string ms = ":" + _ServName + " 461 :Need more params\r\n";
         send(admin.getOut(), ms.c_str(), ms.size(), 0);
     }
@@ -233,19 +214,14 @@ void server::kickCmd(std::vector<std::string> content, client admin)
 void server::topicCmd(std::vector<std::string> cmd, client &cl)
 {
     size_t pos = findChannel(cmd[1]);
-    std::cerr << "check topic" << std::endl;
     if (cmd.size() == 3)
     {
-        std::cerr << "check topic 2" << std::endl;
         if (_vecCh[pos].isOnTheChannel(cl))
         {
-            std::cerr << "check topic 3" << std::endl;
             if (_vecCh[pos].getResTopic())
             {
-                std::cerr << "check topic 4" << std::endl;
                 if (_vecCh[pos].isAdmin(cl))
                 {
-                    std::cerr << "check topic 5" << std::endl;
                     std::string str;
                     for (size_t i = 2; i < cmd.size(); i++)
                     {
@@ -254,7 +230,6 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
                             str += " ";
                     }
                     _vecCh[pos].setTopic(str);
-                    std::cerr << "check topic 6" << std::endl;
                     if (_vecCh[pos].getResTopic())
                         sendTopicAll(pos);
                     else
@@ -262,14 +237,12 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
                 }
                 else
                 {
-                    std::cerr << "check topic 7" << std::endl;
                     std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
                     send(cl.getOut(), ms.c_str(), ms.size(), 0);
                 }
             }
             else
             {
-                std::cerr << "check topic 8" << std::endl;
                 std::string str;
                 for (size_t i = 2; i < cmd.size(); i++)
                 {
@@ -290,15 +263,9 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
     else
     {
         if (!_vecCh[pos].getTopic().empty())
-        {
-            std::cerr << "check topic 9" << std::endl;
             sendTopicAll(pos);
-        }
         else
-        {
-            std::cerr << "check topic 10" << std::endl;
             sendNoTopicAll(pos);
-        }
     }
 }
 
@@ -373,12 +340,41 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
     }
 }
 
+void server::eraseClientChannel(client &cl)
+{
+	for (std::vector<channel>::iterator it = _vecCh.begin(); it != _vecCh.end(); ++it)
+	{
+		if (it->isOnTheChannel(cl))
+		{
+			if (it->isOnTheList(cl))
+            {
+                it->getchannelList().erase(find(it->getchannelList().begin(), it->getchannelList().end(), cl));
+            }
+            if (it->isAdmin(cl))
+            {
+                it->getchannelAdmin().erase(find(it->getchannelAdmin().begin(), it->getchannelAdmin().end(), cl));
+            }
+            it->getchannelClients().erase(find(it->getchannelClients().begin(), it->getchannelClients().end(), cl));
+		}
+	}
+}
+
 void server::eraseClient(client &cl)
 {
-    std::cerr << cl.GetNickname() << " has been erased" << std::endl;
+    if (cl.GetReady())
+    {
+        eraseClientChannel(cl);
+        std::string hex_mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost QUIT :Connection closed\r\n";
+        for (std::vector<client>::iterator it = _vecCl.begin(); it != _vecCl.end();++it)
+        {
+            if (it->GetReady())
+                send(it->getOut(), hex_mess.c_str(), hex_mess.size(), 0);
+        }
+        sendlistclall();
+    }
     shutdown(cl.GetClientID(), SHUT_RDWR);
     close(cl.GetClientID());
     std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
-    std::cerr << "IT : " << it->GetNickname() << std::endl;
     _vecCl.erase(it);
+    //rajouter pour supp dans les channel et list aussi
 }
