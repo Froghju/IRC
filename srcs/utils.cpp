@@ -61,7 +61,7 @@ std::string read_mess(client &cl)
     }
     if (nb <= 0)
     {
-        if ( nb == 0)
+        if (nb == 0)
         {
             text.clear();
             throw ClientQuit();

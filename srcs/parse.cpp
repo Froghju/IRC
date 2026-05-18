@@ -11,13 +11,11 @@ size_t server::findChannel(std::string name)
         {
             if (_vecCh[i].sameName(name))
             {
-                std::cerr << "find channel" << std::endl;
                 return i;
             }
             i++;
         }
     }
-    std::cerr << "not find channel" << std::endl;
     throw ChannelNotFound();
 }
 

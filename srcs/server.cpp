@@ -316,10 +316,6 @@ void server::ExecCmd(client &cl, std::string mess)
 			}
 		}
 	}
-	/*else
-	{
-		std::cerr << "bad message" << std::endl;
-	}*/
 }
 
 std::string server::usernamehexchat(std::string &input)

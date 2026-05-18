@@ -72,37 +72,34 @@ int client::GetClientID() const
 
 bool client::checkPollRevents(std::vector<struct pollfd> *vec, int i, server &serv)
 {
-    if ((*vec)[i].events != 0)
+    if ((*vec)[i].revents & POLLIN)
     {
-        if ((*vec)[i].revents & POLLIN)
+        try
         {
-            try
+            std::string all_text = read_mess(*this);
+            if (!all_text.empty())
             {
-                std::string all_text = read_mess(*this);
-                if (!all_text.empty())
-                {
-                    if (this->GetReady())
-                        serv.ExecCmd(*this, all_text);
-                    else
-                        serv.Identification(*this, all_text);
-                }
-            }
-            catch(const std::exception& e)
-            {
-                serv.eraseClient(*this);
-                (*vec).erase((*vec).begin() + i);
+                if (this->GetReady())
+                    serv.ExecCmd(*this, all_text);
+                else
+                    serv.Identification(*this, all_text);
             }
         }
-        if ((*vec)[i].revents & POLLHUP)
+        catch(const std::exception& e)
         {
-            return false;
+            serv.eraseClient(*this);
+            (*vec).erase((*vec).begin() + i);
         }
-        if ((*vec)[i].revents & POLLERR)
-        {
-            return false;
-        }
-        (*vec)[i].revents = 0;
     }
+    if ((*vec)[i].revents & POLLHUP)
+    {
+        return false;
+    }
+    if ((*vec)[i].revents & POLLERR)
+    {
+        return false;
+    }
+    (*vec)[i].revents = 0;
     return true;
 }
 
