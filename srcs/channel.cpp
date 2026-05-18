@@ -49,10 +49,10 @@ void channel::sendToAll(client &cl, std::vector<std::string> &content)
 	}
 }
 
-void channel::FrogSendToAll(std::string message)
+void channel::FrogSendToAll(std::string message, std::vector<std::string> &content)
 {
     int i = 0;
-    std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG #channel :" +
+    std::string hex_mess = ":Frogy!~BestFrogForEver@localhost PRIVMSG " + content[1] + " :" +
                         message + "\r\n";
     for (std::vector<client>::iterator it = _channelClients.begin(); it != _channelClients.end(); it++)
 	{
@@ -72,7 +72,9 @@ void channel::addNewClient(client &cl) {
             _admin.push_back(cl);
             ++_nbAdmin;
         }
+        std::cerr << "add client channel = " << &cl << std::endl;
         _channelClients.push_back(cl);
+        std::cerr << "add client channel push = " << &(--_channelClients.end()) << std::endl;
     }
 }
 
@@ -174,12 +176,12 @@ void channel::setKey(std::vector<std::string> cmd)
     std::cerr << "check 6" << std::endl;
 }
 
-bool channel::isOnTheList(client cl)
+bool channel::isOnTheList(client &cl)
 {
     return (find(_list.begin(), _list.end(), cl) != _list.end());
 }
 
-bool channel::isOnTheChannel(client cl)
+bool channel::isOnTheChannel(client &cl)
 {
     return (find(_channelClients.begin(), _channelClients.end(), cl) != _channelClients.end());
 }
@@ -197,7 +199,7 @@ std::string channel::getTopic()
     return (_topic);
 }
 
-bool channel::isAdmin(client cl)
+bool channel::isAdmin(client &cl)
 {
     for (size_t i = 0; i < _admin.size(); i++)
     {
@@ -231,6 +233,11 @@ size_t channel::getLimitCl() const
 std::vector<client> &channel::getchannelClients()
 {
     return (_channelClients);
+}
+
+std::vector<client> &channel::getchannelAdmin()
+{
+    return (_admin);
 }
 
 bool channel::getResTopic() const
@@ -277,6 +284,7 @@ void channel::allowOperator(std::vector<std::string> cmd)
             if (!isAdmin(_channelClients[i]))
             {
                 _admin.push_back(_channelClients[i]);
+                sendoperator(_channelClients[i]);
                 ++_nbAdmin;
             }
         }
@@ -293,6 +301,7 @@ void channel::unallowOperator(std::vector<std::string> cmd)
             {
                 std::vector<client>::iterator it = std::find(_admin.begin(), _admin.end(), _channelClients[i]);
                 _admin.erase(it);
+                unsendoperator(_channelClients[i]);
                 --_nbAdmin;
             }
         }

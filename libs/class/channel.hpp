@@ -30,7 +30,7 @@ public:
     std::string getKey() const;
 
     void sendToAll(client &cl, std::vector<std::string> &content);
-    void FrogSendToAll(std::string message);
+    void FrogSendToAll(std::string message, std::vector<std::string> &content);
     void addNewClient(client &cl);
     void addOnList(client cl);
 
@@ -58,15 +58,18 @@ public:
     bool sameName(std::string str);
     bool isPrivate() const;
     bool hasKey() const;
-    bool isOnTheList(client cl);
-    bool isOnTheChannel(client cl);
-    bool isAdmin(client cl);
+    bool isOnTheList(client &cl);
+    bool isOnTheChannel(client &cl);
+    bool isAdmin(client &cl);
     std::vector<client> &getchannelClients();
+    std::vector<client> &getchannelAdmin();
     bool getResTopic() const;
     void allowResTopic();
     bool validUser(std::string name) const;
 
     void unallowOperator(std::vector<std::string> cmd);
     void allowOperator(std::vector<std::string> cmd);
-    size_t size() const;
+    void sendoperator(client &cl);
+    void unsendoperator(client &cl);
+    size_t size();
 };

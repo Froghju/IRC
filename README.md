@@ -63,6 +63,8 @@ https://www.csd.uoc.gr/~hy556/material/tutorials/cs556-3rd-tutorial.pdf
 https://www.codequoi.com/programmation-reseau-via-socket-en-c/
 https://www.figma.com/board/TEviHsREY663xd6BxfD1UQ/ft_irc?node-id=1-2
 https://www.techbull.com/techbull/guide/internet/irccommande.html
+https://www.irchelp.org/protocol/rfc/chapter6.html
+https://mathieu-lemoine.developpez.com/tutoriels/irc/protocole/?page=commandes
 
 ## Bonus
 ___

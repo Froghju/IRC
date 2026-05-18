@@ -27,24 +27,26 @@ frogy::~frogy()
 
 }
 
-void frogy::hello(channel ch)
+void frogy::hello(channel ch, std::vector<std::string> &content)
 {
 	std::string str_nc = "Hye, i'm frogy the frog, I like to draw and talk about frog";
-	ch.FrogSendToAll(str_nc);
+	ch.FrogSendToAll(str_nc, content);
 }
 
-void frogy::fact(channel ch)
+void frogy::fact(channel ch, std::vector<std::string> &content)
 {
 	int r = rand() % _Fact.size();
-	ch.FrogSendToAll(_Fact[r]);
+	ch.FrogSendToAll(_Fact[r], content);
 }
 
-void frogy::frogsave(channel ch)
+void frogy::frogsave(channel ch, std::vector<std::string> &content)
 {
 	int r = rand() % 17;
 	std::ifstream file(_Frogsave[r].c_str());
 	std::string tmp, str_nc;
 	while (std::getline(file, tmp))
-		str_nc += tmp + "\n";
-	ch.FrogSendToAll(str_nc);
+	{
+		str_nc = tmp + "\r\n";
+		ch.FrogSendToAll(str_nc, content);
+	}
 }

@@ -121,7 +121,9 @@ std::string client::GetClientUserName() const
 
 void client::setNickname(std::string str)
 {
+    std::cout << "Nickname =" << _Nickname << std::endl;
     _Nickname = str;
+    std::cout << "Nickname =" << _Nickname << std::endl;
 }
 
 std::string client::GetNickname() const

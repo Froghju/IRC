@@ -125,6 +125,12 @@ bool server::isvalidNickname(std::string input, client &cl)
 		}
 	}
 	std::vector<client>::iterator itt = _vecCl.begin();
+	if (input == "Frogy")
+	{
+		std::string ms = ":" + _ServName + " 433 :Nickname is already in use\r\n";
+		send(cl.getOut(), ms.c_str(), ms.size(), 0);
+		return false;
+	}
 	while (itt != _vecCl.end())
 	{
 		if (itt->GetNickname() == input)
@@ -223,20 +229,56 @@ void server::ExecCmd(client &cl, std::string mess)
 				topicCmd(content, cl);
 			else if (content[0] == "MODE")
 				modeCmd(content, cl);
-			else if (content[0] == "Frogy")
+			else if (content[0] == "NICK")
 			{
-				size_t i = findChannel(content[1]);
-				_Fro.hello(_vecCh[i]);
-			}
-			else if (content[0] == "FROG?" || content[0] == "FUNFACT")
-			{
-				size_t i = findChannel(content[1]);
-				_Fro.fact(_vecCh[i]);
-			}
-			else if (content[0] == "DRAW" || content[0] == "FROGSAVE" || content[0] == "MOTHER" || content[0] == "EARTHBOUND")
-			{
-				size_t i = findChannel(content[1]);
-				_Fro.frogsave(_vecCh[i]);
+				if (content[1][content[1].size() - 1] == '\r')
+				{
+					std::string str;
+					for (size_t i = 0; i < content[1].size() - 1; ++i)
+					{
+						str += content[1][i];
+					}
+					content[1].clear();
+					content[1] = str;
+				}
+				if (isvalidNickname(content[1], cl))
+				{
+					sendNewNick(cl, content[1]);
+					for (size_t j = 0; j < _vecCh.size(); ++j)
+					{
+						for (size_t i = 0; i < _vecCh[j].getchannelClients().size(); ++i)
+						{
+							if (_vecCh[j].getchannelClients()[i] == cl)
+							{
+								std::cerr << "verif 2" << std::endl;
+								std::string mess = ":" + cl.GetNickname() + "!" + cl.GetClientUserName() + "@localhost NICK :" + content[1] + "\r\n";
+								for (std::vector<client>::iterator it = _vecCh[j].getchannelClients().begin(); it != _vecCh[j].getchannelClients().end(); it++)
+								{
+									send(it->getOut(), mess.c_str(), mess.size(), 0);
+								}
+								if (_vecCh[j].isAdmin(cl))
+								{
+									for (size_t k = 0; k < _vecCh[j].getchannelAdmin().size(); ++k)
+									{
+										if (_vecCh[j].getchannelAdmin()[k] == cl)
+										{
+											_vecCh[j].getchannelAdmin()[i].setNickname(content[1]);
+											break;
+										}
+									}
+								}
+								_vecCh[j].getchannelClients()[i].setNickname(content[1]);
+							}
+						}
+					}
+					cl.setNickname(content[1]);
+					for (size_t i = 0; i < cl.GetNickname().size(); i++)
+						std::cout << (int)(unsigned char)cl.GetNickname()[i] << " ";
+					std::cout << std::endl;
+					std::cerr << YELLOW << "[log]: Nickname register" << RESET << std::endl;
+					std::cout << "getNickname =" << cl.GetNickname() << std::endl;
+					std::cerr << "add client serveur = " << &cl << std::endl;
+				}
 			}
 			else if (content[0] == "PRIVMSG")
 			{
@@ -248,6 +290,21 @@ void server::ExecCmd(client &cl, std::string mess)
 					{
 						_vecCh[i].sendToAll(cl, content);
 						std::cerr << "check3" << std::endl;
+						if (content.size() > 2)
+						{
+							if (content[2] == ":Frogy")
+							{
+								_Fro.hello(_vecCh[i], content);
+							}
+							else if (content[2] == ":FROG?" || content[2] == ":FUNFACT")
+							{
+								_Fro.fact(_vecCh[i], content);
+							}
+							else if (content[2] == ":DRAW" || content[2] == ":FROGSAVE" || content[2] == ":MOTHER" || content[2] == ":EARTHBOUND")
+							{
+								_Fro.frogsave(_vecCh[i], content);
+							}
+						}
 					}
 					else
 					{
