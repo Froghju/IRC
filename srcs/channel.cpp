@@ -19,6 +19,14 @@ std::string channel::getKey() const
     return _key;
 }
 
+void    channel::sendHistMsg(int fdclient)
+{
+    for (std::vector<std::string>::iterator it = _histMsg.begin(); it != _histMsg.end(); ++it)
+    {
+        send(fdclient, it->c_str(), it->size(), 0);
+    }
+}
+
 void channel::sendToAll(client &cl, std::vector<std::string> &content)
 {
     int i = 0;
@@ -43,6 +51,7 @@ void channel::sendToAll(client &cl, std::vector<std::string> &content)
         }
 		i++;
 	}
+    _histMsg.push_back(hex_mess);
 }
 
 void channel::FrogSendToAll(std::string message, std::vector<std::string> &content)

@@ -17,15 +17,6 @@ size_t server::findChannel(std::string name)
             i++;
         }
     }
-    else
-    {
-        while (i < _vecCh.size())
-        {
-            if (_vecCh[i].sameName(name))
-                return i;
-            i++;
-        }
-    }
     throw ChannelNotFound();
 }
 
@@ -80,6 +71,7 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
                 if (_vecCh[i].isOnTheList(cl))
                 {
                     _vecCh[i].addNewClient(cl);
+                    _vecCh[i].sendHistMsg(cl.getOut());
                     sendjoin(i, cl);
                     if (!_vecCh[i].getTopic().empty())
                         sendTopicAll(i);
@@ -96,6 +88,7 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
             else
             {
                 _vecCh[i].addNewClient(cl);
+                _vecCh[i].sendHistMsg(cl.getOut());
                 sendjoin(i, cl);
                 if (!_vecCh[i].getTopic().empty())
                     sendTopicAll(i);

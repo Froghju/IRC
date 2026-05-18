@@ -22,6 +22,7 @@ private:
     bool _resTopic;
     size_t  _limitCl;
     frogy   _Frog;
+    std::vector<std::string> _histMsg;
 
 public:
     channel(std::vector<std::string> content);
@@ -73,4 +74,5 @@ public:
     void unsendoperator(client &cl);
     size_t size() const;
     std::vector<client> &getchannelList();
+    void    sendHistMsg(int fdclient);
 };
