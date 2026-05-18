@@ -9,6 +9,7 @@ channel::channel(std::vector<std::string> content) : _nbAdmin(0), _private(false
     }
     else
         _hasKey = false;
+    std::cerr << "content 1 = " << content[1] << std::endl;
     _name = content[1];
 }
 

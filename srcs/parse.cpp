@@ -5,27 +5,19 @@
 size_t server::findChannel(std::string name)
 {
     size_t i = 0;
-    std::string tmp;
     if (!name.empty() && name[0] == '#')
-    {
-        for (size_t i = 1; i < name.size(); ++i)
-            tmp += name[i];
-        while (i < _vecCh.size())
-        {
-            if (_vecCh[i].sameName(tmp))
-                return i;
-            i++;
-        }
-    }
-    else
     {
         while (i < _vecCh.size())
         {
             if (_vecCh[i].sameName(name))
+            {
+                std::cerr << "find channel" << std::endl;
                 return i;
+            }
             i++;
         }
     }
+    std::cerr << "not find channel" << std::endl;
     throw ChannelNotFound();
 }
 
@@ -109,14 +101,22 @@ void server::joinCmd(std::vector<std::string> content, client &cl)
         }
         catch (const std::exception &e)
         {
-            channel newchannel(content);
-            newchannel.addNewClient(cl);
-            _vecCh.push_back(newchannel);
-            size_t pos = _vecCh.size() - 1;
-            sendjoin(pos, cl);
-            sendNoTopic(pos, cl);
-            sendlistclchannel(pos);
-            _vecCh[pos].sendoperator(cl);
+            if (content[1][0] == '#')
+            {
+                channel newchannel(content);
+                newchannel.addNewClient(cl);
+                _vecCh.push_back(newchannel);
+                size_t pos = _vecCh.size() - 1;
+                sendjoin(pos, cl);
+                sendNoTopic(pos, cl);
+                sendlistclchannel(pos);
+                _vecCh[pos].sendoperator(cl);
+            }
+            else
+            {
+                std::string ms = ":" + _ServName + " 461 :Params not ok\n";
+                send(cl.getOut(), ms.c_str(), ms.size(), 0);
+            }
         }
     }
     else
