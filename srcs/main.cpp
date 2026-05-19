@@ -51,6 +51,16 @@ void sigint_handler(int sig)
 {
     if (sig == SIGINT || sig == SIGTERM)
         stop = 1;
+    if (sig == SIGPIPE)
+        stop = 2;
+}
+
+void set_sig_actionPIPE(void)
+{
+    struct sigaction pipeAct;
+    memset(&pipeAct, 0, sizeof(pipeAct));
+    pipeAct.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &pipeAct, NULL);
 }
 
 void set_sig_action(void)
@@ -62,19 +72,14 @@ void set_sig_action(void)
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGTERM, &act, NULL);
     sigaction(SIGQUIT, &act, NULL);
-
-    /*struct sigaction pipeAct;
-    memset(&pipeAct, 0, sizeof(pipeAct));
-    pipeAct.sa_handler = SIG_IGN;
-    sigaction(SIGPIPE, &pipeAct, NULL);*/
 }
 
-#include <signal.h>
 int main(int ac,char **av)
 {
     if (ac == 3)
     {
         set_sig_action();
+        set_sig_actionPIPE();
         srand(time(NULL));
         int port = checkPort(av[1]);
         std::string password = checkPassword(av[2]);

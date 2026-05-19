@@ -49,11 +49,6 @@ void channel::unsendoperator(client &cl)
 void server::sendTopic(size_t pos, client &cl)
 {
 	std::string mess = ":" + _ServName + " 332 " + cl.GetNickname() + " " + _vecCh[pos].getname() + " " + _vecCh[pos].getTopic() + "\r\n";
-	for (size_t i = 0; i < mess.size(); i++)
-	{
-		std::cout << (int)(unsigned char)mess[i] << " ";
-	}
-	std::cout << std::endl;
 	send(cl.getOut(), mess.c_str(), mess.size(), 0);
 }
 

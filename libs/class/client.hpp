@@ -35,7 +35,6 @@ public:
 	sockaddr_in &SetClientInfo();
     void setClientName(std::string str);
     void setNickname(std::string str);
-    void setOperator(bool perm);
     void setHex(bool b);
     void setOut(int c);
     void setFdOut(int out);
@@ -47,7 +46,6 @@ public:
     std::string GetNickname() const;
     sockaddr_in GetClientInfo() const;
     int GetClientID() const;
-    bool GetOperator() const;
     bool GetReady() const;
     bool GetPass() const;
 

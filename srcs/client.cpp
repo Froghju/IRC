@@ -123,19 +123,9 @@ std::string client::GetNickname() const
     return (_Nickname);
 }
 
-void client::setOperator(bool perm)
-{
-    _Operator = perm;
-}
-
 void client::setFdOut(int out) 
 {
     _out = out;
-}
-
-bool client::GetOperator() const
-{
-    return (_Operator);
 }
 
 void client::setHex(bool b)

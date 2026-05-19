@@ -27,6 +27,24 @@ void    channel::sendHistMsg(int fdclient)
     }
 }
 
+void channel::sendToMe(client &cl, std::vector<std::string> &content)
+{
+    std::string message;
+    for (std::vector<std::string>::iterator it = content.begin() + 2; it != content.end(); ++it)
+    {
+        message += *it;
+        if (it + 1 != content.end())
+            message += " ";
+        else
+            message += "\r\n";
+    }
+    std::string hex_mess = ":" + cl.GetNickname() +
+                        "!~" + cl.GetClientUserName() +
+                        "@localhost " + content[0] + " " + content[1] + " " +
+                        message;
+    send(cl.getOut(), hex_mess.c_str(), hex_mess.size(), 0);
+}
+
 void channel::sendToAll(client &cl, std::vector<std::string> &content)
 {
     int i = 0;
@@ -73,7 +91,6 @@ void channel::addNewClient(client &cl) {
     {
         if (_nbAdmin == 0)
         {
-            cl.setOperator(true);
             _admin.push_back(cl);
             ++_nbAdmin;
         }
@@ -89,7 +106,7 @@ void channel::addOnList(client cl)
 
 void channel::kick(client cl)
 {
-    if (_nbAdmin == 1 && cl.GetOperator())
+    if (_nbAdmin == 1 && isAdmin(cl))
     {
         send(cl.getOut(), "Invalid command: An operator must be in the channel\n", 53, 0);
         return ;
@@ -101,6 +118,9 @@ void channel::kick(client cl)
     std::vector<client>::iterator itt = std::find(_list.begin(), _list.end(), cl);
     if (itt != _list.end())
         _list.erase(itt);
+    std::vector<client>::iterator ite = std::find(_admin.begin(), _admin.end(), cl);
+    if (ite != _admin.end())
+        _admin.erase(ite);
 }
 
 void channel::allowInvite()

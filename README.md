@@ -69,5 +69,21 @@ https://mathieu-lemoine.developpez.com/tutoriels/irc/protocole/?page=commandes
 ## Bonus
 ___
 
-- Handle file transfer.
+- Handle file transfer in the reference client.
 - Create a bot.
+
+### Bot commands
+
+Frogy says hi
+> PRIVMSG <#channel> :Frogy
+
+Frogy gives you a random fact about Frogs in French (the language of frogs)
+#Baguette
+> PRIVMSG <#channel> :FROG?
+> PRIVMSG <#channel> :FUNFACT
+
+Frogy gives a frog ascii art
+> PRIVMSG <#channel> :DRAW
+> PRIVMSG <#channel> :FROGSAVE
+> PRIVMSG <#channel> :MOTHER
+> PRIVMSG <#channel> :EARTHBOUND

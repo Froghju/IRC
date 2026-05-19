@@ -20,6 +20,7 @@
 #include <deque>
 #include <bits/stdc++.h>
 #include <fcntl.h>
+#include <csignal>
 
 #include "class/client.hpp"
 #include "class/server.hpp"

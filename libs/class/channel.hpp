@@ -75,4 +75,5 @@ public:
     size_t size() const;
     std::vector<client> &getchannelList();
     void    sendHistMsg(int fdclient);
+    void sendToMe(client &cl, std::vector<std::string> &content);
 };

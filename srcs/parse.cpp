@@ -134,7 +134,7 @@ void server::inviteCmd(std::vector<std::string> content, client &admin)
             client cl = findClient(content[1]);
             subject++;
             size_t i = findChannel(content[2]);
-            if (admin.GetOperator())
+            if (_vecCh[i].isAdmin(admin))
             {
                 _vecCh[i].sendToAll(admin, content);
                 sendInvite(cl, i);
@@ -177,9 +177,12 @@ void server::kickCmd(std::vector<std::string> content, client admin)
             client cl = findClient(content[2]);
             ++subject;
             size_t i = findChannel(content[1]);
-            if (admin.GetOperator())
+            if (_vecCh[i].isAdmin(admin))
             {
+                if (_vecCh[i].isAdmin(cl))
+                    _vecCh[i].unsendoperator(cl);
                 _vecCh[i].sendToAll(admin, content);
+                _vecCh[i].sendToMe(admin, content);
                 _vecCh[i].kick(cl);
                 sendlistclchannel(i);
             }
@@ -213,14 +216,39 @@ void server::kickCmd(std::vector<std::string> content, client admin)
 
 void server::topicCmd(std::vector<std::string> cmd, client &cl)
 {
-    size_t pos = findChannel(cmd[1]);
-    if (cmd.size() == 3)
+    try
     {
-        if (_vecCh[pos].isOnTheChannel(cl))
+        size_t pos = findChannel(cmd[1]);
+        if (pos >= _vecCh.size())
+            return ;
+        if (cmd.size() == 3)
         {
-            if (_vecCh[pos].getResTopic())
+            if (_vecCh[pos].isOnTheChannel(cl))
             {
-                if (_vecCh[pos].isAdmin(cl))
+                if (_vecCh[pos].getResTopic())
+                {
+                    if (_vecCh[pos].isAdmin(cl))
+                    {
+                        std::string str;
+                        for (size_t i = 2; i < cmd.size(); i++)
+                        {
+                            str += cmd[i];
+                            if (i + 1 < cmd.size())
+                                str += " ";
+                        }
+                        _vecCh[pos].setTopic(str);
+                        if (_vecCh[pos].getResTopic())
+                            sendTopicAll(pos);
+                        else
+                            sendNoTopicAll(pos);
+                    }
+                    else
+                    {
+                        std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
+                        send(cl.getOut(), ms.c_str(), ms.size(), 0);
+                    }
+                }
+                else
                 {
                     std::string str;
                     for (size_t i = 2; i < cmd.size(); i++)
@@ -230,42 +258,28 @@ void server::topicCmd(std::vector<std::string> cmd, client &cl)
                             str += " ";
                     }
                     _vecCh[pos].setTopic(str);
-                    if (_vecCh[pos].getResTopic())
-                        sendTopicAll(pos);
-                    else
-                        sendNoTopicAll(pos);
-                }
-                else
-                {
-                    std::string ms = ":" + _ServName + " 482 :Channel operator privilege needed\n";
-                    send(cl.getOut(), ms.c_str(), ms.size(), 0);
+                    sendTopicAll(pos);
                 }
             }
             else
             {
-                std::string str;
-                for (size_t i = 2; i < cmd.size(); i++)
-                {
-                    str += cmd[i];
-                    if (i + 1 < cmd.size())
-                        str += " ";
-                }
-                _vecCh[pos].setTopic(str);
-                sendTopicAll(pos);
+                std::string ms = ":" + _ServName + " 442 :Not on channel\n";
+                send(cl.getOut(), ms.c_str(), ms.size(), 0);
             }
         }
-        else
+        else if (cmd.size() == 2)
         {
-            std::string ms = ":" + _ServName + " 442 :Not on channel\n";
-            send(cl.getOut(), ms.c_str(), ms.size(), 0);
+            if (!_vecCh[pos].getTopic().empty())
+                sendTopicAll(pos);
+            else
+                sendNoTopicAll(pos);
         }
-    }
-    else
-    {
-        if (!_vecCh[pos].getTopic().empty())
-            sendTopicAll(pos);
         else
-            sendNoTopicAll(pos);
+            ;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
     }
 }
 
@@ -342,21 +356,24 @@ void server::modeCmd(std::vector<std::string> cmd, client admin)
 
 void server::eraseClientChannel(client &cl)
 {
-	for (std::vector<channel>::iterator it = _vecCh.begin(); it != _vecCh.end(); ++it)
-	{
-		if (it->isOnTheChannel(cl))
-		{
-			if (it->isOnTheList(cl))
+    if (_vecCh.size() > 0)
+    {
+        for (std::vector<channel>::iterator it = _vecCh.begin(); it != _vecCh.end(); ++it)
+        {
+            if (it->isOnTheChannel(cl))
             {
-                it->getchannelList().erase(find(it->getchannelList().begin(), it->getchannelList().end(), cl));
+                if (it->isOnTheList(cl))
+                {
+                    it->getchannelList().erase(find(it->getchannelList().begin(), it->getchannelList().end(), cl));
+                }
+                if (it->isAdmin(cl))
+                {
+                    it->getchannelAdmin().erase(find(it->getchannelAdmin().begin(), it->getchannelAdmin().end(), cl));
+                }
+                it->getchannelClients().erase(find(it->getchannelClients().begin(), it->getchannelClients().end(), cl));
             }
-            if (it->isAdmin(cl))
-            {
-                it->getchannelAdmin().erase(find(it->getchannelAdmin().begin(), it->getchannelAdmin().end(), cl));
-            }
-            it->getchannelClients().erase(find(it->getchannelClients().begin(), it->getchannelClients().end(), cl));
-		}
-	}
+        }
+    }
 }
 
 void server::eraseClient(client &cl)
@@ -376,5 +393,4 @@ void server::eraseClient(client &cl)
     close(cl.GetClientID());
     std::vector<client>::iterator it = std::find(_vecCl.begin(), _vecCl.end(), cl);
     _vecCl.erase(it);
-    //rajouter pour supp dans les channel et list aussi
 }
